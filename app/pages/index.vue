@@ -1,3 +1,3 @@
 <template>
-  <Game></Game>
+  <p>a</p>
 </template>
