@@ -1,18 +1,11 @@
-import usePlayerId from "./usePlayerId";
-
 const STATES = ["CLOSED", "CONNECTING", "OPEN"] satisfies (keyof EventSource)[];
 const DEFAULT_STATE = "Unknown";
 
 export default function useEventSource<T>(
-  gid: string,
+  url: string,
   onmessage: (data: T, evt: MessageEvent) => void
 ) {
-  const playerId = usePlayerId();
-
-  const eventsource = new EventSource(
-    `/api/game?gid=${encodeURIComponent(gid)}&pid=${playerId}`,
-    {}
-  );
+  const eventsource = new EventSource(url, {});
 
   const state: Ref<(typeof STATES)[number] | typeof DEFAULT_STATE> =
     ref(DEFAULT_STATE);
@@ -41,12 +34,12 @@ export default function useEventSource<T>(
     eventsource.addEventListener(event[0], event[1]);
   }
 
-  onUnmounted(() => {
+  const destroy = () => {
     eventsource.close();
     for (const event of events) {
       eventsource.removeEventListener(event[0], event[1]);
     }
-  });
+  };
 
   update();
 
@@ -54,5 +47,6 @@ export default function useEventSource<T>(
     state,
     eventsource,
     update,
+    destroy,
   };
 }

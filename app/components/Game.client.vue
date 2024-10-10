@@ -5,9 +5,11 @@ const props = defineProps<{
   gid: string;
 }>();
 
+const loading = defineModel<boolean>();
+
 const gamediv = ref();
 
-const gameClient = new GameClient(props.gid);
+const gameClient = new GameClient(props.gid, () => (loading.value = false));
 
 // @ts-expect-error Permet le debug
 window.webSocket = gameClient.webSocket;
@@ -20,7 +22,7 @@ watch(gameClient.events.state, (st) => gameClient.messages.push(st), {
 
 onMounted(() => nextTick(async () => gameClient.init(gamediv.value)));
 
-onUnmounted(gameClient.unmount.bind(gameClient));
+onUnmounted(gameClient.destroy.bind(gameClient));
 </script>
 
 <template>
