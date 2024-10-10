@@ -26,7 +26,11 @@ export default defineNuxtConfig({
           const name = (path.pop() as string).split(".")[0];
           const scope = path.pop();
           return {
-            src: file.replace("public", "").replaceAll("\\", "/"),
+            src: file
+              .replace(__dirname, "")
+              .replace("public", "")
+              .replaceAll("\\", "/")
+              .replace("//", "/"),
             alias: `${scope}:${name}`,
           };
         });
