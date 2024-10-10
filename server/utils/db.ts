@@ -1,8 +1,5 @@
-//import type { AtomicOperation, Kv } from "@deno/kv";
+import type { AtomicOperation, Kv } from "@deno/kv";
 import type { Game, MaybeGame, MaybePromise } from "~~/shared/types";
-
-type Kv = any;
-type AtomicOperation = any;
 
 const SET_OPTIONS = {
   expireIn: 1000 * 60 * 60,
@@ -16,7 +13,6 @@ export async function updateGame(
 ) {
   const ao = kv.atomic();
 
-  // @ts-expect-error globalThis not defined
   const getRes = await kv.get<Game>(["games", gid]);
 
   ao.check({ key: ["games", gid], versionstamp: getRes.versionstamp });
@@ -40,7 +36,6 @@ export async function updateGame(
 }
 
 export async function getGame(kv: Kv, gid: string) {
-  // @ts-expect-error globalThis not defined
   const res = await kv.get<Game>(["games", gid]);
   return res.value;
 }
