@@ -12,6 +12,7 @@ export async function updateGame(
   tries: number = 3
 ) {
   const ao = kv.atomic();
+
   const getRes = await kv.get<Game>(["games", gid]);
 
   ao.check({ key: ["games", gid], versionstamp: getRes.versionstamp });
