@@ -1,67 +1,93 @@
 import { Application, Assets, Container, Sprite } from "pixi.js";
-import useWebSocket from "./useWebSocket";
+import manifest from "~~/public/assets/manifest.json";
+import { GRID_HEIGHT, GRID_WIDTH } from "~~/shared/consts";
+import type { Game } from "~~/shared/types";
+import useEventSource from "./useEventSource";
 
 export class GameClient {
-  public app: Application;
-  public webSocket: {
-    state: Ref<"CONNECTING" | "OPEN" | "CLOSING" | "CLOSED" | "Unknown">;
-    websocket: WebSocket;
+  private loaded: boolean;
+  private app: Application;
+  private container: Container;
+  private map: Container;
+  private versions: {
+    map: number | null;
   };
-  public messages: string[];
+  private caseSize: number;
 
-  constructor(public roomId: string) {
+  private game: Game | null;
+  public messages: unknown[];
+  public events: {
+    state: globalThis.Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
+    eventsource: EventSource;
+    update: () => void;
+  };
+
+  constructor(public gid: string) {
+    this.loaded = false;
     this.app = new Application();
+    this.container = new Container();
+    this.map = this.container.addChild(new Container());
+    this.versions = {
+      map: null,
+    };
 
+    this.caseSize = Math.min(
+      Math.floor(innerWidth / GRID_WIDTH),
+      Math.floor(innerHeight / GRID_HEIGHT),
+      50
+    );
+
+    this.game = null;
     this.messages = reactive([] as string[]);
-
-    this.webSocket = useWebSocket(
-      `connect?room=${encodeURIComponent(roomId)}`,
+    this.events = useEventSource<Game>(
+      `connect?room=${encodeURIComponent(gid)}`,
       this.onMessage.bind(this)
     );
   }
 
   async init(parent: HTMLElement) {
-    const app = this.app;
+    const { app, container } = this;
     // Initialize the application
     await app.init({ background: "#1099bb", resizeTo: parent });
+    await Assets.init({ manifest: manifest });
+    await Assets.loadBundle("game");
+    this.loaded = true;
 
     parent.appendChild(app.canvas);
-
-    // Create and add a container to the stage
-    const container = new Container();
-
     app.stage.addChild(container);
 
-    // Load the bunny texture
-    const texture = await Assets.load("https://pixijs.com/assets/bunny.png");
-
-    // Create a 5x5 grid of bunnies in the container
-    for (let i = 0; i < 25; i++) {
-      const bunny = new Sprite(texture);
-
-      bunny.x = (i % 5) * 40;
-      bunny.y = Math.floor(i / 5) * 40;
-      container.addChild(bunny);
-    }
-
-    // Move the container to the center
     container.x = app.screen.width / 2;
     container.y = app.screen.height / 2;
-
-    // Center the bunny sprites in local container coordinates
-    container.pivot.x = container.width / 2;
-    container.pivot.y = container.height / 2;
-
-    // Listen for animate update
-    app.ticker.add((time) => {
-      // Continuously rotate the container!
-      // * use delta to create frame-independent transform *
-      container.rotation -= 0.01 * time.deltaTime;
-    });
+    this.update();
   }
 
-  onMessage(data: string) {
+  private onMessage(data: Game) {
+    this.game = data;
     this.messages.push(data);
+    this.update();
+  }
+
+  private update() {
+    const { game, versions } = this;
+    if (!game || !this.loaded) return;
+
+    if (versions.map != game.map.v) {
+      versions.map = game.map.v;
+      this.map.removeChildren();
+
+      for (const [i, data] of game.map.data.entries()) {
+        const x = i % GRID_WIDTH;
+        const y = Math.floor(i / GRID_WIDTH);
+        const sprite = new Sprite(Assets.get(`biome:${data.biome}`));
+        sprite.setSize(this.caseSize);
+        sprite.x = x * this.caseSize;
+        sprite.y = y * this.caseSize;
+        this.map.addChild(sprite);
+      }
+    }
+
+    this.container.pivot.x = this.container.width / 2;
+    this.container.pivot.y = this.container.height / 2;
   }
 
   unmount() {

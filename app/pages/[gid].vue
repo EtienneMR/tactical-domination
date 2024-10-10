@@ -3,5 +3,5 @@ const route = useRoute();
 </script>
 
 <template>
-  <Game :room="(route.params.room as string)"></Game>
+  <Game :gid="'g'+(route.params.gid as string)"></Game>
 </template>

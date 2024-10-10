@@ -2,20 +2,19 @@
 import { GameClient } from "~/game/Game.js";
 
 const props = defineProps<{
-  room: string;
+  gid: string;
 }>();
 
-const msg = ref("");
 const gamediv = ref();
 
-const gameClient = new GameClient(props.room);
+const gameClient = new GameClient(props.gid);
 
 // @ts-expect-error Permet le debug
 window.webSocket = gameClient.webSocket;
 // @ts-expect-error Permet le debug
 window.gameClient = gameClient;
 
-watch(gameClient.webSocket.state, (st) => gameClient.messages.push(st), {
+watch(gameClient.events.state, (st) => gameClient.messages.push(st), {
   immediate: true,
 });
 
@@ -25,14 +24,10 @@ onUnmounted(gameClient.unmount.bind(gameClient));
 </script>
 
 <template>
-  <div class="fixed top-4 left-4">
-    <p>Status: {{ gameClient.webSocket.state }}</p>
-    <hr />
-    <p v-for="message in gameClient.messages">{{ message }}</p>
-    <form @submit.prevent="gameClient.webSocket.websocket.send(msg)">
-      <input v-model="msg" />
-      <button type="submit">Envoyer</button>
-    </form>
+  <div>
+    <div id="status">
+      <p>{{ gameClient.events.state }}</p>
+    </div>
     <div id="game" ref="gamediv"></div>
   </div>
 </template>
@@ -40,5 +35,17 @@ onUnmounted(gameClient.unmount.bind(gameClient));
 <style>
 body {
   margin: 0;
+  overflow: hidden;
+}
+#game {
+  width: 100vw;
+  height: 100vh;
+}
+#status {
+  position: absolute;
+  padding: 0 1rem;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 </style>

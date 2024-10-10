@@ -1,0 +1,13 @@
+{
+  "bundles": [
+    {
+      "name": "game",
+      "assets": [
+        {
+          "src": "/assets/biome/plains.png",
+          "alias": "biome:plains"
+        }
+      ]
+    }
+  ]
+}
