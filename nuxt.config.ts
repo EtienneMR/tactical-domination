@@ -50,9 +50,7 @@ export default defineNuxtConfig({
         "utf-8"
       );
 
-      console.info(
-        `Asset manifest generated successfully with ${assets.length} assets.`
-      );
+      console.info(`Generated Assets manifest with ${assets.length} entries`);
     },
   },
 });

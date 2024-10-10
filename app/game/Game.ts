@@ -1,6 +1,6 @@
 import { Application, Assets, Container, Sprite } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import { GRID_HEIGHT, GRID_WIDTH } from "~~/shared/consts";
+import { GRID_SIZE } from "~~/shared/consts";
 import type { Game } from "~~/shared/types";
 import useEventSource from "./useEventSource";
 import usePlayerId from "./usePlayerId";
@@ -10,10 +10,6 @@ export class GameClient {
   private app: Application;
   private container: Container;
   private map: Container;
-  private versions: {
-    map: number | null;
-  };
-  private caseSize: number;
 
   private game: Game | null;
   private fetchUrl: string;
@@ -34,20 +30,13 @@ export class GameClient {
     this.app = new Application();
     this.container = new Container();
     this.map = this.container.addChild(new Container());
-    this.versions = {
-      map: null,
-    };
-
-    this.caseSize = Math.min(
-      Math.floor(innerWidth / GRID_WIDTH),
-      Math.floor(innerHeight / GRID_HEIGHT),
-      50
-    );
 
     this.game = null;
     this.messages = reactive([] as string[]);
     this.oninited = oninited;
-    this.fetchUrl = `/api/game?gid=${encodeURIComponent(gid)}&pid=${playerId}`;
+    this.fetchUrl = `/api/game?gid=${encodeURIComponent(
+      gid
+    )}&pid=${encodeURIComponent(playerId)}`;
     this.events = useEventSource<Game>(
       this.fetchUrl,
       this.onMessage.bind(this)
@@ -83,35 +72,38 @@ export class GameClient {
   }
 
   private update() {
-    const { game, versions } = this;
+    const { game } = this;
     if (!this.loaded || !game) return;
 
-    if (versions.map != game.map.v) {
-      versions.map = game.map.v;
-      this.map.removeChildren();
+    this.map.removeChildren();
 
-      for (const [i, data] of game.map.data.entries()) {
-        const x = i % GRID_WIDTH;
-        const y = Math.floor(i / GRID_WIDTH);
+    const caseSize = Math.min(
+      Math.floor(innerWidth / GRID_SIZE),
+      Math.floor(innerHeight / GRID_SIZE),
+      50
+    );
 
-        const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
-        biomeSprite.setSize(this.caseSize);
-        biomeSprite.x = x * this.caseSize;
-        biomeSprite.y = y * this.caseSize;
-        this.map.addChild(biomeSprite);
+    for (const [i, data] of game.map.entries()) {
+      const x = i % GRID_SIZE;
+      const y = Math.floor(i / GRID_SIZE);
 
-        if (data.building) {
-          const assetName =
-            manifest.bundles[0]!.assets.find(
-              (a) => a.alias == `buildings:${data.owner}_${data.building}`
-            )?.alias ?? `buildings:null_${data.building}`;
-          const buildingSprite = new Sprite(Assets.get(assetName));
-          buildingSprite.setSize(this.caseSize - 10);
-          buildingSprite.zIndex += 1;
-          buildingSprite.x = x * this.caseSize + 5;
-          buildingSprite.y = y * this.caseSize + 5;
-          this.map.addChild(buildingSprite);
-        }
+      const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
+      biomeSprite.setSize(caseSize);
+      biomeSprite.x = x * caseSize;
+      biomeSprite.y = y * caseSize;
+      this.map.addChild(biomeSprite);
+
+      if (data.building) {
+        const assetName =
+          manifest.bundles[0]!.assets.find(
+            (a) => a.alias == `buildings:${data.owner}_${data.building}`
+          )?.alias ?? `buildings:null_${data.building}`;
+        const buildingSprite = new Sprite(Assets.get(assetName));
+        buildingSprite.setSize(caseSize - 10);
+        buildingSprite.zIndex += 1;
+        buildingSprite.x = x * caseSize + 5;
+        buildingSprite.y = y * caseSize + 5;
+        this.map.addChild(buildingSprite);
       }
     }
 
@@ -128,5 +120,6 @@ export class GameClient {
     this.events.destroy();
     removeEventListener("resize", this.updateBinded);
     await Assets.unloadBundle("game");
+    if (import.meta.dev) Assets.reset();
   }
 }

@@ -1,2 +1,3 @@
-export const GRID_WIDTH = 10;
-export const GRID_HEIGHT = 10;
+export const GRID_SIZE = 12;
+export const REGION_SIZE = 4;
+export const SMOOTH_REPEATS = 3;

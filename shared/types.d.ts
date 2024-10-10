@@ -11,10 +11,7 @@ export interface Game {
   }[];
 
   entities: {}[];
-  map: {
-    v: number;
-    data: { biome: string; building: string | null; owner: number | null }[];
-  };
+  map: { biome: string; building: string | null; owner: number | null }[];
 }
 
 export type MaybeGame = Game | null;
