@@ -1,4 +1,4 @@
-import { GRID_SIZE, REGION_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
+import { GRID_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
 import type { Game } from "~~/shared/types";
 
 const BIOMES = ["plains", "forest", "rocks"] as const;
@@ -172,15 +172,10 @@ function getRules(): Rules {
 function applyRule(rule: Rule, cell: Cell, opp: Cell) {
   if (rule.if(cell, opp)) {
     for (const [key, value] of Object.entries(rule.then)) {
+      // @ts-expect-error key not typed
       cell[key] = value;
     }
   }
-}
-
-function getBiome(level: number) {
-  if (level < 0.4) return BIOMES[0];
-  if (level < 0.7) return BIOMES[1];
-  return BIOMES[2];
 }
 
 function pickClampedLerped(t: Cell[][], x: number, y: number, v: Cell): number {
@@ -190,99 +185,6 @@ function pickClampedLerped(t: Cell[][], x: number, y: number, v: Cell): number {
     ]!;
 
   return v.height + Math.random() * (target.height - v.height);
-}
-
-function generateMap_old() {
-  const regionMap: number[][] = [];
-  const lockedRegions: boolean[][] = [];
-  const regionWidth = GRID_SIZE / REGION_SIZE;
-
-  for (let x = 0; x < regionWidth; x++) {
-    const row: number[] = (regionMap[x] = []);
-    const lrow: boolean[] = (lockedRegions[x] = []);
-    for (let y = 0; y < regionWidth; y++) {
-      row[y] = Math.random();
-      lrow[y] = false;
-    }
-  }
-
-  regionMap[0]![0] = regionMap[regionWidth - 1]![regionWidth - 1] = 0.2;
-  regionMap[(regionWidth - 1) / 2]![(regionWidth - 1) / 2] = 0.8;
-
-  lockedRegions[0]![0] =
-    lockedRegions[regionWidth - 1]![regionWidth - 1] =
-    lockedRegions[(regionWidth - 1) / 2]![(regionWidth - 1) / 2] =
-      true;
-
-  let biomeMap: number[][] = [];
-
-  for (let x = 0; x < GRID_SIZE; x++) {
-    const row: number[] = (biomeMap[x] = []);
-    for (let y = 0; y < GRID_SIZE; y++) {
-      row[y] =
-        regionMap[Math.floor(x / REGION_SIZE)]![Math.floor(y / REGION_SIZE)]!;
-    }
-  }
-
-  for (let index = 0; index < SMOOTH_REPEATS; index++) {
-    const newMap: number[][] = [];
-    for (let x = 0; x < GRID_SIZE; x++) {
-      const row: number[] = (newMap[x] = []);
-      for (let y = 0; y < GRID_SIZE; y++) {
-        if (
-          lockedRegions[Math.floor(x / REGION_SIZE)]![
-            Math.floor(y / REGION_SIZE)
-          ]
-        ) {
-          row[y] = biomeMap[x]![y]!;
-        } else {
-          row[y] = pickClampedLerped(
-            biomeMap,
-            x + Math.round(Math.random() * 2 - 1),
-            y + Math.round(Math.random() * 2 - 1),
-            biomeMap[x]![y]!
-          );
-        }
-      }
-    }
-    biomeMap = newMap;
-  }
-
-  const data = [];
-
-  for (let x = 0; x < GRID_SIZE; x++) {
-    for (let y = 0; y < GRID_SIZE; y++) {
-      const height = biomeMap[x]![y]!;
-      let biome = getBiome(height);
-      let building = null as string | null;
-      let owner = null as number | null;
-
-      if (x == 0 && y == 0) {
-        building = "castle";
-        owner = 0;
-      } else if (x == GRID_SIZE - 1 && y == GRID_SIZE - 1) {
-        building = "castle";
-        owner = 1;
-      } else if (
-        (x == GRID_SIZE / 2 - 1 && y == GRID_SIZE / 2 - 1) ||
-        (x == GRID_SIZE / 2 && y == GRID_SIZE / 2)
-      ) {
-        building = "mine";
-      } else if (biome == "rocks" && Math.random() > 0.8) {
-        building = "mountain";
-      } else if (biome == "plains" && Math.random() < 0.2) {
-        building = "lake";
-      }
-
-      data.push({
-        biome,
-        building,
-        owner,
-      });
-    }
-  }
-
-  return data;
 }
 
 function generateMap() {
