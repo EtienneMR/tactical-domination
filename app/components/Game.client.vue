@@ -26,11 +26,11 @@ onUnmounted(gameClient.destroy.bind(gameClient));
 </script>
 
 <template>
-  <div>
-    <div id="status">
+  <div class="flex-1 flex flex-col">
+    <div class="px-4">
       <p>{{ gameClient.events.state }}</p>
     </div>
-    <div id="game" ref="gamediv"></div>
+    <div class="flex-1 w-[100vw]" ref="gamediv"></div>
   </div>
 </template>
 
@@ -38,16 +38,5 @@ onUnmounted(gameClient.destroy.bind(gameClient));
 body {
   margin: 0;
   overflow: hidden;
-}
-#game {
-  width: 100vw;
-  height: 100vh;
-}
-#status {
-  position: absolute;
-  padding: 0 1rem;
-  top: 0;
-  left: 0;
-  right: 0;
 }
 </style>

@@ -1,3 +1,17 @@
+<script setup lang="ts">
+function getValue() {
+  return `${Math.floor(Math.random() * 1000000)}`;
+}
+
+const id = useState(getValue);
+
+onBeforeRouteLeave(() => void (id.value = getValue()));
+</script>
+
 <template>
-  <p>a</p>
+  <div class="flex-1 p-4">
+    <UButton :to="'/' + id" trailing icon="i-heroicons-arrow-right-20-solid">
+      g{{ id }}
+    </UButton>
+  </div>
 </template>

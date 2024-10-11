@@ -99,10 +99,10 @@ export class GameClient {
             (a) => a.alias == `buildings:${data.owner}_${data.building}`
           )?.alias ?? `buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
-        buildingSprite.setSize(caseSize - 10);
+        buildingSprite.setSize(caseSize * 0.8);
         buildingSprite.zIndex += 1;
-        buildingSprite.x = x * caseSize + 5;
-        buildingSprite.y = y * caseSize + 5;
+        buildingSprite.x = (x + 0.1) * caseSize;
+        buildingSprite.y = (y + 0.1) * caseSize;
         this.map.addChild(buildingSprite);
       }
     }

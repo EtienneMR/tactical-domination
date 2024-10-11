@@ -4,7 +4,7 @@ const loading = ref(true);
 </script>
 
 <template>
-  <div :class="{ loaded: !loading }">
+  <div :class="{ loaded: !loading }" class="flex-1 flex">
     <div class="honeycomb">
       <div></div>
       <div></div>
@@ -14,7 +14,7 @@ const loading = ref(true);
       <div></div>
       <div></div>
     </div>
-    <div class="content">
+    <div class="flex-1 flex">
       <Game :gid="'g'+(route.params.gid as string)" v-model="loading"></Game>
     </div>
   </div>

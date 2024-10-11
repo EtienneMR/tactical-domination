@@ -4,6 +4,10 @@
       "name": "game",
       "assets": [
         {
+          "src": "/assets/buildings/null_wheat.png",
+          "alias": "buildings:null_wheat"
+        },
+        {
           "src": "/assets/buildings/null_pasture.png",
           "alias": "buildings:null_pasture"
         },
@@ -18,10 +22,6 @@
         {
           "src": "/assets/buildings/null_lake.png",
           "alias": "buildings:null_lake"
-        },
-        {
-          "src": "/assets/buildings/nulll_wheat.png",
-          "alias": "buildings:nulll_wheat"
         },
         {
           "src": "/assets/buildings/1_wheat.png",

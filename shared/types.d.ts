@@ -1,5 +1,4 @@
 export interface Game {
-  id: string;
   state: "initing" | "started" | "ended";
 
   players: {
