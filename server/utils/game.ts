@@ -1,4 +1,5 @@
-import { GRID_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
+import { ValueNoise } from "value-noise-js";
+import { GRID_SIZE, REGION_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
 import type { Game } from "~~/shared/types";
 
 const BIOMES = ["plains", "forest", "rocks"] as const;
@@ -32,7 +33,8 @@ type Rules = {
 
 interface Rule {
   if: (cell: Cell, opp: Cell) => boolean;
-  then: Partial<Cell>;
+  then?: Partial<Cell>;
+  action?: (cell: Cell) => void;
 }
 
 function distance(a: { x: number; y: number }, b: { x: number; y?: number }) {
@@ -52,8 +54,18 @@ function opp(cell: Cell, map: Cell[][]) {
 }
 
 function getRules(): Rules {
+  const noise = new ValueNoise(undefined, undefined, "perlin");
+
   return {
     pre: [
+      {
+        if: (cell) => true,
+        action: (cell) =>
+          (cell.height = noise.evalXY(
+            (cell.x / GRID_SIZE) * REGION_SIZE,
+            (cell.y / GRID_SIZE) * REGION_SIZE
+          )),
+      },
       {
         if: (cell) => is(cell, { x: 0 }),
         then: {
@@ -171,10 +183,13 @@ function getRules(): Rules {
 
 function applyRule(rule: Rule, cell: Cell, opp: Cell) {
   if (rule.if(cell, opp)) {
-    for (const [key, value] of Object.entries(rule.then)) {
-      // @ts-expect-error key not typed
-      cell[key] = value;
+    if (rule.then) {
+      for (const [key, value] of Object.entries(rule.then)) {
+        // @ts-expect-error key not typed
+        cell[key] = value;
+      }
     }
+    if (rule.action) rule.action(cell);
   }
 }
 
@@ -196,7 +211,7 @@ function generateMap() {
       y,
       biome: "plains",
       building: null,
-      height: Math.random(),
+      height: 0.5,
       heightLimits: [0, 1],
       owner: null,
     }))

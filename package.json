@@ -15,6 +15,7 @@
     "@nuxt/ui": "^2.18.7",
     "nuxt": "^3.13.0",
     "pixi.js": "^8.4.1",
+    "value-noise-js": "^1.2.6",
     "vue": "latest",
     "vue-router": "latest"
   },

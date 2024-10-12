@@ -23,6 +23,9 @@ importers:
       pixi.js:
         specifier: ^8.4.1
         version: 8.4.1
+      value-noise-js:
+        specifier: ^1.2.6
+        version: 1.2.6
       vue:
         specifier: latest
         version: 3.5.11(typescript@5.6.3)
@@ -3703,6 +3706,9 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  value-noise-js@1.2.6:
+    resolution: {integrity: sha512-PU6tQR+RD5YzkKk1CIYjtTaBmrVv9QYwuVIPNwe3ehCnXBn6776BNYuwKQ1KHkQ61YjaVpDLVOHYw8NJm31FWQ==}
 
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
@@ -8110,6 +8116,8 @@ snapshots:
   urlpattern-polyfill@8.0.2: {}
 
   util-deprecate@1.0.2: {}
+
+  value-noise-js@1.2.6: {}
 
   vary@1.1.2: {}
 
