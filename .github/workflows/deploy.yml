@@ -1,7 +1,7 @@
 name: Deploy
 on:
   push:
-    branches: ["main", "dev"]
+    branches: main
   pull_request:
     branches: main
 
@@ -16,37 +16,27 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Install Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - name: Install dependencies
-        run: "pnpm install"
+
+      - name: Install step
+        run: "npm i"
+
       - name: Build step
         run: "npx nuxt build --preset=deno_deploy"
+
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
           project: "tactical-domination"
-          entrypoint: "server/index.ts" # 📝 Update the entrypoint if necessary
-          root: ".output" # 📝 Update the root if necessary
+          entrypoint: "server/index.ts"
+          root: ".output"
