@@ -12,13 +12,7 @@ const gamediv = ref();
 const gameClient = new GameClient(props.gid, () => (loading.value = false));
 
 // @ts-expect-error Permet le debug
-window.webSocket = gameClient.webSocket;
-// @ts-expect-error Permet le debug
 window.gameClient = gameClient;
-
-watch(gameClient.events.state, (st) => gameClient.messages.push(st), {
-  immediate: true,
-});
 
 onMounted(() => nextTick(async () => gameClient.init(gamediv.value)));
 
@@ -26,17 +20,19 @@ onUnmounted(gameClient.destroy.bind(gameClient));
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col">
-    <div class="px-4">
+  <div class="flex-1 flex flex-col px-4">
+    <div>
       <p>{{ gameClient.events.state }}</p>
     </div>
-    <div class="flex-1 w-[100vw]" ref="gamediv"></div>
+    <div class="flex-1 gamediv" ref="gamediv"></div>
+    <div>
+      <p>{{ gameClient.events.state }}</p>
+    </div>
   </div>
 </template>
 
 <style>
-body {
-  margin: 0;
-  overflow: hidden;
+.gamediv > canvas {
+  position: absolute;
 }
 </style>

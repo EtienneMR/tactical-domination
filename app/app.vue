@@ -13,7 +13,7 @@ useSeoMeta({
   <div class="flex flex-col justify-center h-[100vh]">
     <div class="p-3 border-b border-black">
       <NuxtLink href="/">
-        <NuxtImg src="/title.png" height="36" width="99" alt="accueil" />
+        <NuxtImg src="/title.png" height="36" width="99" alt="Accueil" />
       </NuxtLink>
     </div>
     <NuxtPage />
