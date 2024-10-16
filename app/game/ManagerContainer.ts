@@ -2,6 +2,7 @@ import { Container, type ContainerChild } from "pixi.js";
 import type { Game } from "~~/shared/types";
 import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
 import SliceButton from "./SliceButton";
+import displayError from "./displayError";
 
 export default class ManagerContainer extends Container<ContainerChild> {
   init(pid: string, gid: string) {
@@ -19,6 +20,13 @@ export default class ManagerContainer extends Container<ContainerChild> {
 
       try {
         await $fetch("/api/start", { method: "POST", query: { pid, gid } });
+      } catch (error) {
+        displayError(
+          "Impossible de lancer la partie",
+          "Nous n'avons pas pu lancer votre partie",
+          error,
+          false
+        );
       } finally {
         playButton.enabled = true;
         playButton.alpha = 1;
@@ -40,6 +48,13 @@ export default class ManagerContainer extends Container<ContainerChild> {
 
       try {
         await $fetch("/api/regenmap", { method: "POST", query: { pid, gid } });
+      } catch (error) {
+        displayError(
+          "Impossible de regénérer la carte",
+          "Nous n'avons pas pu regénérer la carte",
+          error,
+          false
+        );
       } finally {
         regenerateButton.enabled = true;
         regenerateButton.alpha = 1;

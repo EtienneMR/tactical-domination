@@ -1,11 +1,14 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import type { Game, Player } from "~~/shared/types";
+import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
 import RessourcesContainer from "./RessourcesContainer";
 import useEventSource from "./useEventSource";
 import usePlayerId from "./usePlayerId";
+
+const toast = useToast();
 
 export class GameClient {
   private loaded: boolean;
@@ -75,21 +78,30 @@ export class GameClient {
 
   async init(parent: HTMLElement) {
     this.parent = parent;
-    const { app } = this;
-    // Initialize the application
-    await app.init({ background: "#1099bb", resizeTo: parent });
-    await Assets.init({ manifest: manifest });
-    await Assets.loadBundle("game");
+    try {
+      const { app } = this;
+      // Initialize the application
+      await app.init({ background: "#1099bb", resizeTo: parent });
+      await Assets.init({ manifest: manifest });
+      await Assets.loadBundle("game");
 
-    parent.appendChild(app.canvas);
+      parent.appendChild(app.canvas);
 
-    this.managerContainer.init(this.pid, this.gid);
-    this.ressourcesContainer.init();
+      this.managerContainer.init(this.pid, this.gid);
+      this.ressourcesContainer.init();
 
-    this.loaded = true;
+      this.loaded = true;
 
-    if (!this.game) {
-      this.game = (await $fetch(this.fetchUrl)) as Game;
+      if (!this.game) {
+        this.game = (await $fetch(this.fetchUrl)) as Game;
+      }
+    } catch (error) {
+      displayError(
+        "Erreur de chargement",
+        "Nous n'avons pas pu charger votre partie.",
+        error,
+        true
+      );
     }
 
     this.update();
