@@ -53,7 +53,7 @@ onNuxtReady(() =>
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col px-4">
+  <div class="flex-1 flex flex-col px-4 pb-[1px]">
     <div>
       <p>{{ gameClient.events.state }}</p>
     </div>

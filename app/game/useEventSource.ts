@@ -27,6 +27,7 @@ export default function useEventSource<T>(
   const events: [string, (evt: any) => void][] = [
     ["open", update],
     ["close", update],
+    ["error", update],
     ["message", processMessage],
   ];
 
