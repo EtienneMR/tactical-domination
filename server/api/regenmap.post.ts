@@ -20,7 +20,15 @@ export default defineEventHandler(async (event) => {
           message: `Game with id "${gid}" not found`,
         })
       );
-    else {
+    else if (game.state != "initing") {
+      return Promise.reject(
+        createError({
+          statusCode: 409,
+          statusMessage: "Bad Request",
+          message: `Game with id "${gid}" already started`,
+        })
+      );
+    } else {
       game.map = generateMap();
       return game;
     }

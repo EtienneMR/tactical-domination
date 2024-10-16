@@ -1,8 +1,9 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import type { Game } from "~~/shared/types";
+import type { Game, Player } from "~~/shared/types";
+import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
-import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
+import RessourcesContainer from "./RessourcesContainer";
 import useEventSource from "./useEventSource";
 import usePlayerId from "./usePlayerId";
 
@@ -11,7 +12,8 @@ export class GameClient {
   private app: Application;
   private container: Container;
   private mapContainer: MapContainer;
-  private ressources: Container;
+  private managerContainer: ManagerContainer;
+  private ressourcesContainer: RessourcesContainer;
 
   public parent: HTMLElement;
   public game: Game | null;
@@ -32,10 +34,13 @@ export class GameClient {
     this.loaded = false;
     this.app = new Application();
     this.container = new Container();
-    this.mapContainer = this.container.addChild(
-      new MapContainer({ y: RESSOURCES_HEIGHT })
+    this.ressourcesContainer = this.container.addChild(
+      new RessourcesContainer({})
     );
-    this.ressources = this.container.addChild(new Container());
+    this.managerContainer = this.container.addChild(new ManagerContainer({}));
+    this.mapContainer = this.container.addChild(
+      new MapContainer({ y: this.ressourcesContainer.height })
+    );
 
     this.app.stage.addChild(this.container);
 
@@ -53,14 +58,19 @@ export class GameClient {
     addEventListener("resize", this.updateBinded);
   }
 
-  get me() {
-    const index = this.game?.players.findIndex((p) => p.pid == this.pid);
-    return index == undefined
-      ? null
-      : {
-          index,
-          ...this.game?.players[index],
-        };
+  get me(): ({ index: number } & Player) | null {
+    if (!this.game) return null;
+
+    const index = this.game.players.findIndex((p) => p.pid === this.pid);
+
+    if (index === -1) return null;
+
+    const player = this.game.players[index]!;
+
+    return {
+      index,
+      ...player,
+    };
   }
 
   async init(parent: HTMLElement) {
@@ -72,6 +82,9 @@ export class GameClient {
     await Assets.loadBundle("game");
 
     parent.appendChild(app.canvas);
+
+    this.managerContainer.init(this.pid, this.gid);
+    this.ressourcesContainer.init();
 
     this.loaded = true;
 
@@ -89,10 +102,21 @@ export class GameClient {
   }
 
   private update() {
-    const { game } = this;
+    const { game, me } = this;
     if (!this.loaded || !game) return;
 
-    this.mapContainer.update(game.map, this.parent);
+    this.mapContainer.update(game.map);
+    this.ressourcesContainer.update(me);
+    this.managerContainer.update(game);
+
+    const mapSize = Math.min(
+      this.app.screen.width,
+      this.app.screen.height - this.ressourcesContainer.height,
+      500
+    );
+
+    this.mapContainer.setSize(mapSize);
+    this.ressourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
 
     this.container.x = this.app.screen.width / 2;
     this.container.y = this.app.screen.height / 2;

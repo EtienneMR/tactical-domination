@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { GameClient } from "~/game/Game.js";
 
+const STATUS_TOAST_ID = "EventSource_Status";
+
+const toast = useToast();
+
 const props = defineProps<{
   gid: string;
 }>();
@@ -17,6 +21,35 @@ window.gameClient = gameClient;
 onMounted(() => nextTick(async () => gameClient.init(gamediv.value)));
 
 onUnmounted(gameClient.destroy.bind(gameClient));
+
+onNuxtReady(() =>
+  watch(
+    gameClient.events.state,
+    (state) => {
+      toast.remove(STATUS_TOAST_ID);
+      if (state == "CLOSED") {
+        toast.add({
+          id: STATUS_TOAST_ID,
+          title: "Déconnecté",
+          description: "Vous avez été déconnecté",
+          color: "red",
+          icon: "i-heroicons-exclamation-triangle-16-solid",
+          timeout: Infinity,
+          actions: [{ label: "Actualiser", click: () => location.reload() }],
+        });
+      } else if (state == "CONNECTING") {
+        toast.add({
+          id: STATUS_TOAST_ID,
+          title: "Connexion",
+          description: "Connexion en cours",
+          color: "orange",
+          timeout: Infinity,
+        });
+      }
+    },
+    { immediate: true }
+  )
+);
 </script>
 
 <template>
@@ -25,9 +58,6 @@ onUnmounted(gameClient.destroy.bind(gameClient));
       <p>{{ gameClient.events.state }}</p>
     </div>
     <div class="flex-1 gamediv" ref="gamediv"></div>
-    <div>
-      <p>{{ gameClient.events.state }}</p>
-    </div>
   </div>
 </template>
 

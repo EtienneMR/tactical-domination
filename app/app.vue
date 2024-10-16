@@ -11,6 +11,7 @@ useSeoMeta({
 
 <template>
   <div class="flex flex-col justify-center h-[100vh]">
+    <UNotifications />
     <div class="p-3 border-b border-black">
       <NuxtLink href="/">
         <NuxtImg src="/title.png" height="36" width="99" alt="Accueil" />

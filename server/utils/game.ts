@@ -10,14 +10,14 @@ export function createGame(initiator: string): Game {
         replay: false,
 
         gold: 1,
-        wheat: 5,
+        food: 5,
       },
       {
         pid: null,
         replay: false,
 
         gold: 1,
-        wheat: 5,
+        food: 5,
       },
     ],
 

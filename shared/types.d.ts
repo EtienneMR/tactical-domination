@@ -27,16 +27,18 @@ export type GenerationPatern = {
   post: GenerationRule[];
 };
 
+interface Player {
+  pid: string | null;
+  replay: boolean;
+
+  gold: number;
+  food: number;
+}
+
 export interface Game {
   state: "initing" | "started" | "ended";
 
-  players: {
-    pid: string | null;
-    replay: boolean;
-
-    gold: number;
-    wheat: number;
-  }[];
+  players: Player[];
 
   entities: {}[];
   map: SharedCell[];

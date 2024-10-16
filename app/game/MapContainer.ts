@@ -2,28 +2,21 @@ import { Assets, Container, Sprite, type ContainerChild } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import type { SharedCell } from "~~/shared/types";
-import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
+
+const DEFINITION = 64;
 
 export default class MapContainer extends Container<ContainerChild> {
-  update(map: SharedCell[], parent: HTMLElement) {
+  update(map: SharedCell[]) {
     this.removeChildren();
-
-    const caseSize =
-      Math.min(
-        Math.floor(parent.clientWidth / GRID_SIZE),
-        Math.floor(parent.clientHeight / GRID_SIZE),
-        50
-      ) -
-      RESSOURCES_HEIGHT / GRID_SIZE;
 
     for (const [i, data] of map.entries()) {
       const x = i % GRID_SIZE;
       const y = Math.floor(i / GRID_SIZE);
 
       const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
-      biomeSprite.setSize(caseSize);
-      biomeSprite.x = x * caseSize;
-      biomeSprite.y = y * caseSize;
+      biomeSprite.setSize(DEFINITION);
+      biomeSprite.x = x * DEFINITION;
+      biomeSprite.y = y * DEFINITION;
       this.addChild(biomeSprite);
 
       if (data.building) {
@@ -32,10 +25,10 @@ export default class MapContainer extends Container<ContainerChild> {
             (a) => a.alias == `buildings:${data.owner}_${data.building}`
           )?.alias ?? `buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
-        buildingSprite.setSize(caseSize * 0.8);
+        buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;
-        buildingSprite.x = (x + 0.1) * caseSize;
-        buildingSprite.y = (y + 0.1) * caseSize;
+        buildingSprite.x = (x + 0.1) * DEFINITION;
+        buildingSprite.y = (y + 0.1) * DEFINITION;
         this.addChild(buildingSprite);
       }
     }
