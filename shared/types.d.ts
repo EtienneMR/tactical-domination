@@ -1,13 +1,14 @@
-import { BIOMES, BUILDINGS } from "~~/shared/consts";
+import { BIOMES, BUILDINGS, ENTITIES } from "~~/shared/consts";
 
-type Biome = (typeof BIOMES)[number];
-type Building = (typeof BUILDINGS)[number] | null;
+export type Biome = (typeof BIOMES)[number];
+export type BuildingType = (typeof BUILDINGS)[number] | null;
+export type EntityType = (typeof ENTITIES)[number];
 
 export interface Cell {
   x: number;
   y: number;
   biome: Biome;
-  building: Building;
+  building: BuildingType;
   height: number;
   heightLimits: [number, number];
   owner: number | null;
@@ -35,12 +36,20 @@ interface Player {
   food: number;
 }
 
+interface Entity {
+  eid: string;
+  type: EntityType;
+  owner: number;
+  x: number;
+  y: number;
+}
+
 export interface Game {
   state: "initing" | "started" | "ended";
 
   players: Player[];
 
-  entities: {}[];
+  entities: Entity[];
   map: SharedCell[];
 }
 

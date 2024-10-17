@@ -11,3 +11,4 @@ export const BUILDINGS = [
   "wheat",
   "pasture",
 ] as const;
+export const ENTITIES = ["archer", "builder", "horseman", "melee"] as const;
