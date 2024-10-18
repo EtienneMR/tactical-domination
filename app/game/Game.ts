@@ -23,7 +23,7 @@ export class GameClient {
   private fetchUrl: string;
   private oninited: () => void;
   public events: {
-    state: globalThis.Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
+    state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
     eventsource: EventSource;
     update: () => void;
     destroy: () => void;
