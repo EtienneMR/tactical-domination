@@ -1,13 +1,13 @@
 import { BIOMES, BUILDINGS, ENTITIES } from "~~/shared/consts";
 
-export type Biome = (typeof BIOMES)[number];
+export type BiomeType = (typeof BIOMES)[number];
 export type BuildingType = (typeof BUILDINGS)[number] | null;
 export type EntityType = (typeof ENTITIES)[number];
 
 export interface Cell {
   x: number;
   y: number;
-  biome: Biome;
+  biome: BiomeType;
   building: BuildingType;
   height: number;
   heightLimits: [number, number];

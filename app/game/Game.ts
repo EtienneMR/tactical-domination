@@ -8,8 +8,6 @@ import RessourcesContainer from "./RessourcesContainer";
 import useEventSource from "./useEventSource";
 import usePlayerId from "./usePlayerId";
 
-const toast = useToast();
-
 export class GameClient {
   private loaded: boolean;
   private app: Application;
@@ -117,7 +115,7 @@ export class GameClient {
     const { game, me } = this;
     if (!this.loaded || !game) return;
 
-    this.mapContainer.update(game.map);
+    this.mapContainer.update(game);
     this.ressourcesContainer.update(me);
     this.managerContainer.update(game);
 

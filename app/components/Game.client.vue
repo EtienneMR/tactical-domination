@@ -15,6 +15,8 @@ const gamediv = ref();
 
 const gameClient = new GameClient(props.gid, () => (loading.value = false));
 
+const eventState = gameClient.events.state;
+
 // @ts-expect-error Permet le debug
 window.gameClient = gameClient;
 
@@ -54,9 +56,14 @@ onNuxtReady(() =>
 
 <template>
   <div class="flex-1 flex flex-col px-4 pb-[1px]">
-    <div>
-      <p>{{ gameClient.events.state }}</p>
-    </div>
+    <Teleport to="#header">
+      <UButton
+        :color="eventState == 'OPEN' ? 'green' : 'red'"
+        :label="eventState"
+        size="sm"
+        @click="gameClient.events.update"
+      />
+    </Teleport>
     <div class="flex-1 gamediv" ref="gamediv"></div>
   </div>
 </template>
