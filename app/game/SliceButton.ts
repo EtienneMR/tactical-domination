@@ -14,7 +14,7 @@ const NOT_SCALABLE_AREA = 20;
 export default class Button extends ButtonContainer {
   private settings: ButtonSettings;
   private textLabel: Text;
-  private nineSlice: NineSliceSprite;
+  private nineSlice: NineSliceSprite | undefined;
 
   constructor(settings?: Partial<ButtonSettings>) {
     super();
@@ -28,6 +28,23 @@ export default class Button extends ButtonContainer {
       stroke: "#336699",
     };
 
+    this.textLabel = this.addChild(new Text());
+    this.textLabel.anchor.set(0.5, 0.5);
+    this.textLabel.zIndex += 1;
+
+    this.update(settings ?? {});
+  }
+
+  get active() {
+    return this.enabled;
+  }
+
+  set active(value: boolean) {
+    this.enabled = value;
+    this.alpha = value ? 1 : 0.5;
+  }
+
+  init() {
     this.nineSlice = this.addChild(
       new NineSliceSprite({
         texture: Texture.from("ui:button"),
@@ -37,11 +54,7 @@ export default class Button extends ButtonContainer {
         bottomHeight: NOT_SCALABLE_AREA,
       })
     );
-
-    this.textLabel = this.addChild(new Text());
-    this.textLabel.anchor.set(0.5, 0.5);
-
-    this.update(settings ?? {});
+    this.resize();
   }
 
   update(settings: Partial<ButtonSettings>) {
@@ -57,14 +70,20 @@ export default class Button extends ButtonContainer {
       stroke: this.settings.stroke,
     };
 
-    this.onResize();
+    this.resize();
   }
 
-  onResize() {
-    this.nineSlice.width = this.settings.width;
-    this.nineSlice.height = this.settings.height;
+  resize() {
+    const { nineSlice } = this;
+
+    if (nineSlice) {
+      nineSlice.width = this.settings.width;
+      nineSlice.height = this.settings.height;
+    }
 
     this.textLabel.x = this.settings.width * 0.5;
     this.textLabel.y = this.settings.height * 0.5;
+    this.width = this.settings.width;
+    this.height = this.settings.height;
   }
 }

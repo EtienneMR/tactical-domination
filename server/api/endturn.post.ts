@@ -20,16 +20,16 @@ export default defineEventHandler(async (event) => {
           message: `Game "${gid}" not found`,
         })
       );
-    else if (game.state != "initing") {
+    else if (game.state != "started") {
       return Promise.reject(
         createError({
           statusCode: 400,
           statusMessage: "Bad Request",
-          message: `Game "${gid}" already started`,
+          message: `Game "${gid}" not started`,
         })
       );
     } else {
-      game.state = "started";
+      game.turn = (game.turn + 1) % game.players.length;
       return game;
     }
   });

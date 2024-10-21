@@ -5,6 +5,7 @@ export function createGame(initiator: string): Game {
 
   return {
     state: "initing",
+    turn: 0,
 
     players: [
       {

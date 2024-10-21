@@ -1,8 +1,20 @@
-import { BIOMES, BUILDINGS, ENTITIES } from "~~/shared/consts";
+import {
+  BIOMES_TYPES,
+  BUILDINGS_TYPES,
+  ENTITIES_CLASSES,
+  ENTITIES_TYPES,
+} from "~~/shared/consts";
 
-export type BiomeType = (typeof BIOMES)[number];
-export type BuildingType = (typeof BUILDINGS)[number] | null;
-export type EntityType = (typeof ENTITIES)[number];
+export type EntityClass = (typeof ENTITIES_CLASSES)[number];
+
+export type BiomeType = (typeof BIOMES_TYPES)[number];
+export type BuildingType = (typeof BUILDINGS_TYPES)[number] | null;
+export type EntityType = (typeof ENTITIES_TYPES)[number];
+
+export interface Position {
+  x: number;
+  y: number;
+}
 
 export interface Cell {
   x: number;
@@ -36,6 +48,8 @@ interface Player {
   food: number;
 }
 
+type indexedPlayer = Player & { index: number };
+
 interface Entity {
   eid: string;
   type: EntityType;
@@ -48,9 +62,10 @@ export interface Game {
   state: "initing" | "started" | "ended";
 
   players: Player[];
+  turn: number;
 
   entities: Entity[];
-  map: SharedCell[];
+  map: Cell[];
 }
 
 export type MaybeGame = Game | null;

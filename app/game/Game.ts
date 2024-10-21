@@ -1,6 +1,6 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import type { Game, Player } from "~~/shared/types";
+import type { Game, indexedPlayer } from "~~/shared/types";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
@@ -38,7 +38,9 @@ export class GameClient {
     this.ressourcesContainer = this.container.addChild(
       new RessourcesContainer({})
     );
-    this.managerContainer = this.container.addChild(new ManagerContainer({}));
+    this.managerContainer = this.container.addChild(
+      new ManagerContainer(pid, gid)
+    );
     this.mapContainer = this.container.addChild(
       new MapContainer({ y: this.ressourcesContainer.height })
     );
@@ -59,7 +61,7 @@ export class GameClient {
     addEventListener("resize", this.updateBinded);
   }
 
-  get me(): ({ index: number } & Player) | null {
+  get me(): indexedPlayer | null {
     if (!this.game) return null;
 
     const index = this.game.players.findIndex((p) => p.pid === this.pid);
@@ -85,7 +87,7 @@ export class GameClient {
 
       parent.appendChild(app.canvas);
 
-      this.managerContainer.init(this.pid, this.gid);
+      this.managerContainer.init();
       this.ressourcesContainer.init();
 
       this.loaded = true;
@@ -94,6 +96,8 @@ export class GameClient {
         this.game = (await $fetch(this.fetchUrl)) as Game;
       }
     } catch (error) {
+      this.events.eventsource.close();
+      this.events.update();
       displayError(
         "Erreur de chargement",
         "Nous n'avons pas pu charger votre partie.",
@@ -117,7 +121,7 @@ export class GameClient {
 
     this.mapContainer.update(game);
     this.ressourcesContainer.update(me);
-    this.managerContainer.update(game);
+    this.managerContainer.update(game, this.me);
 
     const mapSize = Math.min(
       this.app.screen.width,

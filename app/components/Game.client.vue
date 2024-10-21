@@ -60,7 +60,7 @@ onNuxtReady(() =>
       <UButton
         :color="eventState == 'OPEN' ? 'green' : 'red'"
         :label="eventState"
-        size="sm"
+        size="xs"
         @click="gameClient.events.update"
       />
     </Teleport>
