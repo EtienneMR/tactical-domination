@@ -1,3 +1,5 @@
+import type { EntityClass } from "~~/shared/types";
+
 export const GRID_SIZE = 12;
 export const REGION_SIZE = 4;
 export const SMOOTH_REPEATS = 30;
@@ -138,4 +140,9 @@ export const ENTITIES_CLASSES = [
   },
 ] as const;
 
+ENTITIES_CLASSES satisfies readonly EntityClass[];
+
 export const ENTITIES_TYPES = ENTITIES_CLASSES.map((e) => e.type);
+export const ACTIONS_TYPES = ENTITIES_CLASSES.map((e) =>
+  e.actions.map((a) => a.type)
+).flat();

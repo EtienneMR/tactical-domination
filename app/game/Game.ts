@@ -1,6 +1,6 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import type { Game, indexedPlayer } from "~~/shared/types";
+import type { Game, IndexedPlayer } from "~~/shared/types";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
@@ -61,7 +61,7 @@ export class GameClient {
     addEventListener("resize", this.updateBinded);
   }
 
-  get me(): indexedPlayer | null {
+  get me(): IndexedPlayer | null {
     if (!this.game) return null;
 
     const index = this.game.players.findIndex((p) => p.pid === this.pid);
