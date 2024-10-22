@@ -1,41 +1,65 @@
+import gsap from "gsap";
 import {
   Assets,
   Container,
+  FederatedPointerEvent,
+  Point,
   Sprite,
   type ContainerChild,
   type ContainerOptions,
 } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
-import type { Entity, Game } from "~~/shared/types";
+import type { Action, Entity } from "~~/shared/types";
+import { getEntityClass } from "~~/shared/utils/entities";
+import { canDoAction, getEntityFromPos } from "~~/shared/utils/game";
+import type { GameClient } from "./Game";
 
 const DEFINITION = 64;
 
 class RenderedEntity extends Sprite {
-  public eid: string;
+  public draggable!: boolean;
+  public actionX: number;
+  public actionY: number;
+  public action: Action | null;
 
-  constructor(entity: Entity) {
+  static getProps(entity: Entity, myIndex: number | null) {
+    return {
+      x: (entity.x + 0.5) * DEFINITION,
+      y: (entity.y + 0.5) * DEFINITION,
+      actionX: entity.x,
+      actionY: entity.y,
+      alpha: entity.used ? 0.75 : 1,
+      draggable: !entity.used && entity.owner == myIndex,
+      tint: 0xffffff,
+    };
+  }
+
+  constructor(public entity: Entity, private myIndex: number | null) {
     super({
       texture: Assets.get(`entities:${entity.owner}_${entity.type}`),
       width: DEFINITION * 0.8,
       height: DEFINITION * 0.8,
-      ...RenderedEntity.getTarget(entity),
+      zIndex: 10,
+      eventMode: "static",
+      cursor: "pointer",
+      anchor: 0.5,
     });
-    this.eid = entity.eid;
-    this.update(entity);
+
+    this.actionX = entity.x;
+    this.actionY = entity.y;
+    this.action = null;
+    this.reset();
   }
 
-  static getTarget(entity: Entity) {
-    return {
-      x: (entity.x + 0.1) * DEFINITION,
-      y: (entity.y + 0.1) * DEFINITION,
-    };
+  public update(entity: Entity, myIndex: number | null) {
+    this.entity = entity;
+    this.myIndex = myIndex;
+    gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
   }
 
-  public update(entity: Entity) {
-    const { x, y } = RenderedEntity.getTarget(entity);
-    this.x = x;
-    this.y = y;
+  public reset() {
+    Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
   }
 }
 
@@ -46,14 +70,29 @@ class EntitiesContainer extends Container<ContainerChild> {
 export default class MapContainer extends Container<ContainerChild> {
   private mapContainer: Container<ContainerChild>;
   private entitiesContainer: EntitiesContainer;
+  private dragTarget: RenderedEntity | null;
 
-  constructor(options?: ContainerOptions<ContainerChild>) {
+  constructor(
+    private gameClient: GameClient,
+    options?: ContainerOptions<ContainerChild>
+  ) {
     super(options);
     this.mapContainer = this.addChild(new Container());
     this.entitiesContainer = this.addChild(new EntitiesContainer());
+    this.dragTarget = null;
+
+    this.eventMode = "static";
+
+    this.on("pointerup", this.onDragEnd.bind(this));
+    this.on("pointerupoutside", this.onDragEnd.bind(this));
+    this.on("pointermove", this.onDragMove.bind(this));
   }
 
-  update(game: Game) {
+  update() {
+    const { game } = this.gameClient;
+
+    if (!game) return;
+
     this.mapContainer.removeChildren();
 
     for (const [i, data] of game.map.entries()) {
@@ -80,23 +119,104 @@ export default class MapContainer extends Container<ContainerChild> {
       }
     }
 
-    const toRemove = new Set(this.children);
-
     for (const entity of game.entities) {
       const renderedEntity = this.entitiesContainer.children.find(
-        (e) => e.eid == entity.eid
+        (e) => e.entity.eid == entity.eid
       );
       if (renderedEntity) {
-        renderedEntity.update(entity);
-        toRemove.delete(renderedEntity);
+        renderedEntity.update(entity, this.gameClient.me?.index ?? null);
       } else {
-        const added = new RenderedEntity(entity);
+        const added = new RenderedEntity(
+          entity,
+          this.gameClient.me?.index ?? null
+        );
+        added.on("pointerdown", this.onDragStart.bind(this, added), added);
         this.entitiesContainer.addChild(added);
       }
     }
 
-    for (const entity of toRemove) {
-      this.entitiesContainer.removeChild(entity);
+    for (const entity of this.entitiesContainer.children) {
+      if (!game.entities.find((e) => e.eid == entity.entity.eid))
+        this.entitiesContainer.removeChild(entity);
+    }
+  }
+
+  onDragMove(event: FederatedPointerEvent) {
+    const { dragTarget } = this;
+
+    if (dragTarget) {
+      dragTarget.action = null;
+
+      const point = this.toLocal(event.global);
+
+      dragTarget.actionX = Math.min(
+        Math.floor(point.x / DEFINITION),
+        GRID_SIZE - 1
+      );
+      dragTarget.actionY = Math.min(
+        Math.floor(point.y / DEFINITION),
+        GRID_SIZE - 1
+      );
+
+      dragTarget.position = new Point(
+        (dragTarget.actionX + 0.5) * DEFINITION,
+        (dragTarget.actionY + 0.5) * DEFINITION
+      );
+
+      const { game, me } = this.gameClient;
+      const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
+
+      if (!game || !me) return;
+
+      for (const action of getEntityClass(dragTarget.entity.type).actions) {
+        const can = canDoAction(
+          game,
+          me,
+          dragTarget.entity,
+          action,
+          getEntityFromPos(game, pos),
+          pos
+        );
+
+        dragTarget.tint = can ? 0xffffff : 0xff0000;
+        if (can) {
+          dragTarget.action = action;
+          break;
+        }
+      }
+    }
+  }
+
+  onDragStart(target: RenderedEntity) {
+    if (target.draggable) {
+      target.alpha = 0.5;
+      this.dragTarget = target;
+    }
+  }
+
+  async onDragEnd() {
+    const { dragTarget } = this;
+    if (dragTarget) {
+      this.dragTarget = null;
+
+      const { game, me } = this.gameClient;
+      const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
+
+      if (game && me && dragTarget.action) {
+        await $fetch("/api/doaction", {
+          query: {
+            gid: this.gameClient.gid,
+            pid: this.gameClient.pid,
+            eid: dragTarget.entity.eid,
+            action: dragTarget.action.type,
+            x: dragTarget.actionX,
+            y: dragTarget.actionY,
+          },
+          method: "POST",
+        });
+      }
+
+      dragTarget.reset();
     }
   }
 }

@@ -42,7 +42,7 @@ export class GameClient {
       new ManagerContainer(pid, gid)
     );
     this.mapContainer = this.container.addChild(
-      new MapContainer({ y: this.ressourcesContainer.height })
+      new MapContainer(this, { y: this.ressourcesContainer.height })
     );
 
     this.app.stage.addChild(this.container);
@@ -62,7 +62,7 @@ export class GameClient {
   }
 
   get me(): IndexedPlayer | null {
-    if (!this.game) return null;
+    if (!this.game || this.game.state != "started") return null;
 
     const index = this.game.players.findIndex((p) => p.pid === this.pid);
 
@@ -119,7 +119,7 @@ export class GameClient {
     const { game, me } = this;
     if (!this.loaded || !game) return;
 
-    this.mapContainer.update(game);
+    this.mapContainer.update();
     this.ressourcesContainer.update(me);
     this.managerContainer.update(game, this.me);
 

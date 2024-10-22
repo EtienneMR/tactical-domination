@@ -8,7 +8,7 @@ dist
 kv.db*
 
 # Node dependencies
-node_modules
+node_modules*
 
 # Logs
 logs

@@ -1,5 +1,10 @@
 import { useKv } from "~~/server/utils/useKv";
 import {
+  assertCanPlay,
+  getBuildingClass,
+  getPlayer,
+} from "~~/shared/utils/game";
+import {
   assertGameInState,
   assertValidGame,
   assertValidString,
@@ -17,9 +22,24 @@ export default defineEventHandler(async (event) => {
     assertValidGame(game, gid);
     assertGameInState(game, "started", gid);
 
+    const player = getPlayer(game, pid);
+    assertCanPlay(game, player);
+
     for (const entity of game.entities) {
-      if (entity.owner == game.turn) entity.used = false;
+      if (entity.owner == game.turn) {
+        entity.used = false;
+        player.food -= 1;
+      }
     }
+
+    for (const cell of game.map) {
+      if (cell.owner == game.turn && cell.building) {
+        for (const effect of getBuildingClass(cell.building).effects) {
+          player[effect.type] += effect.value;
+        }
+      }
+    }
+
     game.turn = (game.turn + 1) % game.players.length;
     return game;
   });

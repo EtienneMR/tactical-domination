@@ -75,9 +75,10 @@ export function assertValidString(
   str: unknown,
   query: string
 ): asserts str is string {
-  throw createError({
-    statusCode: 400,
-    statusMessage: "Bad Request",
-    message: `Invalid ${query} query: not a valid string`,
-  });
+  if (typeof str != "string")
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Bad Request",
+      message: `Invalid ${query} query: not a valid string`,
+    });
 }
