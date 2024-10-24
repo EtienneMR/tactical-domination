@@ -1,6 +1,7 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import type { Game, IndexedPlayer } from "~~/shared/types";
+import ActionContainer from "./ActionContainer";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
@@ -15,17 +16,19 @@ export class GameClient {
   private mapContainer: MapContainer;
   private managerContainer: ManagerContainer;
   private ressourcesContainer: RessourcesContainer;
+  private actionContainer: ActionContainer;
 
   public parent: HTMLElement;
   public game: Game | null;
   private fetchUrl: string;
   private oninited: () => void;
-  public events: {
+  public events: Ref<{
     state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
     eventsource: EventSource;
     update: () => void;
     destroy: () => void;
-  };
+  } | null>;
+  public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
   private updateBinded: () => void;
   public pid: string;
 
@@ -44,21 +47,32 @@ export class GameClient {
     this.mapContainer = this.container.addChild(
       new MapContainer(this, { y: this.ressourcesContainer.height })
     );
+    this.actionContainer = this.container.addChild(
+      new ActionContainer(this, { y: this.ressourcesContainer.height })
+    );
 
     this.app.stage.addChild(this.container);
 
     this.parent = document.body;
     this.game = null;
+    this.state = ref("Unknown");
+    this.events = ref(null);
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
       gid
     )}&pid=${encodeURIComponent(pid)}`;
-    this.events = useEventSource<Game>(
-      this.fetchUrl,
-      this.onMessage.bind(this)
-    );
     this.updateBinded = this.update.bind(this);
     addEventListener("resize", this.updateBinded);
+    this.connect();
+  }
+
+  async connect() {
+    this.events.value?.eventsource.close();
+    this.events.value = useEventSource<Game>(
+      this.fetchUrl,
+      this.onMessage.bind(this),
+      this.state
+    );
   }
 
   get me(): IndexedPlayer | null {
@@ -96,8 +110,8 @@ export class GameClient {
         this.game = (await $fetch(this.fetchUrl)) as Game;
       }
     } catch (error) {
-      this.events.eventsource.close();
-      this.events.update();
+      this.events.value?.eventsource.close();
+      this.events.value?.update();
       displayError(
         "Erreur de chargement",
         "Nous n'avons pas pu charger votre partie.",
@@ -122,14 +136,16 @@ export class GameClient {
     this.mapContainer.update();
     this.ressourcesContainer.update(me);
     this.managerContainer.update(game, this.me);
+    this.actionContainer.update();
 
     const mapSize = Math.min(
-      this.app.screen.width,
+      this.app.screen.width - this.actionContainer.width - 20,
       this.app.screen.height - this.ressourcesContainer.height,
       500
     );
 
     this.mapContainer.setSize(mapSize);
+    this.actionContainer.x = this.mapContainer.x + this.mapContainer.width + 20;
     this.ressourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
 
     this.container.x = this.app.screen.width / 2;
@@ -142,7 +158,7 @@ export class GameClient {
   async destroy() {
     this.app.canvas.remove();
     this.app.destroy();
-    this.events.destroy();
+    this.events.value?.destroy();
     removeEventListener("resize", this.updateBinded);
     await Assets.unloadBundle("game");
     if (import.meta.dev) Assets.reset();

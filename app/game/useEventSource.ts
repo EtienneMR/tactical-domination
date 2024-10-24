@@ -3,12 +3,10 @@ const DEFAULT_STATE = "Unknown";
 
 export default function useEventSource<T>(
   url: string,
-  onmessage: (data: T, evt: MessageEvent) => void
+  onmessage: (data: T, evt: MessageEvent) => void,
+  state: Ref<(typeof STATES)[number] | typeof DEFAULT_STATE>
 ) {
   const eventsource = new EventSource(url, {});
-
-  const state: Ref<(typeof STATES)[number] | typeof DEFAULT_STATE> =
-    ref(DEFAULT_STATE);
 
   const update = () => {
     state.value =
