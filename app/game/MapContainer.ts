@@ -12,7 +12,7 @@ import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import type { Action, Entity } from "~~/shared/types";
 import { getEntityClass } from "~~/shared/utils/entities";
-import { canDoAction, getEntityFromPos } from "~~/shared/utils/game";
+import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
 import type { GameClient } from "./Game";
 
 const DEFINITION = 64;
@@ -22,9 +22,11 @@ class RenderedEntity extends Sprite {
   public actionX: number;
   public actionY: number;
   public action: Action | null;
+  public dragged!: boolean;
 
   static getProps(entity: Entity, myIndex: number | null) {
     return {
+      texture: Assets.get(`entities:${entity.owner}_${entity.type}`),
       x: (entity.x + 0.5) * DEFINITION,
       y: (entity.y + 0.5) * DEFINITION,
       actionX: entity.x,
@@ -32,12 +34,13 @@ class RenderedEntity extends Sprite {
       alpha: entity.used ? 0.75 : 1,
       draggable: !entity.used && entity.owner == myIndex,
       tint: 0xffffff,
+      simpleClick: true,
+      dragged: false,
     };
   }
 
   constructor(public entity: Entity, private myIndex: number | null) {
     super({
-      texture: Assets.get(`entities:${entity.owner}_${entity.type}`),
       width: DEFINITION * 0.8,
       height: DEFINITION * 0.8,
       zIndex: 10,
@@ -71,6 +74,7 @@ export default class MapContainer extends Container<ContainerChild> {
   private mapContainer: Container<ContainerChild>;
   private entitiesContainer: EntitiesContainer;
   private dragTarget: RenderedEntity | null;
+  private clickTarget: RenderedEntity | null;
 
   constructor(
     private gameClient: GameClient,
@@ -80,9 +84,11 @@ export default class MapContainer extends Container<ContainerChild> {
     this.mapContainer = this.addChild(new Container());
     this.entitiesContainer = this.addChild(new EntitiesContainer());
     this.dragTarget = null;
+    this.clickTarget = null;
 
     this.eventMode = "static";
 
+    this.on("pointerdown", this.onSecondaryAction.bind(this));
     this.on("pointerup", this.onDragEnd.bind(this));
     this.on("pointerupoutside", this.onDragEnd.bind(this));
     this.on("pointermove", this.onDragMove.bind(this));
@@ -142,9 +148,10 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   onDragMove(event: FederatedPointerEvent) {
+    const { game, me } = this.gameClient;
     const { dragTarget } = this;
 
-    if (dragTarget) {
+    if (game && me && dragTarget) {
       dragTarget.action = null;
 
       const point = this.toLocal(event.global);
@@ -163,10 +170,13 @@ export default class MapContainer extends Container<ContainerChild> {
         (dragTarget.actionY + 0.5) * DEFINITION
       );
 
-      const { game, me } = this.gameClient;
-      const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
+      if (
+        dragTarget.actionX != dragTarget.entity.x &&
+        dragTarget.actionY != dragTarget.entity.y
+      )
+        dragTarget.dragged = true;
 
-      if (!game || !me) return;
+      const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
 
       for (const action of getEntityClass(dragTarget.entity.type).actions) {
         const can = canDoAction(
@@ -187,10 +197,28 @@ export default class MapContainer extends Container<ContainerChild> {
     }
   }
 
-  onDragStart(target: RenderedEntity) {
-    if (target.draggable) {
+  async onDragStart(target: RenderedEntity) {
+    if (this.clickTarget == target && this.gameClient.game) {
+      const cell = getCellAt(this.gameClient.game, target.entity);
+
+      if (cell.building == "castle") {
+        await $fetch("/api/transform", {
+          query: {
+            gid: this.gameClient.gid,
+            pid: this.gameClient.pid,
+            eid: target.entity.eid,
+          },
+          method: "POST",
+        });
+      }
+
+      if (this.clickTarget) this.clickTarget.reset();
+      this.clickTarget = null;
+    } else if (target.draggable) {
       target.alpha = 0.5;
       this.dragTarget = target;
+      if (this.clickTarget) this.clickTarget.reset();
+      this.clickTarget = null;
     }
   }
 
@@ -200,7 +228,6 @@ export default class MapContainer extends Container<ContainerChild> {
       this.dragTarget = null;
 
       const { game, me } = this.gameClient;
-      const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
 
       if (game && me && dragTarget.action) {
         await $fetch("/api/doaction", {
@@ -216,7 +243,70 @@ export default class MapContainer extends Container<ContainerChild> {
         });
       }
 
+      const canSecondary = !dragTarget.dragged && !dragTarget.entity.used;
+
       dragTarget.reset();
+
+      if (canSecondary) {
+        this.clickTarget = dragTarget;
+        dragTarget.tint = 0x999999;
+      }
+    }
+  }
+
+  async onSecondaryAction(event: FederatedPointerEvent) {
+    const { game, me } = this.gameClient;
+    if (game && me) {
+      const point = this.toLocal(event.global);
+
+      const actionX = Math.min(Math.floor(point.y / DEFINITION), GRID_SIZE - 1);
+      const actionY = Math.min(Math.floor(point.x / DEFINITION), GRID_SIZE - 1);
+      const pos = { x: actionX, y: actionY };
+
+      const { clickTarget } = this;
+      if (clickTarget) {
+        const lastAction = getEntityClass(
+          clickTarget.entity.type
+        ).actions.findLast(() => true)!;
+
+        const can = canDoAction(
+          game,
+          me,
+          clickTarget.entity,
+          lastAction,
+          getEntityFromPos(game, pos),
+          pos
+        );
+
+        if (can) {
+          await $fetch("/api/doaction", {
+            query: {
+              gid: this.gameClient.gid,
+              pid: this.gameClient.pid,
+              eid: clickTarget.entity.eid,
+              action: lastAction.type,
+              x: actionX,
+              y: actionY,
+            },
+            method: "POST",
+          });
+        }
+        clickTarget.reset();
+      } else {
+        const cell = getCellAt(game, pos);
+
+        if (cell.building == "castle") {
+          await $fetch("/api/create", {
+            query: {
+              gid: this.gameClient.gid,
+              pid: this.gameClient.pid,
+              x: actionX,
+              y: actionY,
+            },
+            method: "POST",
+          });
+        }
+      }
     }
   }
 }

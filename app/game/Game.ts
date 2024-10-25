@@ -1,7 +1,6 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import type { Game, IndexedPlayer } from "~~/shared/types";
-import ActionContainer from "./ActionContainer";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
@@ -16,7 +15,6 @@ export class GameClient {
   private mapContainer: MapContainer;
   private managerContainer: ManagerContainer;
   private ressourcesContainer: RessourcesContainer;
-  private actionContainer: ActionContainer;
 
   public parent: HTMLElement;
   public game: Game | null;
@@ -46,9 +44,6 @@ export class GameClient {
     );
     this.mapContainer = this.container.addChild(
       new MapContainer(this, { y: this.ressourcesContainer.height })
-    );
-    this.actionContainer = this.container.addChild(
-      new ActionContainer(this, { y: this.ressourcesContainer.height })
     );
 
     this.app.stage.addChild(this.container);
@@ -136,16 +131,14 @@ export class GameClient {
     this.mapContainer.update();
     this.ressourcesContainer.update(me);
     this.managerContainer.update(game, this.me);
-    this.actionContainer.update();
 
     const mapSize = Math.min(
-      this.app.screen.width - this.actionContainer.width - 20,
+      this.app.screen.width,
       this.app.screen.height - this.ressourcesContainer.height,
       500
     );
 
     this.mapContainer.setSize(mapSize);
-    this.actionContainer.x = this.mapContainer.x + this.mapContainer.width + 20;
     this.ressourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
 
     this.container.x = this.app.screen.width / 2;

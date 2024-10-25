@@ -2,7 +2,7 @@ import { ActionType, EntityType } from "./game";
 
 export interface Entity {
   readonly eid: string;
-  readonly type: EntityType;
+  type: EntityType;
   readonly owner: number;
   x: number;
   y: number;

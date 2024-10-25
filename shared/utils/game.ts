@@ -26,6 +26,19 @@ export function getBuildingClass(type: string) {
   return buildingClass;
 }
 
+export function getCellAt(game: Game, pos: Position) {
+  const cell = game.map.find((c) => c.x == pos.x && c.y == pos.y);
+
+  if (!cell)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Internal error",
+      message: `Can't find cell at (${pos.x}, ${pos.y})`,
+    });
+
+  return cell;
+}
+
 export function assertCanPlay(
   game: Game,
   player: Player | null

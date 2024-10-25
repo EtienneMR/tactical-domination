@@ -7,6 +7,7 @@ import {
 } from "~~/shared/utils/entities";
 import {
   assertCanDoAction,
+  getCellAt,
   getEntityFromEid,
   getEntityFromPos,
   getPlayer,
@@ -20,21 +21,8 @@ import {
   assertValidString,
 } from "../utils/checks";
 
-async function getCellAt(game: Game, pos: Position) {
-  const cell = game.map.find((c) => c.x == pos.x && c.y == pos.y);
-
-  if (!cell)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Internal error",
-      message: `Can't find cell at (${pos.x}, ${pos.y})`,
-    });
-
-  return cell;
-}
-
 async function leaveCell(game: Game, entity: Entity) {
-  const cell = await getCellAt(game, entity);
+  const cell = getCellAt(game, entity);
 
   if (cell.building) {
     const oldBuilding = BUILDINGS_CLASSES.find((b) => b.type == cell.building);
@@ -52,7 +40,7 @@ async function leaveCell(game: Game, entity: Entity) {
 }
 
 async function performMove(game: Game, entity: Entity, pos: Position) {
-  const cell = await getCellAt(game, pos);
+  const cell = getCellAt(game, pos);
 
   if (cell.building) {
     const building = BUILDINGS_CLASSES.find((b) => b.type == cell.building);
@@ -130,7 +118,7 @@ export default defineEventHandler(async (event) => {
       await leaveCell(game, targetEntity!);
       game.entities = game.entities.filter((e) => e.eid != targetEntity!.eid);
     } else if (action.type == "build") {
-      const cell = await getCellAt(game, pos);
+      const cell = getCellAt(game, pos);
 
       if (cell.building) cell.building = null;
       else {
