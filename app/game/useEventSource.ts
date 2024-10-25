@@ -1,3 +1,5 @@
+import displayError from "./displayError";
+
 const STATES = ["CLOSED", "CONNECTING", "OPEN"] satisfies (keyof EventSource)[];
 const DEFAULT_STATE = "Unknown";
 
@@ -25,7 +27,18 @@ export default function useEventSource<T>(
   const events: [string, (evt: any) => void][] = [
     ["open", update],
     ["close", update],
-    ["error", update],
+    [
+      "error",
+      async ({ data }) => {
+        eventsource.close();
+        update();
+        const error = createError({
+          name: "EventSourceError",
+          message: typeof data == "string" ? data : await data.text(),
+        });
+        displayError("Erreur de connexion", error.message, error, true);
+      },
+    ],
     ["message", processMessage],
   ];
 

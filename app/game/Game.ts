@@ -55,7 +55,9 @@ export class GameClient {
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
       gid
-    )}&pid=${encodeURIComponent(pid)}`;
+    )}&pid=${encodeURIComponent(pid)}&v=${encodeURIComponent(
+      useRuntimeConfig().public.gitVersion
+    )}`;
     this.updateBinded = this.update.bind(this);
     addEventListener("resize", this.updateBinded);
     this.connect();

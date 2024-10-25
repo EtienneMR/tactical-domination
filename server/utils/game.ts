@@ -1,9 +1,12 @@
+import { H3Event } from "h3";
 import type { Game } from "~~/shared/types";
 
-export function createGame(initiator: string): Game {
+export function createGame(event: H3Event, initiator: string): Game {
+  const runtimeConfig = useRuntimeConfig(event);
   const map = generateMap();
 
   return {
+    version: runtimeConfig.public.gitVersion,
     state: "initing",
     turn: 0,
 

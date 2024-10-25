@@ -16,6 +16,12 @@ export default defineNuxtConfig({
     typeCheck: true,
   },
 
+  runtimeConfig: {
+    public: {
+      gitVersion: process.env.GIT_VERSION ?? `dev-${new Date()}`,
+    },
+  },
+
   hooks: {
     "build:before": () => {
       const assetsDir = resolve(__dirname, "./public/assets");

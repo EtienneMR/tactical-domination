@@ -40,6 +40,8 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    player.food = Math.max(player.food, 1);
+
     game.turn = (game.turn + 1) % game.players.length;
     return game;
   });

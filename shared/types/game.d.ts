@@ -40,4 +40,5 @@ export interface Game {
   turn: number;
   entities: Entity[];
   map: Cell[];
+  version: string;
 }
