@@ -14,7 +14,7 @@ const loading = ref(true);
       <div></div>
       <div></div>
     </div>
-    <div class="flex-1 flex">
+    <div class="content flex-1 flex">
       <Game :gid="'g'+(route.params.gid as string)" v-model="loading"></Game>
     </div>
   </div>

@@ -1,6 +1,11 @@
 import { ValueNoise } from "value-noise-js";
 import { GRID_SIZE, REGION_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
-import type { Cell, GenerationPatern, GenerationRule } from "~~/shared/types";
+import type {
+  Cell,
+  GenerationPattern,
+  GenerationRule,
+  WriteCell,
+} from "~~/shared/types";
 
 function distance(a: { x: number; y: number }, b: { x: number; y?: number }) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - (b.y ?? b.x), 2));
@@ -14,7 +19,7 @@ function random(x: number) {
   return Math.random() < x;
 }
 
-export function getRules(): GenerationPatern {
+export function getRules(): GenerationPattern {
   const noise = new ValueNoise(undefined, undefined, "perlin");
 
   return {
@@ -167,10 +172,10 @@ function pickClampedLerped(t: Cell[][], x: number, y: number, v: Cell): number {
   return v.height + Math.random() * (target.height - v.height);
 }
 
-export function generateMap() {
+export function generateMap(): Cell[] {
   const rules = getRules();
 
-  const map: Cell[][] = Array.from({ length: GRID_SIZE }, (_, x) =>
+  const map: WriteCell[][] = Array.from({ length: GRID_SIZE }, (_, x) =>
     Array.from({ length: GRID_SIZE }, (_, y) => ({
       x,
       y,

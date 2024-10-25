@@ -1,8 +1,11 @@
 import type { Game } from "~~/shared/types";
 
 export function createGame(initiator: string): Game {
+  const map = generateMap();
+
   return {
     state: "initing",
+    turn: 0,
 
     players: [
       {
@@ -21,7 +24,16 @@ export function createGame(initiator: string): Game {
       },
     ],
 
-    entities: [],
-    map: generateMap(),
+    entities: map
+      .filter((cell) => cell.building == "castle")
+      .map((cell, index) => ({
+        eid: `e${index}`,
+        type: "melee",
+        owner: cell.owner!,
+        x: cell.x,
+        y: cell.y,
+      })),
+
+    map,
   };
 }

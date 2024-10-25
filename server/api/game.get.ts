@@ -1,14 +1,12 @@
 import { useKv } from "~~/server/utils/useKv";
+import { assertValidString } from "../utils/checks";
 import { createGame } from "../utils/game";
 
 export default defineEventHandler(async (event) => {
   const { gid, pid } = getQuery(event);
 
-  if (typeof gid != "string" || typeof pid != "string") {
-    return new Response("Invalid gid or pid", {
-      status: 400,
-    });
-  }
+  assertValidString(gid, "gid");
+  assertValidString(pid, "pid");
 
   const kv = await useKv();
 

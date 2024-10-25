@@ -15,6 +15,8 @@ const gamediv = ref();
 
 const gameClient = new GameClient(props.gid, () => (loading.value = false));
 
+const eventState = gameClient.state;
+
 // @ts-expect-error Permet le debug
 window.gameClient = gameClient;
 
@@ -24,7 +26,7 @@ onUnmounted(gameClient.destroy.bind(gameClient));
 
 onNuxtReady(() =>
   watch(
-    gameClient.events.state,
+    eventState,
     (state) => {
       toast.remove(STATUS_TOAST_ID);
       if (state == "CLOSED") {
@@ -54,9 +56,31 @@ onNuxtReady(() =>
 
 <template>
   <div class="flex-1 flex flex-col px-4 pb-[1px]">
-    <div>
-      <p>{{ gameClient.events.state }}</p>
-    </div>
+    <Teleport to="#header">
+      <UButton
+        v-if="eventState == 'OPEN'"
+        color="green"
+        trailing-icon="i-mdi-access-point"
+        size="xs"
+        @click="gameClient.connect()"
+      />
+      <UButton
+        v-else-if="eventState == 'CONNECTING'"
+        label="Connexion"
+        color="red"
+        trailing-icon="i-mdi-access-point-off"
+        size="xs"
+        @click="gameClient.connect()"
+      />
+      <UButton
+        v-else
+        label="Déconnecté"
+        color="red"
+        trailing-icon="i-mdi-server-remove"
+        size="xs"
+        @click="gameClient.connect()"
+      />
+    </Teleport>
     <div class="flex-1 gamediv" ref="gamediv"></div>
   </div>
 </template>
