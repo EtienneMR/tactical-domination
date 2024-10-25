@@ -1,6 +1,11 @@
 import { useKv } from "~~/server/utils/useKv";
 import { ENTITIES_TYPES } from "~~/shared/consts";
-import { getCellAt, getEntityFromEid, getPlayer } from "~~/shared/utils/game";
+import {
+  assertCanPlay,
+  getCellAt,
+  getEntityFromEid,
+  getPlayer,
+} from "~~/shared/utils/game";
 import {
   assertGameInState,
   assertValidEntity,
@@ -27,6 +32,7 @@ export default defineEventHandler(async (event) => {
 
     const player = getPlayer(game, pid);
     assertValidPlayer(player, pid);
+    assertCanPlay(game, player);
 
     const cell = getCellAt(game, entity);
 

@@ -1,5 +1,10 @@
 import { useKv } from "~~/server/utils/useKv";
-import { getCellAt, getEntityFromPos, getPlayer } from "~~/shared/utils/game";
+import {
+  assertCanPlay,
+  getCellAt,
+  getEntityFromPos,
+  getPlayer,
+} from "~~/shared/utils/game";
 import {
   assertGameInState,
   assertValidGame,
@@ -27,6 +32,7 @@ export default defineEventHandler(async (event) => {
 
     const player = getPlayer(game, pid);
     assertValidPlayer(player, pid);
+    assertCanPlay(game, player);
 
     const cell = getCellAt(game, pos);
 

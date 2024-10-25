@@ -14,6 +14,7 @@ import type { Action, Entity } from "~~/shared/types";
 import { getEntityClass } from "~~/shared/utils/entities";
 import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
 import type { GameClient } from "./Game";
+import displayError from "./displayError";
 
 const DEFINITION = 64;
 
@@ -26,7 +27,6 @@ class RenderedEntity extends Sprite {
 
   static getProps(entity: Entity, myIndex: number | null) {
     return {
-      texture: Assets.get(`entities:${entity.owner}_${entity.type}`),
       x: (entity.x + 0.5) * DEFINITION,
       y: (entity.y + 0.5) * DEFINITION,
       actionX: entity.x,
@@ -59,10 +59,15 @@ class RenderedEntity extends Sprite {
     this.entity = entity;
     this.myIndex = myIndex;
     gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
+
+    this.texture = Assets.get(`entities:${entity.owner}_${entity.type}`);
   }
 
   public reset() {
     Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
+    this.texture = Assets.get(
+      `entities:${this.entity.owner}_${this.entity.type}`
+    );
   }
 }
 
@@ -102,13 +107,10 @@ export default class MapContainer extends Container<ContainerChild> {
     this.mapContainer.removeChildren();
 
     for (const [i, data] of game.map.entries()) {
-      const x = i % GRID_SIZE;
-      const y = Math.floor(i / GRID_SIZE);
-
       const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
       biomeSprite.setSize(DEFINITION);
-      biomeSprite.x = x * DEFINITION;
-      biomeSprite.y = y * DEFINITION;
+      biomeSprite.x = data.x * DEFINITION;
+      biomeSprite.y = data.y * DEFINITION;
       this.mapContainer.addChild(biomeSprite);
 
       if (data.building) {
@@ -119,8 +121,8 @@ export default class MapContainer extends Container<ContainerChild> {
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;
-        buildingSprite.x = (x + 0.1) * DEFINITION;
-        buildingSprite.y = (y + 0.1) * DEFINITION;
+        buildingSprite.x = (data.x + 0.1) * DEFINITION;
+        buildingSprite.y = (data.y + 0.1) * DEFINITION;
         this.mapContainer.addChild(buildingSprite);
       }
     }
@@ -198,18 +200,33 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   async onDragStart(target: RenderedEntity) {
-    if (this.clickTarget == target && this.gameClient.game) {
-      const cell = getCellAt(this.gameClient.game, target.entity);
+    const { game } = this.gameClient;
+
+    if (
+      this.clickTarget == target &&
+      game &&
+      game.turn == this.gameClient.me?.index
+    ) {
+      const cell = getCellAt(game, target.entity);
 
       if (cell.building == "castle") {
-        await $fetch("/api/transform", {
-          query: {
-            gid: this.gameClient.gid,
-            pid: this.gameClient.pid,
-            eid: target.entity.eid,
-          },
-          method: "POST",
-        });
+        try {
+          await $fetch("/api/transform", {
+            query: {
+              gid: this.gameClient.gid,
+              pid: this.gameClient.pid,
+              eid: target.entity.eid,
+            },
+            method: "POST",
+          });
+        } catch (error) {
+          displayError(
+            "Impossible de transformer l'unitée",
+            "Nous n'avons pas pu transform l'unitée",
+            error,
+            false
+          );
+        }
       }
 
       if (this.clickTarget) this.clickTarget.reset();
@@ -230,17 +247,26 @@ export default class MapContainer extends Container<ContainerChild> {
       const { game, me } = this.gameClient;
 
       if (game && me && dragTarget.action) {
-        await $fetch("/api/doaction", {
-          query: {
-            gid: this.gameClient.gid,
-            pid: this.gameClient.pid,
-            eid: dragTarget.entity.eid,
-            action: dragTarget.action.type,
-            x: dragTarget.actionX,
-            y: dragTarget.actionY,
-          },
-          method: "POST",
-        });
+        try {
+          await $fetch("/api/doaction", {
+            query: {
+              gid: this.gameClient.gid,
+              pid: this.gameClient.pid,
+              eid: dragTarget.entity.eid,
+              action: dragTarget.action.type,
+              x: dragTarget.actionX,
+              y: dragTarget.actionY,
+            },
+            method: "POST",
+          });
+        } catch (error) {
+          displayError(
+            "Impossible de faire cette action",
+            "Nous n'avons pas pu exécuter votre action",
+            error,
+            false
+          );
+        }
       }
 
       const canSecondary = !dragTarget.dragged && !dragTarget.entity.used;
@@ -279,32 +305,50 @@ export default class MapContainer extends Container<ContainerChild> {
         );
 
         if (can) {
-          await $fetch("/api/doaction", {
-            query: {
-              gid: this.gameClient.gid,
-              pid: this.gameClient.pid,
-              eid: clickTarget.entity.eid,
-              action: lastAction.type,
-              x: actionX,
-              y: actionY,
-            },
-            method: "POST",
-          });
+          try {
+            await $fetch("/api/doaction", {
+              query: {
+                gid: this.gameClient.gid,
+                pid: this.gameClient.pid,
+                eid: clickTarget.entity.eid,
+                action: lastAction.type,
+                x: actionX,
+                y: actionY,
+              },
+              method: "POST",
+            });
+          } catch (error) {
+            displayError(
+              "Impossible de faire cette action",
+              "Nous n'avons pas pu exécuter votre action",
+              error,
+              false
+            );
+          }
         }
         clickTarget.reset();
       } else {
         const cell = getCellAt(game, pos);
 
-        if (cell.building == "castle") {
-          await $fetch("/api/create", {
-            query: {
-              gid: this.gameClient.gid,
-              pid: this.gameClient.pid,
-              x: actionX,
-              y: actionY,
-            },
-            method: "POST",
-          });
+        if (cell.building == "castle" && !getEntityFromPos(game, pos)) {
+          try {
+            await $fetch("/api/create", {
+              query: {
+                gid: this.gameClient.gid,
+                pid: this.gameClient.pid,
+                x: actionX,
+                y: actionY,
+              },
+              method: "POST",
+            });
+          } catch (error) {
+            displayError(
+              "Impossible de créer une unitée",
+              "Nous n'avons pas pu créer votre unitée",
+              error,
+              false
+            );
+          }
         }
       }
     }

@@ -86,7 +86,7 @@ export const ENTITIES_CLASSES = [
       {
         type: "ranged",
         target: "enemy",
-        range: 2,
+        range: 3,
       },
     ],
   },
