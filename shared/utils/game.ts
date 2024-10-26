@@ -1,4 +1,11 @@
-import type { Action, Entity, Game, Player, Position } from "~~/shared/types";
+import type {
+  Action,
+  Entity,
+  EntityClass,
+  Game,
+  Player,
+  Position,
+} from "~~/shared/types";
 import { BUILDINGS_CLASSES } from "../consts";
 
 export function getEntityFromEid(game: Game, eid: string): Entity | null {
@@ -69,13 +76,16 @@ export function assertActionInRange(
 export function assertValidTargetForAction(
   game: Game,
   targetEntity: Entity | null,
+  targetEntityClass: EntityClass | null,
   action: Action
 ) {
   const valid =
     (action.target == null && targetEntity == null) ||
     (action.target == "enemy" &&
       targetEntity &&
-      targetEntity.owner != game.turn);
+      targetEntity.owner != game.turn &&
+      targetEntityClass &&
+      targetEntityClass.immune != action.target);
 
   if (!valid)
     throw createError({
@@ -93,6 +103,7 @@ export function assertCanDoAction(
   entity: Entity,
   action: Action,
   targetEntity: Entity | null,
+  targetEntityClass: EntityClass | null,
   pos: Position
 ) {
   assertCanPlay(game, player);
@@ -118,7 +129,7 @@ export function assertCanDoAction(
     });
 
   assertActionInRange(entity, pos, action);
-  assertValidTargetForAction(game, targetEntity, action);
+  assertValidTargetForAction(game, targetEntity, targetEntityClass, action);
 }
 
 export function canDoAction(
@@ -127,10 +138,19 @@ export function canDoAction(
   entity: Entity,
   action: Action,
   targetEntity: Entity | null,
+  targetEntityClass: EntityClass | null,
   pos: Position
 ): boolean {
   try {
-    assertCanDoAction(game, player, entity, action, targetEntity, pos);
+    assertCanDoAction(
+      game,
+      player,
+      entity,
+      action,
+      targetEntity,
+      targetEntityClass,
+      pos
+    );
     return true;
   } catch (error) {
     return false;

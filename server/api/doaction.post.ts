@@ -103,8 +103,18 @@ export default defineEventHandler(async (event) => {
     const entityClass = getEntityClass(entity.type);
     const action = getActionFromEntityClass(entityClass, actionName);
     const targetEntity = getEntityFromPos(game, pos);
-
-    assertCanDoAction(game, player, entity, action, targetEntity, pos);
+    const targetEntityClass = targetEntity
+      ? getEntityClass(targetEntity.type)
+      : null;
+    assertCanDoAction(
+      game,
+      player,
+      entity,
+      action,
+      targetEntity,
+      targetEntityClass,
+      pos
+    );
 
     player.food -= 1;
     entity.used = true;

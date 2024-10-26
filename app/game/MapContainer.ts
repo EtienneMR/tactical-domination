@@ -181,12 +181,14 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
 
       for (const action of getEntityClass(dragTarget.entity.type).actions) {
+        const entityAtPos = getEntityFromPos(game, pos);
         const can = canDoAction(
           game,
           me,
           dragTarget.entity,
           action,
-          getEntityFromPos(game, pos),
+          entityAtPos,
+          entityAtPos ? getEntityClass(entityAtPos.type) : null,
           pos
         );
 
@@ -283,8 +285,8 @@ export default class MapContainer extends Container<ContainerChild> {
     if (game && me) {
       const point = this.toLocal(event.global);
 
-      const actionX = Math.min(Math.floor(point.y / DEFINITION), GRID_SIZE - 1);
-      const actionY = Math.min(Math.floor(point.x / DEFINITION), GRID_SIZE - 1);
+      const actionX = Math.min(Math.floor(point.x / DEFINITION), GRID_SIZE - 1);
+      const actionY = Math.min(Math.floor(point.y / DEFINITION), GRID_SIZE - 1);
       const pos = { x: actionX, y: actionY };
 
       const { clickTarget } = this;
@@ -293,12 +295,15 @@ export default class MapContainer extends Container<ContainerChild> {
           clickTarget.entity.type
         ).actions.findLast(() => true)!;
 
+        const entityAtPos = getEntityFromPos(game, pos);
+
         const can = canDoAction(
           game,
           me,
           clickTarget.entity,
           lastAction,
-          getEntityFromPos(game, pos),
+          entityAtPos,
+          entityAtPos ? getEntityClass(entityAtPos.type) : null,
           pos
         );
 

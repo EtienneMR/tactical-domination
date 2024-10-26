@@ -40,6 +40,13 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    for (let _ = 0; _ < -player.food; _++) {
+      game.entities.splice(
+        game.entities.findIndex((e) => game.players[e.owner].pid == player.pid),
+        1
+      );
+    }
+
     player.food = Math.max(player.food, 1);
 
     game.turn = (game.turn + 1) % game.players.length;
