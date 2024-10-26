@@ -60,7 +60,6 @@ export class GameClient {
     )}`;
     this.updateBinded = this.update.bind(this);
     addEventListener("resize", this.updateBinded);
-    this.connect();
   }
 
   async connect() {
@@ -107,6 +106,7 @@ export class GameClient {
       }
 
       this.loaded = true;
+      this.connect();
     } catch (error) {
       this.events.value?.eventsource.close();
       this.events.value?.update();
