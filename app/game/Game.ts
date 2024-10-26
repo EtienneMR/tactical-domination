@@ -1,6 +1,7 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import type { Game, IndexedPlayer } from "~~/shared/types";
+import { getPlayer } from "~~/shared/utils/game";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
 import MapContainer from "./MapContainer";
@@ -75,16 +76,7 @@ export class GameClient {
   get me(): IndexedPlayer | null {
     if (!this.game || this.game.state != "started") return null;
 
-    const index = this.game.players.findIndex((p) => p.pid === this.pid);
-
-    if (index === -1) return null;
-
-    const player = this.game.players[index]!;
-
-    return {
-      index,
-      ...player,
-    };
+    return getPlayer(this.game, this.pid);
   }
 
   async init(parent: HTMLElement) {

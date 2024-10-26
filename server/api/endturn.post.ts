@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
     assertGameInState(game, "started", gid);
 
     const player = getPlayer(game, pid);
+    assertValidPlayer(player, pid);
     assertCanPlay(game, player);
 
     for (const entity of game.entities) {
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     for (let _ = 0; _ < -player.food; _++) {
       game.entities.splice(
-        game.entities.findIndex((e) => game.players[e.owner].pid == player.pid),
+        game.entities.findIndex((e) => e.owner == player.index),
         1
       );
     }

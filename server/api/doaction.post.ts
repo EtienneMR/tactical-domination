@@ -7,6 +7,7 @@ import {
 } from "~~/shared/utils/entities";
 import {
   assertCanDoAction,
+  assertCanPlay,
   getCellAt,
   getEntityFromEid,
   getEntityFromPos,
@@ -99,6 +100,7 @@ export default defineEventHandler(async (event) => {
 
     const player = getPlayer(game, pid);
     assertValidPlayer(player, pid);
+    assertCanPlay(game, player);
 
     const entityClass = getEntityClass(entity.type);
     const action = getActionFromEntityClass(entityClass, actionName);
