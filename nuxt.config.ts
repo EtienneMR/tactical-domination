@@ -1,6 +1,31 @@
+import { execSync } from "child_process";
 import { writeFileSync } from "fs";
 import { globSync } from "glob";
 import { sep as PATH_SEP, resolve } from "path";
+
+function getFormattedTimestamp() {
+  const now = new Date();
+  const YYYY = now.getFullYear();
+  const MM = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const DD = String(now.getDate()).padStart(2, "0");
+  const HH = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  const SS = String(now.getSeconds()).padStart(2, "0");
+  return `${YYYY}${MM}${DD}${HH}${mm}${SS}`;
+}
+
+const getGitVersion = () => {
+  let version;
+  try {
+    version = execSync("git rev-parse --short HEAD").toString().trim();
+  } catch (error) {
+    version = "unknown";
+  }
+  if (process.env.NODE_ENV == "development")
+    version = `dev-${getFormattedTimestamp()}-${version}`;
+  console.info(`Using game version ${version}`);
+  return version;
+};
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -18,7 +43,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      gitVersion: process.env.GIT_VERSION ?? `dev-${new Date()}`,
+      gitVersion: getGitVersion(),
     },
   },
 

@@ -22,7 +22,7 @@ const loading = ref(true);
 
 <style>
 body {
-  background-color: #1099bb;
+  @apply bg-bondi-blue-500;
 }
 
 .content {
