@@ -34,8 +34,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
         displayError(
           "Impossible de lancer la partie",
           "Nous n'avons pas pu lancer votre partie",
-          error,
-          false
+          error
         );
       } finally {
         startButton.active = true;
@@ -60,8 +59,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
         displayError(
           "Impossible de regénérer la carte",
           "Nous n'avons pas pu regénérer la carte",
-          error,
-          false
+          error
         );
       } finally {
         regenerateButton.active = true;
@@ -84,10 +82,9 @@ export default class ManagerContainer extends Container<ContainerChild> {
         await $fetch("/api/endturn", { method: "POST", query: { pid, gid } });
       } catch (error) {
         displayError(
-          "Impossible de lancer la partie",
-          "Nous n'avons pas pu lancer votre partie",
-          error,
-          false
+          "Impossible de finir le tour",
+          "Nous n'avons pas pu finir votre tour",
+          error
         );
       } finally {
         endTurnButton.active = true;

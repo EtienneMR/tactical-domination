@@ -36,7 +36,7 @@ export default function useEventSource<T>(
           name: "EventSourceError",
           message: typeof data == "string" ? data : await data.text(),
         });
-        displayError("Erreur de connexion", error.message, error, true);
+        displayError("Erreur de connexion", error.message, error);
       },
     ],
     ["message", processMessage],

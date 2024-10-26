@@ -223,8 +223,7 @@ export default class MapContainer extends Container<ContainerChild> {
           displayError(
             "Impossible de transformer l'unitée",
             "Nous n'avons pas pu transform l'unitée",
-            error,
-            false
+            error
           );
         }
       }
@@ -263,8 +262,7 @@ export default class MapContainer extends Container<ContainerChild> {
           displayError(
             "Impossible de faire cette action",
             "Nous n'avons pas pu exécuter votre action",
-            error,
-            false
+            error
           );
         }
       }
@@ -321,8 +319,7 @@ export default class MapContainer extends Container<ContainerChild> {
             displayError(
               "Impossible de faire cette action",
               "Nous n'avons pas pu exécuter votre action",
-              error,
-              false
+              error
             );
           }
         }
@@ -345,8 +342,7 @@ export default class MapContainer extends Container<ContainerChild> {
             displayError(
               "Impossible de créer une unitée",
               "Nous n'avons pas pu créer votre unitée",
-              error,
-              false
+              error
             );
           }
         }

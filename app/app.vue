@@ -3,7 +3,7 @@ const route = useRoute();
 
 useHead({
   htmlAttrs: {
-    lang: "en",
+    lang: "fr",
   },
   link: [
     {
@@ -33,20 +33,44 @@ const runtimeConfig = useRuntimeConfig();
 <template>
   <div class="flex flex-col justify-center h-[100vh]">
     <UNotifications />
-    <div class="p-3 flex gap-x-3 items-center border-b border-black">
+    <div class="p-3 flex items-center border-b border-black">
       <NuxtLink href="/">
         <NuxtImg src="/title.png" height="36" width="99" alt="Accueil" />
       </NuxtLink>
       <UTooltip
         text="Version du jeu"
-        :popper="{ placement: 'right', arrow: true }"
+        class="ml-3"
+        :popper="{ placement: 'bottom', arrow: true }"
       >
-        <UBadge variant="outline">{{
-          runtimeConfig.public.gitVersion
-        }}</UBadge></UTooltip
-      >
+        <UBadge variant="outline">{{ runtimeConfig.public.gitVersion }}</UBadge>
+      </UTooltip>
+      <UButton
+        icon="i-mdi-github"
+        variant="outline"
+        size="2xs"
+        class="ml-1"
+        target="_blank"
+        to="https://github.com/EtienneMR/tactical-domination"
+      ></UButton>
+
       <div id="header" class="flex flex-1 justify-end"></div>
     </div>
     <NuxtPage />
   </div>
 </template>
+
+<style>
+body {
+  @apply bg-bondi-blue-500;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.4s;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  filter: blur(1rem);
+}
+</style>

@@ -64,6 +64,7 @@ export class GameClient {
   }
 
   async connect() {
+    if (!this.loaded) return;
     this.events.value?.eventsource.close();
     this.events.value = useEventSource<Game>(
       this.fetchUrl,
@@ -101,11 +102,11 @@ export class GameClient {
       this.managerContainer.init();
       this.ressourcesContainer.init();
 
-      this.loaded = true;
-
       if (!this.game) {
         this.game = (await $fetch(this.fetchUrl)) as Game;
       }
+
+      this.loaded = true;
     } catch (error) {
       this.events.value?.eventsource.close();
       this.events.value?.update();
@@ -113,8 +114,9 @@ export class GameClient {
         "Erreur de chargement",
         "Nous n'avons pas pu charger votre partie.",
         error,
-        true
+        location.reload.bind(location)
       );
+      await this.destroy();
     }
 
     this.update();
