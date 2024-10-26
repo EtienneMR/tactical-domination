@@ -37,7 +37,14 @@ const runtimeConfig = useRuntimeConfig();
       <NuxtLink href="/">
         <NuxtImg src="/title.png" height="36" width="99" alt="Accueil" />
       </NuxtLink>
-      <UBadge variant="outline">{{ runtimeConfig.public.gitVersion }}</UBadge>
+      <UTooltip
+        text="Version du jeu"
+        :popper="{ placement: 'right', arrow: true }"
+      >
+        <UBadge variant="outline">{{
+          runtimeConfig.public.gitVersion
+        }}</UBadge></UTooltip
+      >
       <div id="header" class="flex flex-1 justify-end"></div>
     </div>
     <NuxtPage />
