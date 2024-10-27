@@ -19,12 +19,22 @@ const getGitVersion = () => {
   try {
     version = execSync("git rev-parse --short HEAD").toString().trim();
   } catch (error) {
+    console.error(error);
     version = "unknown";
   }
   if (process.env.NODE_ENV == "development")
     version = `dev-${getFormattedTimestamp()}-${version}`;
   console.info(`Using game version ${version}`);
   return version;
+};
+
+const getGitMessage = () => {
+  try {
+    return execSync("git log -1 --pretty=%B").toString().trim();
+  } catch (error) {
+    console.error(error);
+    return "unknown";
+  }
 };
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -48,6 +58,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       gitVersion: getGitVersion(),
+      gitMessage: getGitMessage(),
     },
   },
 

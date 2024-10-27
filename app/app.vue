@@ -38,7 +38,7 @@ const runtimeConfig = useRuntimeConfig();
         <NuxtImg src="/title.png" height="36" width="99" alt="Accueil" />
       </NuxtLink>
       <UTooltip
-        text="Version du jeu"
+        :text="runtimeConfig.public.gitMessage"
         class="ml-3"
         :popper="{ placement: 'bottom', arrow: true }"
       >
