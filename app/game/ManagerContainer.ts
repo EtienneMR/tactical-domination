@@ -1,5 +1,5 @@
 import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
-import type { Game, IndexedPlayer } from "~~/shared/types";
+import type { Game, Player } from "~~/shared/types";
 import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
 import SliceButton from "./SliceButton";
 import displayError from "./displayError";
@@ -96,7 +96,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     this.children.forEach((c) => c.init());
   }
 
-  update(game: Game, me: IndexedPlayer | null) {
+  update(game: Game, me: Player | null) {
     this.startButton.visible = game.state == "initing";
     this.regenerateButton.visible = game.state == "initing";
 

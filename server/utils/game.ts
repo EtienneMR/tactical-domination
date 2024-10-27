@@ -14,6 +14,7 @@ export function createGame(event: H3Event, initiator: string): Game {
       {
         pid: initiator,
         replay: false,
+        index: 0,
 
         gold: 1,
         food: 5,
@@ -21,6 +22,7 @@ export function createGame(event: H3Event, initiator: string): Game {
       {
         pid: null,
         replay: false,
+        index: 1,
 
         gold: 1,
         food: 5,

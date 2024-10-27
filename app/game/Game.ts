@@ -1,6 +1,6 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import type { Game, IndexedPlayer } from "~~/shared/types";
+import type { Game, Player } from "~~/shared/types";
 import { getPlayer } from "~~/shared/utils/game";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";
@@ -73,7 +73,7 @@ export class GameClient {
     );
   }
 
-  get me(): IndexedPlayer | null {
+  get me(): Player | null {
     if (!this.game || this.game.state != "started") return null;
 
     return getPlayer(this.game, this.pid);

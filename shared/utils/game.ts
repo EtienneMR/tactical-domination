@@ -3,7 +3,7 @@ import type {
   Entity,
   EntityClass,
   Game,
-  IndexedPlayer,
+  Player,
   Position,
 } from "~~/shared/types";
 import { BUILDINGS_CLASSES } from "../consts";
@@ -16,17 +16,8 @@ export function getEntityFromPos(game: Game, pos: Position): Entity | null {
   return game.entities.find((e) => e.x == pos.x && e.y == pos.y) ?? null;
 }
 
-export function getPlayer(game: Game, pid: string): IndexedPlayer | null {
-  const index = game.players.findIndex((p) => p.pid === pid);
-
-  if (index === -1) return null;
-
-  const player = game.players[index]!;
-
-  return {
-    index,
-    ...player,
-  };
+export function getPlayer(game: Game, pid: string): Player | null {
+  return game.players.find((p) => p.pid === pid) ?? null;
 }
 
 export function getBuildingClass(type: string) {
@@ -55,7 +46,7 @@ export function getCellAt(game: Game, pos: Position) {
   return cell;
 }
 
-export function assertCanPlay(game: Game, player: IndexedPlayer) {
+export function assertCanPlay(game: Game, player: Player) {
   if (game.turn != player.index)
     throw createError({
       statusCode: 400,
@@ -91,7 +82,7 @@ export function assertValidTargetForAction(
       targetEntity &&
       targetEntity.owner != game.turn &&
       targetEntityClass &&
-      targetEntityClass.immune != action.target);
+      targetEntityClass.immune != action.type);
 
   if (!valid)
     throw createError({
@@ -105,7 +96,7 @@ export function assertValidTargetForAction(
 
 export function assertCanDoAction(
   game: Game,
-  player: IndexedPlayer,
+  player: Player,
   entity: Entity,
   action: Action,
   targetEntity: Entity | null,
@@ -140,7 +131,7 @@ export function assertCanDoAction(
 
 export function canDoAction(
   game: Game,
-  player: IndexedPlayer,
+  player: Player,
   entity: Entity,
   action: Action,
   targetEntity: Entity | null,

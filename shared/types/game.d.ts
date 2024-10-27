@@ -24,14 +24,11 @@ export interface Cell extends WriteCell {
 export type SharedCell = Pick<Cell, "biome" | "building" | "owner">;
 
 export interface Player {
+  readonly index: number;
   pid: string | null;
   replay: boolean;
   gold: number;
   food: number;
-}
-
-export interface IndexedPlayer extends Player {
-  readonly index: number;
 }
 
 export interface Game {
