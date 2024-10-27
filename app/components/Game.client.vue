@@ -73,10 +73,17 @@ onNuxtReady(() =>
         @click="gameClient.connect()"
       />
       <UButton
-        v-else
+        v-else-if="eventState == 'CLOSED'"
         label="Déconnecté"
         color="red"
         trailing-icon="i-mdi-server-remove"
+        size="xs"
+        @click="gameClient.connect()"
+      />
+      <UButton
+        v-else
+        color="red"
+        trailing-icon="i-mdi-help"
         size="xs"
         @click="gameClient.connect()"
       />
