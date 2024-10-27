@@ -82,7 +82,7 @@ onNuxtReady(() =>
       />
       <UButton
         v-else
-        color="red"
+        color="gray"
         trailing-icon="i-mdi-help"
         size="xs"
         @click="gameClient.connect()"
