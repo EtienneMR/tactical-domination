@@ -48,7 +48,7 @@ export function getRules(): GenerationPattern {
       },
       {
         if: (cell) =>
-          is(cell, { x: GRID_SIZE / 2 - 1 }) || is(cell, { x: GRID_SIZE / 2 }),
+          is(cell, { x: 1, y: GRID_SIZE - 2 }) || is(cell, { x: GRID_SIZE - 2, y : 1 }),
         then: {
           building: "mine",
         },
@@ -65,7 +65,9 @@ export function getRules(): GenerationPattern {
         },
       },
       {
-        if: (cell) => distance(cell, { x: (GRID_SIZE - 1) / 2 }) <= 2,
+        if: (cell) =>
+          distance(cell, { x: 0, y: GRID_SIZE - 1}) <= 4 ||
+          distance(cell, { x: GRID_SIZE - 1, y: 0}) <= 4,
         then: {
           biome: "rocks",
           heightLimits: [0.8, 0.8],
