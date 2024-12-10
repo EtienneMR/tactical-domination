@@ -104,7 +104,7 @@ export const ENTITIES_CLASSES = [
         type: "build",
         target: null,
         range: 2,
-        budget: 0,
+        budget: 1,
       },
     ],
   },

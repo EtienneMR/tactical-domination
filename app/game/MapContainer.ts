@@ -16,7 +16,8 @@ import type { GameClient } from "./Game";
 import displayError from "./displayError";
 
 const DEFINITION = 64;
-const DOUBLE_CLICK_DELAY = 500;
+const SECONDARY_CLICK_DELAY = 5000;
+const TRANSFORM_CLICK_DELAY = 500;
 
 class RenderedEntity extends Sprite {
   public draggable!: boolean;
@@ -213,7 +214,10 @@ export default class MapContainer extends Container<ContainerChild> {
     ) {
       const cell = getCellAt(game, target.entity);
 
-      if (cell.building == "castle") {
+      if (
+        cell.building == "castle" &&
+        performance.now() - this.doubleClickStart <= TRANSFORM_CLICK_DELAY
+      ) {
         try {
           await $fetch("/api/transform", {
             query: {
@@ -272,7 +276,10 @@ export default class MapContainer extends Container<ContainerChild> {
       }
 
       const canSecondary =
-        !dragTarget.dragged && hasEntityBudget(dragTarget.entity);
+        !dragTarget.dragged &&
+        hasEntityBudget(dragTarget.entity) &&
+        me &&
+        me.food > 0;
 
       dragTarget.reset();
 
@@ -296,7 +303,10 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: actionX, y: actionY };
 
       if (clickTarget) {
-        if (performance.now() - this.doubleClickStart <= DOUBLE_CLICK_DELAY) {
+        if (
+          performance.now() - this.doubleClickStart <=
+          SECONDARY_CLICK_DELAY
+        ) {
           const lastAction = getEntityClass(
             clickTarget.entity.type
           ).actions.findLast(() => true)!;

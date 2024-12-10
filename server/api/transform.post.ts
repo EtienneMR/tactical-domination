@@ -30,6 +30,14 @@ export default defineEventHandler(async (event) => {
     const entity = getEntityFromEid(game, eid);
     assertValidEntity(entity, eid);
 
+    if (entity.budget < 100) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Bad Request",
+        message: `Can't transform entity "${eid}" which has already been used`,
+      });
+    }
+
     const player = getPlayer(game, pid);
     assertValidPlayer(player, pid);
     assertCanPlay(game, player);
