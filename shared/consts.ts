@@ -102,7 +102,7 @@ export const ENTITIES_CLASSES = [
       {
         type: "build",
         target: null,
-        range: 1,
+        range: 2,
       },
     ],
   },
