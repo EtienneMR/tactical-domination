@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     for (const entity of game.entities) {
       if (entity.owner == game.turn) {
-        entity.used = false;
+        entity.budget = 100;
         player.food -= 1;
       }
     }

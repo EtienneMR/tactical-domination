@@ -6,13 +6,14 @@ export interface Entity {
   readonly owner: number;
   x: number;
   y: number;
-  used: boolean;
+  budget: number;
 }
 
 export interface Action {
   readonly type: ActionType;
   readonly target: null | "enemy";
   readonly range: number;
+  readonly budget: number;
 }
 
 export interface EntityClass {

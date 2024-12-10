@@ -68,10 +68,10 @@ export default defineEventHandler(async (event) => {
     game.entities.push({
       eid: `e${Math.floor(Math.random() * 1000000)}`,
       type: "melee",
-      owner: cell.owner,
+      owner: cell.owner!,
       x: pos.x,
       y: pos.y,
-      used: false,
+      budget: 100,
     });
 
     return game;

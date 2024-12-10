@@ -11,12 +11,13 @@ import {
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import type { Action, Entity } from "~~/shared/types";
-import { getEntityClass } from "~~/shared/utils/entities";
+import { getEntityClass, hasEntityBudget } from "~~/shared/utils/entities";
 import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
 import type { GameClient } from "./Game";
 import displayError from "./displayError";
 
 const DEFINITION = 64;
+const DOUBLE_CLICK_DELAY = 500;
 
 class RenderedEntity extends Sprite {
   public draggable!: boolean;
@@ -31,8 +32,8 @@ class RenderedEntity extends Sprite {
       y: (entity.y + 0.5) * DEFINITION,
       actionX: entity.x,
       actionY: entity.y,
-      alpha: entity.used ? 0.75 : 1,
-      draggable: !entity.used && entity.owner == myIndex,
+      alpha: hasEntityBudget(entity) ? 1 : 0.75,
+      draggable: hasEntityBudget(entity) && entity.owner == myIndex,
       tint: 0xffffff,
       simpleClick: true,
       dragged: false,
@@ -80,6 +81,7 @@ export default class MapContainer extends Container<ContainerChild> {
   private entitiesContainer: EntitiesContainer;
   private dragTarget: RenderedEntity | null;
   private clickTarget: RenderedEntity | null;
+  private doubleClickStart: DOMHighResTimeStamp;
 
   constructor(
     private gameClient: GameClient,
@@ -90,6 +92,7 @@ export default class MapContainer extends Container<ContainerChild> {
     this.entitiesContainer = this.addChild(new EntitiesContainer());
     this.dragTarget = null;
     this.clickTarget = null;
+    this.doubleClickStart = performance.timeOrigin;
 
     this.eventMode = "static";
 
@@ -269,12 +272,14 @@ export default class MapContainer extends Container<ContainerChild> {
         }
       }
 
-      const canSecondary = !dragTarget.dragged && !dragTarget.entity.used;
+      const canSecondary =
+        !dragTarget.dragged && hasEntityBudget(dragTarget.entity);
 
       dragTarget.reset();
 
       if (canSecondary) {
         this.clickTarget = dragTarget;
+        this.doubleClickStart = performance.now();
         dragTarget.tint = 0x999999;
       }
     }
@@ -282,6 +287,8 @@ export default class MapContainer extends Container<ContainerChild> {
 
   async onSecondaryAction(event: FederatedPointerEvent) {
     const { game, me } = this.gameClient;
+    const { clickTarget } = this;
+    this.clickTarget = null;
     if (game && me) {
       const point = this.toLocal(event.global);
 
@@ -289,43 +296,44 @@ export default class MapContainer extends Container<ContainerChild> {
       const actionY = Math.min(Math.floor(point.y / DEFINITION), GRID_SIZE - 1);
       const pos = { x: actionX, y: actionY };
 
-      const { clickTarget } = this;
       if (clickTarget) {
-        const lastAction = getEntityClass(
-          clickTarget.entity.type
-        ).actions.findLast(() => true)!;
+        if (performance.now() - this.doubleClickStart <= DOUBLE_CLICK_DELAY) {
+          const lastAction = getEntityClass(
+            clickTarget.entity.type
+          ).actions.findLast(() => true)!;
 
-        const entityAtPos = getEntityFromPos(game, pos);
+          const entityAtPos = getEntityFromPos(game, pos);
 
-        const can = canDoAction(
-          game,
-          me,
-          clickTarget.entity,
-          lastAction,
-          entityAtPos,
-          entityAtPos ? getEntityClass(entityAtPos.type) : null,
-          pos
-        );
+          const can = canDoAction(
+            game,
+            me,
+            clickTarget.entity,
+            lastAction,
+            entityAtPos,
+            entityAtPos ? getEntityClass(entityAtPos.type) : null,
+            pos
+          );
 
-        if (can) {
-          try {
-            await $fetch("/api/doaction", {
-              query: {
-                gid: this.gameClient.gid,
-                pid: this.gameClient.pid,
-                eid: clickTarget.entity.eid,
-                action: lastAction.type,
-                x: actionX,
-                y: actionY,
-              },
-              method: "POST",
-            });
-          } catch (error) {
-            displayError(
-              "Impossible de faire cette action",
-              "Nous n'avons pas pu exécuter votre action",
-              error
-            );
+          if (can) {
+            try {
+              await $fetch("/api/doaction", {
+                query: {
+                  gid: this.gameClient.gid,
+                  pid: this.gameClient.pid,
+                  eid: clickTarget.entity.eid,
+                  action: lastAction.type,
+                  x: actionX,
+                  y: actionY,
+                },
+                method: "POST",
+              });
+            } catch (error) {
+              displayError(
+                "Impossible de faire cette action",
+                "Nous n'avons pas pu exécuter votre action",
+                error
+              );
+            }
           }
         }
         clickTarget.reset();

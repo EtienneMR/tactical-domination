@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
     );
 
     player.food -= 1;
-    entity.used = true;
+    entity.budget = action.budget;
 
     if (action.type == "move") {
       await performMove(game, entity, pos);

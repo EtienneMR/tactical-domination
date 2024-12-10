@@ -7,6 +7,7 @@ import type {
   Position,
 } from "~~/shared/types";
 import { BUILDINGS_CLASSES } from "../consts";
+import { hasEntityBudget } from "./entities";
 
 export function getEntityFromEid(game: Game, eid: string): Entity | null {
   return game.entities.find((e) => e.eid == eid) ?? null;
@@ -111,11 +112,12 @@ export function assertCanDoAction(
       statusMessage: "Bad Request",
       message: `Entity "${entity.eid}" isn't owned by you`,
     });
-  if (entity.used)
+
+  if (!hasEntityBudget(entity))
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Entity "${entity.eid}" already used`,
+      message: `Entity "${entity.eid}" has no budget left`,
     });
 
   if (player.food <= 0)
