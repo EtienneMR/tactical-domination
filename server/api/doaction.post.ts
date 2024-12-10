@@ -1,6 +1,5 @@
 import { useKv } from "~~/server/utils/useKv";
 import { BUILDINGS_CLASSES } from "~~/shared/consts";
-import type { Entity, Game, Position } from "~~/shared/types";
 import {
   getActionFromEntityClass,
   getEntityClass,

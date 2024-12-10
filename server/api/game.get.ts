@@ -1,6 +1,5 @@
 import { H3Event } from "h3";
 import { useKv } from "~~/server/utils/useKv";
-import type { Game } from "~~/shared/types";
 import { assertValidString } from "../utils/checks";
 import { createGame } from "../utils/game";
 

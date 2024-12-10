@@ -1,5 +1,4 @@
 import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
-import type { Game, Player } from "~~/shared/types";
 import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
 import SliceButton from "./SliceButton";
 import displayError from "./displayError";

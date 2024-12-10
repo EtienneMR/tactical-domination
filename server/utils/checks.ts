@@ -1,11 +1,4 @@
 import { GRID_SIZE } from "~~/shared/consts";
-import type {
-  Entity,
-  Game,
-  GameState,
-  Player,
-  Position,
-} from "~~/shared/types";
 
 export function assertValidGame(
   game: Game | null,

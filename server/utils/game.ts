@@ -1,5 +1,4 @@
 import { H3Event } from "h3";
-import type { Game } from "~~/shared/types";
 
 export function createGame(event: H3Event, initiator: string): Game {
   const runtimeConfig = useRuntimeConfig(event);
@@ -37,6 +36,7 @@ export function createGame(event: H3Event, initiator: string): Game {
         owner: cell.owner!,
         x: cell.x,
         y: cell.y,
+        budget: 100,
       })),
 
     map,

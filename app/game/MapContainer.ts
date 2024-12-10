@@ -10,7 +10,6 @@ import {
 } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
-import type { Action, Entity } from "~~/shared/types";
 import { getEntityClass, hasEntityBudget } from "~~/shared/utils/entities";
 import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
 import type { GameClient } from "./Game";

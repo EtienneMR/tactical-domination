@@ -1,12 +1,4 @@
-import type {
-  Action,
-  Entity,
-  EntityClass,
-  Game,
-  Player,
-  Position,
-} from "~~/shared/types";
-import { BUILDINGS_CLASSES } from "../consts";
+import { BUILDINGS_CLASSES } from "~~/shared/consts";
 import { hasEntityBudget } from "./entities";
 
 export function getEntityFromEid(game: Game, eid: string): Entity | null {

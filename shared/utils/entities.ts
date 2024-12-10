@@ -1,5 +1,4 @@
 import { ENTITIES_CLASSES } from "~~/shared/consts";
-import type { Entity, EntityClass } from "~~/shared/types";
 
 export function getEntityClass(type: string) {
   const entityClass = ENTITIES_CLASSES.find((e) => e.type == type);

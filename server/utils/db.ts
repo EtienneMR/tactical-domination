@@ -1,5 +1,4 @@
 import type { AtomicOperation, Kv } from "@deno/kv";
-import type { Game, MaybeGame, MaybePromise } from "~~/shared/types";
 
 const SET_OPTIONS = {
   expireIn: 1000 * 60 * 60,

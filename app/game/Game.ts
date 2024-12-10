@@ -1,6 +1,5 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import type { Game, Player } from "~~/shared/types";
 import { getPlayer } from "~~/shared/utils/game";
 import displayError from "./displayError";
 import ManagerContainer from "./ManagerContainer";

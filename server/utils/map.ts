@@ -1,11 +1,5 @@
 import { ValueNoise } from "value-noise-js";
 import { GRID_SIZE, REGION_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
-import type {
-  Cell,
-  GenerationPattern,
-  GenerationRule,
-  WriteCell,
-} from "~~/shared/types";
 
 function distance(a: { x: number; y: number }, b: { x: number; y?: number }) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - (b.y ?? b.x), 2));
