@@ -152,3 +152,11 @@ export const ENTITIES_TYPES = ENTITIES_CLASSES.map((e) => e.type);
 export const ACTIONS_TYPES = ENTITIES_CLASSES.map((e) =>
   e.actions.map((a) => a.type)
 ).flat();
+
+export const MAPS = [
+  { id: "centeredMines", name: "Les mines du centre", label: "1v1" },
+  { id: "edgeMines", name: "Les mines des angles", label: "1v1" },
+  { id: "fourKingdoms", name: "Les quatres royaumes", label: "1v1v1v1" },
+  { id: "forgotenCastles", name: "Les châteaux oubliés", label: "1v1" },
+] as const;
+export const MAP_IDS = MAPS.map((m) => m.id);

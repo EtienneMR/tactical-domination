@@ -1,7 +1,6 @@
 import { H3Event } from "h3";
 import { useKv } from "~~/server/utils/useKv";
 import { assertValidString } from "../utils/checks";
-import { createGame } from "../utils/game";
 
 function assertMatchingVersions(
   event: H3Event,
@@ -57,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
         event.waitUntil(
           updateGame(kv, gid, (game) => {
-            game = game ?? createGame(event, pid);
+            assertValidGame(game, gid);
             assertMatchingVersions(event, game, v);
 
             let found = false;
@@ -77,8 +76,8 @@ export default defineEventHandler(async (event) => {
 
     event.waitUntil(
       updateGame(kv, gid, async (game) => {
-        game = game ?? createGame(event, pid);
         try {
+          assertValidGame(game, gid);
           assertMatchingVersions(event, game, v);
         } catch (error) {
           return null;
@@ -105,11 +104,8 @@ export default defineEventHandler(async (event) => {
       },
     });
   } else {
-    let game = await getGame(kv, gid);
-    if (!game) {
-      game = createGame(event, pid);
-      await setGame(kv, gid, game);
-    }
+    const game = await getGame(kv, gid);
+    assertValidGame(game, gid);
     assertMatchingVersions(event, game, v);
     return game;
   }

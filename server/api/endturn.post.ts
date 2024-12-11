@@ -42,10 +42,13 @@ export default defineEventHandler(async (event) => {
     }
 
     for (let _ = 0; _ < -player.food; _++) {
-      game.entities.splice(
-        game.entities.findIndex((e) => e.owner == player.index),
-        1
-      );
+      const entity = game.entities.find((e) => e.owner == player.index);
+      if (entity) {
+        entity.owner = null;
+
+        const cell = getCellAt(game, entity);
+        cell.owner = null;
+      }
     }
 
     player.food = Math.max(player.food, 1);

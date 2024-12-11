@@ -1,147 +1,5 @@
-import { ValueNoise } from "value-noise-js";
-import { GRID_SIZE, REGION_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
-
-function distance(a: { x: number; y: number }, b: { x: number; y?: number }) {
-  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - (b.y ?? b.x), 2));
-}
-
-function is(a: { x: number; y: number }, b: { x: number; y?: number }) {
-  return a.x == b.x && a.y == (b.y ?? b.x);
-}
-
-function random(x: number) {
-  return Math.random() < x;
-}
-
-export function getRules(): GenerationPattern {
-  const noise = new ValueNoise(undefined, undefined, "perlin");
-
-  return {
-    pre: [
-      {
-        if: (cell) => true,
-        action: (cell) =>
-          (cell.height = noise.evalXY(
-            (cell.x / GRID_SIZE) * REGION_SIZE,
-            (cell.y / GRID_SIZE) * REGION_SIZE
-          )),
-      },
-      {
-        if: (cell) => is(cell, { x: 0 }),
-        then: {
-          building: "castle",
-          owner: 0,
-        },
-      },
-      {
-        if: (cell) => is(cell, { x: GRID_SIZE - 1 }),
-        then: {
-          building: "castle",
-          owner: 1,
-        },
-      },
-      {
-        if: (cell) =>
-          is(cell, { x: 1, y: GRID_SIZE - 2 }) || is(cell, { x: GRID_SIZE - 2, y : 1 }),
-        then: {
-          building: "mine",
-        },
-      },
-    ],
-    step: [
-      {
-        if: (cell) =>
-          distance(cell, { x: 0 }) <= 4 ||
-          distance(cell, { x: GRID_SIZE - 1 }) <= 4,
-        then: {
-          biome: "plains",
-          heightLimits: [0.2, 0.2],
-        },
-      },
-      {
-        if: (cell) =>
-          distance(cell, { x: 0, y: GRID_SIZE - 1}) <= 4 ||
-          distance(cell, { x: GRID_SIZE - 1, y: 0}) <= 4,
-        then: {
-          biome: "rocks",
-          heightLimits: [0.8, 0.8],
-        },
-      },
-    ],
-    post: [
-      {
-        if: (cell) => cell.height < 0.4,
-        then: {
-          biome: "plains",
-        },
-      },
-      {
-        if: (cell) => 0.4 <= cell.height && cell.height < 0.7,
-        then: {
-          biome: "forest",
-        },
-      },
-      {
-        if: (cell) => 0.7 <= cell.height,
-        then: {
-          biome: "rocks",
-        },
-      },
-      {
-        if: (cell, opp) =>
-          cell.building == null &&
-          cell.biome == "plains" &&
-          opp.building == null &&
-          opp.biome == "plains" &&
-          random(0.1),
-        then: {
-          building: "wheat",
-        },
-      },
-      {
-        if: (cell, opp) => opp.building == "wheat",
-        then: {
-          building: "wheat",
-        },
-      },
-      {
-        if: (cell, opp) =>
-          cell.building == null &&
-          cell.biome == "rocks" &&
-          opp.building == null &&
-          opp.biome == "rocks" &&
-          random(0.1),
-        then: {
-          building: "pasture",
-        },
-      },
-      {
-        if: (cell, opp) => opp.building == "pasture",
-        then: {
-          building: "pasture",
-        },
-      },
-      {
-        if: (cell) =>
-          cell.building == null &&
-          cell.biome == "plains" &&
-          distance(cell, { x: 0 }) > 2 &&
-          distance(cell, { x: GRID_SIZE - 1 }) > 2 &&
-          random(0.1),
-        then: {
-          building: "lake",
-        },
-      },
-      {
-        if: (cell) =>
-          cell.building == null && cell.biome == "rocks" && random(0.2),
-        then: {
-          building: "mountain",
-        },
-      },
-    ],
-  };
-}
+import { GRID_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
+import { mapsRules } from "./mapRules";
 
 function opp(cell: Cell, map: Cell[][]) {
   return map[GRID_SIZE - cell.x - 1]![GRID_SIZE - cell.y - 1]!;
@@ -168,8 +26,25 @@ function pickClampedLerped(t: Cell[][], x: number, y: number, v: Cell): number {
   return v.height + Math.random() * (target.height - v.height);
 }
 
-export function generateMap(): Cell[] {
-  const rules = getRules();
+export function generateMap(mapName: string): Cell[] {
+  const rules = (mapsRules as { [mapName: string]: GenerationRule[] })[mapName];
+
+  if (!rules)
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Bad Request",
+      message: `Invalid mapName "${mapName}"; not found`,
+    });
+
+  const stages = {
+    pre: [getNoiseRule()] as GenerationRule[],
+    step: [] as GenerationRule[],
+    post: [] as GenerationRule[],
+  };
+
+  for (const rule of rules) {
+    stages[rule.when].push(rule);
+  }
 
   const map: WriteCell[][] = Array.from({ length: GRID_SIZE }, (_, x) =>
     Array.from({ length: GRID_SIZE }, (_, y) => ({
@@ -183,7 +58,7 @@ export function generateMap(): Cell[] {
     }))
   );
 
-  for (const rule of rules.pre) {
+  for (const rule of stages.pre) {
     for (const row of map) {
       for (const cell of row) {
         applyRule(rule, cell, opp(cell, map));
@@ -203,7 +78,7 @@ export function generateMap(): Cell[] {
       }
     }
 
-    for (const rule of rules.step) {
+    for (const rule of stages.step) {
       for (const row of map) {
         for (const cell of row) {
           applyRule(rule, cell, opp(cell, map));
@@ -211,7 +86,7 @@ export function generateMap(): Cell[] {
       }
     }
   }
-  for (const rule of rules.post) {
+  for (const rule of stages.post) {
     for (const row of map) {
       for (const cell of row) {
         applyRule(rule, cell, opp(cell, map));

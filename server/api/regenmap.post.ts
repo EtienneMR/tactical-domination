@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   await updateGame(kv, gid, (game) => {
     assertValidGame(game, gid);
     assertGameInState(game, "initing", gid);
-    game.map = generateMap();
+    game.map = generateMap(game.mapName);
     return game;
   });
 
