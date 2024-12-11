@@ -19,5 +19,6 @@ export interface Action {
 export interface EntityClass {
   readonly type: EntityType;
   readonly immune: null | ActionType;
+  readonly ressource: "gold" | "food";
   readonly actions: readonly Action[];
 }

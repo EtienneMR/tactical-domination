@@ -1,5 +1,4 @@
 import { useKv } from "~~/server/utils/useKv";
-import { ENTITIES_TYPES } from "~~/shared/consts";
 import {
   assertCanPlay,
   getCellAt,
@@ -48,13 +47,16 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
-        message: `Can't transform entity "${eid}" outside of a castle`,
+        message: `Can't remove entity "${eid}" outside of a castle`,
       });
 
-    entity.type =
-      ENTITIES_TYPES[
-        (ENTITIES_TYPES.indexOf(entity.type) + 1) % ENTITIES_TYPES.length
-      ];
+    const previous = getEntityClass(entity.type);
+    player[previous.ressource] += 1;
+
+    game.entities.splice(
+      game.entities.findIndex((e) => e.eid == entity.eid),
+      1
+    );
 
     return game;
   });

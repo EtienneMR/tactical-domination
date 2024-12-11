@@ -11,7 +11,7 @@ export interface ButtonSettings {
 
 const NOT_SCALABLE_AREA = 20;
 
-export default class Button extends ButtonContainer {
+export default class SliceButton extends ButtonContainer {
   private settings: ButtonSettings;
   private textLabel: Text;
   private nineSlice: NineSliceSprite | undefined;

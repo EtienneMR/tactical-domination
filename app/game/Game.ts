@@ -91,6 +91,7 @@ export class GameClient {
 
       this.managerContainer.init();
       this.ressourcesContainer.init();
+      this.mapContainer.init();
 
       if (!this.game) {
         this.game = (await $fetch(this.fetchUrl)) as Game;

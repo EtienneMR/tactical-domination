@@ -73,8 +73,28 @@ export const BUILDINGS_TYPES = BUILDINGS_CLASSES.map((b) => b.type);
 
 export const ENTITIES_CLASSES = [
   {
+    type: "melee",
+    immune: "ranged",
+    ressource: "gold",
+    actions: [
+      {
+        type: "move",
+        target: null,
+        range: 1,
+        budget: 100,
+      },
+      {
+        type: "melee",
+        target: "enemy",
+        range: 1,
+        budget: 50,
+      },
+    ],
+  },
+  {
     type: "archer",
     immune: null,
+    ressource: "gold",
     actions: [
       {
         type: "move",
@@ -91,8 +111,28 @@ export const ENTITIES_CLASSES = [
     ],
   },
   {
+    type: "horseman",
+    immune: null,
+    ressource: "gold",
+    actions: [
+      {
+        type: "move",
+        target: null,
+        range: 1,
+        budget: 50,
+      },
+      {
+        type: "melee",
+        target: "enemy",
+        range: 1,
+        budget: 100,
+      },
+    ],
+  },
+  {
     type: "builder",
     immune: null,
+    ressource: "gold",
     actions: [
       {
         type: "move",
@@ -109,38 +149,15 @@ export const ENTITIES_CLASSES = [
     ],
   },
   {
-    type: "horseman",
+    type: "farmer",
     immune: null,
-    actions: [
-      {
-        type: "move",
-        target: null,
-        range: 1,
-        budget: 50,
-      },
-      {
-        type: "melee",
-        target: "enemy",
-        range: 1,
-        budget: 100,
-      },
-    ],
-  },
-  {
-    type: "melee",
-    immune: "ranged",
+    ressource: "food",
     actions: [
       {
         type: "move",
         target: null,
         range: 1,
         budget: 100,
-      },
-      {
-        type: "melee",
-        target: "enemy",
-        range: 1,
-        budget: 50,
       },
     ],
   },

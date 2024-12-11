@@ -9,11 +9,13 @@ import {
   type ContainerOptions,
 } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import { GRID_SIZE } from "~~/shared/consts";
+import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
+import type { Cell } from "~~/shared/types/game";
 import { getEntityClass, hasEntityBudget } from "~~/shared/utils/entities";
 import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
-import type { GameClient } from "./Game";
 import displayError from "./displayError";
+import type { GameClient } from "./Game";
+import SliceButton from "./SliceButton";
 
 const DEFINITION = 64;
 const SECONDARY_CLICK_DELAY = 5000;
@@ -72,6 +74,84 @@ class RenderedEntity extends Sprite {
   }
 }
 
+class SpawnPopup extends SliceButton {
+  private cell: Cell | null;
+
+  constructor(private gameClient: GameClient) {
+    super({
+      width: DEFINITION * ENTITIES_TYPES.length,
+      height: DEFINITION,
+
+      label: " ",
+    });
+    this.x = DEFINITION;
+    this.visible = false;
+    this.cell = null;
+  }
+
+  override init() {
+    super.init();
+    for (const [i, entityType] of Object.entries(ENTITIES_TYPES)) {
+      const entity = this.addChild(
+        new RenderedEntity(
+          {
+            eid: `spawnPopupFakeEntity-${entityType}`,
+            type: entityType,
+            owner: null,
+            x: Number(i),
+            y: 0,
+            budget: 0,
+          },
+          null
+        )
+      );
+      entity.on(
+        "pointerdown",
+        this.requestSpawn.bind(this, entityType),
+        entityType
+      );
+    }
+  }
+
+  async requestSpawn(entityType: string) {
+    if (this.cell) {
+      try {
+        await $fetch("/api/create", {
+          query: {
+            gid: this.gameClient.gid,
+            pid: this.gameClient.pid,
+            entityType,
+            x: this.cell.x,
+            y: this.cell.y,
+          },
+          method: "POST",
+        });
+      } catch (error) {
+        displayError(
+          "Impossible de créer une unitée",
+          "Nous n'avons pas pu créer votre unitée",
+          error
+        );
+      }
+    }
+  }
+
+  showAt(cell: Cell) {
+    this.visible = true;
+    this.cell = cell;
+
+    const alignLeft = cell.x > GRID_SIZE / 2 ? 1 : 0;
+
+    this.x = (cell.x + 1 - alignLeft) * DEFINITION - alignLeft * this.width;
+    this.y = cell.y * DEFINITION;
+  }
+
+  hide() {
+    this.visible = false;
+    this.cell = null;
+  }
+}
+
 class EntitiesContainer extends Container<ContainerChild> {
   public declare children: RenderedEntity[];
 }
@@ -82,6 +162,7 @@ export default class MapContainer extends Container<ContainerChild> {
   private dragTarget: RenderedEntity | null;
   private clickTarget: RenderedEntity | null;
   private doubleClickStart: DOMHighResTimeStamp;
+  private spawnPopup: SpawnPopup;
 
   constructor(
     private gameClient: GameClient,
@@ -90,6 +171,7 @@ export default class MapContainer extends Container<ContainerChild> {
     super(options);
     this.mapContainer = this.addChild(new Container());
     this.entitiesContainer = this.addChild(new EntitiesContainer());
+    this.spawnPopup = this.addChild(new SpawnPopup(gameClient));
     this.dragTarget = null;
     this.clickTarget = null;
     this.doubleClickStart = performance.timeOrigin;
@@ -102,6 +184,10 @@ export default class MapContainer extends Container<ContainerChild> {
     this.on("pointermove", this.onDragMove.bind(this));
   }
 
+  init() {
+    this.spawnPopup.init();
+  }
+
   update() {
     const { game } = this.gameClient;
 
@@ -109,7 +195,7 @@ export default class MapContainer extends Container<ContainerChild> {
 
     this.mapContainer.removeChildren();
 
-    for (const [i, data] of game.map.entries()) {
+    for (const data of game.map) {
       const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
       biomeSprite.setSize(DEFINITION);
       biomeSprite.x = data.x * DEFINITION;
@@ -219,7 +305,7 @@ export default class MapContainer extends Container<ContainerChild> {
         performance.now() - this.doubleClickStart <= TRANSFORM_CLICK_DELAY
       ) {
         try {
-          await $fetch("/api/transform", {
+          await $fetch("/api/remove", {
             query: {
               gid: this.gameClient.gid,
               pid: this.gameClient.pid,
@@ -229,8 +315,8 @@ export default class MapContainer extends Container<ContainerChild> {
           });
         } catch (error) {
           displayError(
-            "Impossible de transformer l'unitée",
-            "Nous n'avons pas pu transform l'unitée",
+            "Impossible de renvoyer l'unitée",
+            "Nous n'avons pas pu renvoyer l'unitée",
             error
           );
         }
@@ -292,6 +378,8 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   async onSecondaryAction(event: FederatedPointerEvent) {
+    this.spawnPopup.hide();
+
     const { game, me } = this.gameClient;
     const { clickTarget } = this;
     this.clickTarget = null;
@@ -350,23 +438,7 @@ export default class MapContainer extends Container<ContainerChild> {
         const cell = getCellAt(game, pos);
 
         if (cell.building == "castle" && !getEntityFromPos(game, pos)) {
-          try {
-            await $fetch("/api/create", {
-              query: {
-                gid: this.gameClient.gid,
-                pid: this.gameClient.pid,
-                x: actionX,
-                y: actionY,
-              },
-              method: "POST",
-            });
-          } catch (error) {
-            displayError(
-              "Impossible de créer une unitée",
-              "Nous n'avons pas pu créer votre unitée",
-              error
-            );
-          }
+          this.spawnPopup.showAt(cell);
         }
       }
     }
