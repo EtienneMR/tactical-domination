@@ -33,6 +33,7 @@ export interface Player {
 
 export interface Game {
   state: GameState;
+  mapName: string;
   players: Player[];
   turn: number;
   entities: Entity[];

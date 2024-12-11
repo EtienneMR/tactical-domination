@@ -1,17 +1,34 @@
 <script setup lang="ts">
-function getValue() {
-  return `${Math.floor(Math.random() * 1000000)}`;
+import { MAPS } from "~~/shared/consts";
+import usePlayerId from "../game/usePlayerId";
+
+async function createAndJoinGame(mapName: string) {
+  const gid = `${Math.floor(Math.random() * 1000000)}`;
+
+  await $fetch("/api/setupgame", {
+    method: "POST",
+    query: {
+      pid: usePlayerId(),
+      gid: `g${gid}`,
+      v: useRuntimeConfig().public.gitVersion,
+      mapName,
+    },
+  });
+  await useRouter().push(`/${gid}`);
 }
-
-const id = useState(getValue);
-
-onBeforeRouteLeave(() => void (id.value = getValue()));
 </script>
 
 <template>
   <div class="flex-1 p-4">
-    <UButton :to="'/' + id" trailing icon="i-heroicons-arrow-right-20-solid">
-      g{{ id }}
-    </UButton>
+    <h1>Créer une partie</h1>
+    <p v-for="map of MAPS">
+      <UButton
+        @click="createAndJoinGame(map.id)"
+        trailing
+        icon="i-heroicons-arrow-right-20-solid"
+      >
+        {{ map.name }} </UButton
+      ><UBadge class="ml-3">{{ map.label }}</UBadge>
+    </p>
   </div>
 </template>

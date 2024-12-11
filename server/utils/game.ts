@@ -1,39 +1,36 @@
 import { H3Event } from "h3";
 
-export function createGame(event: H3Event, initiator: string): Game {
+export function createGame(
+  event: H3Event,
+  initiator: string,
+  mapName: string
+): Game {
   const runtimeConfig = useRuntimeConfig(event);
-  const map = generateMap();
+
+  const map = generateMap(mapName);
 
   return {
     version: runtimeConfig.public.gitVersion,
+    mapName,
     state: "initing",
     turn: 0,
 
-    players: [
-      {
-        pid: initiator,
+    players: map
+      .filter((cell) => cell.building == "castle" && cell.owner != null)
+      .map((cell, index) => ({
+        pid: cell.owner == 0 ? initiator : null,
         replay: false,
-        index: 0,
+        index: cell.owner!,
 
         gold: 1,
         food: 5,
-      },
-      {
-        pid: null,
-        replay: false,
-        index: 1,
-
-        gold: 1,
-        food: 5,
-      },
-    ],
-
+      })),
     entities: map
-      .filter((cell) => cell.building == "castle")
+      .filter((cell) => cell.building == "castle" && cell.owner != null)
       .map((cell, index) => ({
         eid: `e${index}`,
         type: "melee",
-        owner: cell.owner!,
+        owner: cell.owner,
         x: cell.x,
         y: cell.y,
         budget: 100,

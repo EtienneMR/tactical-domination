@@ -133,7 +133,11 @@ export default defineEventHandler(async (event) => {
 
       if (cell.building) cell.building = null;
       else {
-        cell.building = "wall";
+        cell.building = game.map.some(
+          (c) => c.building == "castle" && c.owner == player.index
+        )
+          ? "wall"
+          : "castle";
         cell.owner = game.turn;
       }
     }
