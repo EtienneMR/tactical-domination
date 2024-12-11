@@ -16,7 +16,7 @@ export function createGame(
     turn: 0,
 
     players: map
-      .filter((cell) => cell.building == "castle")
+      .filter((cell) => cell.building == "castle" && cell.owner != null)
       .map((cell, index) => ({
         pid: cell.owner == 0 ? initiator : null,
         replay: false,
@@ -26,7 +26,7 @@ export function createGame(
         food: 5,
       })),
     entities: map
-      .filter((cell) => cell.building == "castle" && cell.owner)
+      .filter((cell) => cell.building == "castle" && cell.owner != null)
       .map((cell, index) => ({
         eid: `e${index}`,
         type: "melee",
