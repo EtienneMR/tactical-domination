@@ -1,7 +1,7 @@
 import type { AtomicOperation, Kv } from "@deno/kv";
 
 const SET_OPTIONS = {
-  expireIn: 1000 * 60 * 60,
+  expireIn: 1000 * 60 * 60 * 24 * 7,
 };
 
 export async function updateGame(
