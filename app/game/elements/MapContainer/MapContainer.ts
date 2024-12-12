@@ -13,9 +13,9 @@ import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
 import type { Cell } from "~~/shared/types/game";
 import { getEntityClass, hasEntityBudget } from "~~/shared/utils/entities";
 import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
-import displayError from "./displayError";
-import type { GameClient } from "./Game";
-import SliceButton from "./SliceButton";
+import displayError from "../../utils/displayError";
+import type { GameClient } from "../../Game";
+import SliceButton from "../SliceButton";
 
 const DEFINITION = 64;
 const SECONDARY_CLICK_DELAY = 5000;
