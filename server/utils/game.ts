@@ -22,19 +22,10 @@ export function createGame(
         replay: false,
         index: cell.owner!,
 
-        gold: 1,
+        gold: 2,
         food: 5,
       })),
-    entities: map
-      .filter((cell) => cell.building == "castle" && cell.owner != null)
-      .map((cell, index) => ({
-        eid: `e${index}`,
-        type: "melee",
-        owner: cell.owner,
-        x: cell.x,
-        y: cell.y,
-        budget: 100,
-      })),
+    entities: [],
 
     map,
   };

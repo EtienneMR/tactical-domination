@@ -4,6 +4,7 @@ import {
   getBuildingClass,
   getPlayer,
 } from "~~/shared/utils/game";
+import { getEntityClass } from "~~/shared/utils/entities";
 import {
   assertGameInState,
   assertValidGame,
@@ -29,7 +30,9 @@ export default defineEventHandler(async (event) => {
     for (const entity of game.entities) {
       if (entity.owner == game.turn) {
         entity.budget = 100;
-        player.food -= 1;
+
+        const entityClass = getEntityClass(entity.type);
+        if (entityClass.ressource == "gold") player.food -= 1;
       }
     }
 

@@ -159,6 +159,12 @@ export const ENTITIES_CLASSES = [
         range: 1,
         budget: 100,
       },
+      {
+        type: "melee",
+        target: "enemy",
+        range: 1,
+        budget: 100,
+      },
     ],
   },
 ] as const;
