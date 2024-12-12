@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MAPS } from "~~/shared/consts";
-import usePlayerId from "../game/usePlayerId";
+import usePlayerId from "../game/utils/usePlayerId";
 
 async function createAndJoinGame(mapName: string) {
   const gid = `${Math.floor(Math.random() * 1000000)}`;

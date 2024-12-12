@@ -1,12 +1,12 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import { getPlayer } from "~~/shared/utils/game";
-import displayError from "./displayError";
-import ManagerContainer from "./ManagerContainer";
-import MapContainer from "./MapContainer";
-import RessourcesContainer from "./RessourcesContainer";
-import useEventSource from "./useEventSource";
-import usePlayerId from "./usePlayerId";
+import ManagerContainer from "./elements/ManagerContainer";
+import MapContainer from "./elements/MapContainer/MapContainer";
+import RessourcesContainer from "./elements/RessourcesContainer";
+import displayError from "./utils/displayError";
+import useEventSource from "./utils/useEventSource";
+import usePlayerId from "./utils/usePlayerId";
 
 export class GameClient {
   private loaded: boolean;

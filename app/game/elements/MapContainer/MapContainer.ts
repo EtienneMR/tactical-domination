@@ -1,156 +1,23 @@
-import gsap from "gsap";
 import {
   Assets,
   Container,
+  type ContainerChild,
+  type ContainerOptions,
   FederatedPointerEvent,
   Point,
   Sprite,
-  type ContainerChild,
-  type ContainerOptions,
 } from "pixi.js";
+import type { GameClient } from "~/game/Game";
+import displayError from "~/game/utils/displayError";
+import getGroundData from "~/game/utils/getGroundData";
 import manifest from "~~/public/assets/manifest.json";
-import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
-import type { Cell } from "~~/shared/types/game";
-import { getEntityClass, hasEntityBudget } from "~~/shared/utils/entities";
-import { canDoAction, getCellAt, getEntityFromPos } from "~~/shared/utils/game";
-import displayError from "./displayError";
-import type { GameClient } from "./Game";
-import SliceButton from "./SliceButton";
+import { GRID_SIZE } from "~~/shared/consts";
+import RenderedEntity from "./RenderedEntity";
+import SpawnPopup from "./SpawnPopup";
 
 const DEFINITION = 64;
 const SECONDARY_CLICK_DELAY = 5000;
 const TRANSFORM_CLICK_DELAY = 500;
-
-class RenderedEntity extends Sprite {
-  public draggable!: boolean;
-  public actionX: number;
-  public actionY: number;
-  public action: Action | null;
-  public dragged!: boolean;
-
-  static getProps(entity: Entity, myIndex: number | null) {
-    return {
-      x: (entity.x + 0.5) * DEFINITION,
-      y: (entity.y + 0.5) * DEFINITION,
-      actionX: entity.x,
-      actionY: entity.y,
-      alpha: hasEntityBudget(entity) ? 1 : 0.75,
-      draggable: hasEntityBudget(entity) && entity.owner == myIndex,
-      tint: 0xffffff,
-      simpleClick: true,
-      dragged: false,
-    };
-  }
-
-  constructor(public entity: Entity, private myIndex: number | null) {
-    super({
-      width: DEFINITION * 0.8,
-      height: DEFINITION * 0.8,
-      zIndex: 10,
-      eventMode: "static",
-      cursor: "pointer",
-      anchor: 0.5,
-    });
-
-    this.actionX = entity.x;
-    this.actionY = entity.y;
-    this.action = null;
-    this.reset();
-  }
-
-  public update(entity: Entity, myIndex: number | null) {
-    this.entity = entity;
-    this.myIndex = myIndex;
-    gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
-
-    this.texture = Assets.get(`entities:${entity.owner}_${entity.type}`);
-  }
-
-  public reset() {
-    Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
-    this.texture = Assets.get(
-      `entities:${this.entity.owner}_${this.entity.type}`
-    );
-  }
-}
-
-class SpawnPopup extends SliceButton {
-  private cell: Cell | null;
-
-  constructor(private gameClient: GameClient) {
-    super({
-      width: DEFINITION * ENTITIES_TYPES.length,
-      height: DEFINITION,
-
-      label: " ",
-    });
-    this.x = DEFINITION;
-    this.visible = false;
-    this.cell = null;
-  }
-
-  override init() {
-    super.init();
-    for (const [i, entityType] of Object.entries(ENTITIES_TYPES)) {
-      const entity = this.addChild(
-        new RenderedEntity(
-          {
-            eid: `spawnPopupFakeEntity-${entityType}`,
-            type: entityType,
-            owner: null,
-            x: Number(i),
-            y: 0,
-            budget: 0,
-          },
-          null
-        )
-      );
-      entity.on(
-        "pointerdown",
-        this.requestSpawn.bind(this, entityType),
-        entityType
-      );
-    }
-  }
-
-  async requestSpawn(entityType: string) {
-    if (this.cell) {
-      try {
-        await $fetch("/api/create", {
-          query: {
-            gid: this.gameClient.gid,
-            pid: this.gameClient.pid,
-            entityType,
-            x: this.cell.x,
-            y: this.cell.y,
-          },
-          method: "POST",
-        });
-      } catch (error) {
-        displayError(
-          "Impossible de créer une unitée",
-          "Nous n'avons pas pu créer votre unitée",
-          error
-        );
-      }
-    }
-  }
-
-  showAt(cell: Cell) {
-    this.visible = true;
-    this.cell = cell;
-
-    const alignLeft = cell.x > GRID_SIZE / 2 ? 1 : 0;
-
-    this.x = (cell.x + 1 - alignLeft) * DEFINITION - alignLeft * this.width;
-    this.y = cell.y * DEFINITION;
-  }
-
-  hide() {
-    this.visible = false;
-    this.cell = null;
-  }
-}
 
 class EntitiesContainer extends Container<ContainerChild> {
   public declare children: RenderedEntity[];
@@ -196,11 +63,24 @@ export default class MapContainer extends Container<ContainerChild> {
     this.mapContainer.removeChildren();
 
     for (const data of game.map) {
-      const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
-      biomeSprite.setSize(DEFINITION);
-      biomeSprite.x = data.x * DEFINITION;
-      biomeSprite.y = data.y * DEFINITION;
-      this.mapContainer.addChild(biomeSprite);
+      const groundData = getGroundData(data, game.map);
+
+      if (!groundData.full) {
+        const backgroundSprite = new Sprite(Assets.get(`biomes:plains`));
+        backgroundSprite.texture.source.scaleMode = "nearest";
+        backgroundSprite.setSize(DEFINITION);
+        backgroundSprite.x = data.x * DEFINITION;
+        backgroundSprite.y = data.y * DEFINITION;
+        this.mapContainer.addChild(backgroundSprite);
+      }
+
+      if (groundData.texture) {
+        const tileSprite = new Sprite(groundData.texture);
+        tileSprite.setSize(DEFINITION);
+        tileSprite.x = data.x * DEFINITION;
+        tileSprite.y = data.y * DEFINITION;
+        this.mapContainer.addChild(tileSprite);
+      }
 
       if (data.building) {
         const assetName =
@@ -437,7 +317,11 @@ export default class MapContainer extends Container<ContainerChild> {
       } else {
         const cell = getCellAt(game, pos);
 
-        if (cell.building == "castle" && !getEntityFromPos(game, pos)) {
+        if (
+          cell.building == "castle" &&
+          cell.owner == me.index &&
+          !getEntityFromPos(game, pos)
+        ) {
           this.spawnPopup.showAt(cell);
         }
       }

@@ -82,6 +82,7 @@ export default defineNuxtConfig({
               .replaceAll("\\", "/")
               .replace("//", "/"),
             alias: `${scope}:${name}`,
+            data: { scaleMode: "nearest" },
           };
         });
 

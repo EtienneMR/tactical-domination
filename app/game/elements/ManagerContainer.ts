@@ -1,7 +1,7 @@
 import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
 import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
 import SliceButton from "./SliceButton";
-import displayError from "./displayError";
+import displayError from "../utils/displayError";
 
 export default class ManagerContainer extends Container<ContainerChild> {
   public declare children: SliceButton[];
