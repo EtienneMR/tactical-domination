@@ -9,6 +9,7 @@ import {
 } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
+import getGroundData from "~/game/utils/getGroundData";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import RenderedEntity from "./RenderedEntity";
@@ -62,11 +63,24 @@ export default class MapContainer extends Container<ContainerChild> {
     this.mapContainer.removeChildren();
 
     for (const data of game.map) {
-      const biomeSprite = new Sprite(Assets.get(`biomes:${data.biome}`));
-      biomeSprite.setSize(DEFINITION);
-      biomeSprite.x = data.x * DEFINITION;
-      biomeSprite.y = data.y * DEFINITION;
-      this.mapContainer.addChild(biomeSprite);
+      const groundData = getGroundData(data, game.map);
+
+      if (!groundData.full) {
+        const backgroundSprite = new Sprite(Assets.get(`biomes:plains`));
+        backgroundSprite.texture.source.scaleMode = "nearest";
+        backgroundSprite.setSize(DEFINITION);
+        backgroundSprite.x = data.x * DEFINITION;
+        backgroundSprite.y = data.y * DEFINITION;
+        this.mapContainer.addChild(backgroundSprite);
+      }
+
+      if (groundData.texture) {
+        const tileSprite = new Sprite(groundData.texture);
+        tileSprite.setSize(DEFINITION);
+        tileSprite.x = data.x * DEFINITION;
+        tileSprite.y = data.y * DEFINITION;
+        this.mapContainer.addChild(tileSprite);
+      }
 
       if (data.building) {
         const assetName =

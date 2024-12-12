@@ -1,10 +1,10 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
 import { getPlayer } from "~~/shared/utils/game";
-import displayError from "./utils/displayError";
 import ManagerContainer from "./elements/ManagerContainer";
 import MapContainer from "./elements/MapContainer/MapContainer";
 import RessourcesContainer from "./elements/RessourcesContainer";
+import displayError from "./utils/displayError";
 import useEventSource from "./utils/useEventSource";
 import usePlayerId from "./utils/usePlayerId";
 

@@ -43,12 +43,14 @@ export default class RenderedEntity extends Sprite {
   public update(entity: Entity, myIndex: number | null) {
     this.entity = entity;
     this.myIndex = myIndex;
+    gsap.killTweensOf(this);
     gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
 
     this.texture = Assets.get(`entities:${entity.owner}_${entity.type}`);
   }
 
   public reset() {
+    gsap.killTweensOf(this);
     Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
     this.texture = Assets.get(
       `entities:${this.entity.owner}_${this.entity.type}`
