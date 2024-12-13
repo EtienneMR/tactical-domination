@@ -18,10 +18,11 @@ export default function useEventSource<T>(
 
   const processMessage = async (evt: MessageEvent) => {
     const { data } = evt;
-    onmessage(
-      JSON.parse(typeof data == "string" ? data : await data.text()),
-      evt
-    );
+    if (data)
+      onmessage(
+        JSON.parse(typeof data == "string" ? data : await data.text()),
+        evt
+      );
   };
 
   const events: [string, (evt: any) => void][] = [
