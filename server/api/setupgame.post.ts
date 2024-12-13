@@ -1,5 +1,5 @@
 import { useKv } from "~~/server/utils/useKv";
-import { assertValidString } from "../utils/checks";
+import { assertMatchingVersions, assertValidString } from "../utils/checks";
 
 export default defineEventHandler(async (event) => {
   const { mapName, gid, pid, v } = getQuery(event);
@@ -18,7 +18,11 @@ export default defineEventHandler(async (event) => {
         statusMessage: "Bad Request",
         message: `Game "${gid}" already exist`,
       });
-    return createGame(event, pid, mapName);
+    game = createGame(event, pid, mapName);
+
+    assertMatchingVersions(event, game, v);
+
+    return game;
   });
 
   return success;

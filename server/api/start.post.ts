@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
     assertValidGame(game, gid);
     assertGameInState(game, "initing", gid);
     game.state = "started";
+    game.events.push("end_turn");
     return game;
   });
 

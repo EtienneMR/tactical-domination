@@ -1,4 +1,5 @@
 import { BUILDINGS_CLASSES } from "~~/shared/consts";
+import type { Cell } from "../types/game";
 import { hasEntityBudget } from "./entities";
 
 export function getEntityFromEid(game: Game, eid: string): Entity | null {
@@ -94,7 +95,7 @@ export function assertCanDoAction(
   action: Action,
   targetEntity: Entity | null,
   targetEntityClass: EntityClass | null,
-  pos: Position
+  cell: Cell
 ) {
   assertCanPlay(game, player);
 
@@ -119,7 +120,18 @@ export function assertCanDoAction(
       message: `Player "${player.pid}" hasn't enough food`,
     });
 
-  assertActionInRange(entity, pos, action);
+  if (cell.building) {
+    const building = getBuildingClass(cell.building);
+
+    if (!building.walkable)
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Bad Request",
+        message: `Building at (${cell.x}, ${cell.y}) isn't walkable`,
+      });
+  }
+
+  assertActionInRange(entity, cell, action);
   assertValidTargetForAction(game, targetEntity, targetEntityClass, action);
 }
 
@@ -130,7 +142,7 @@ export function canDoAction(
   action: Action,
   targetEntity: Entity | null,
   targetEntityClass: EntityClass | null,
-  pos: Position
+  cell: Cell
 ): boolean {
   try {
     assertCanDoAction(
@@ -140,7 +152,7 @@ export function canDoAction(
       action,
       targetEntity,
       targetEntityClass,
-      pos
+      cell
     );
     return true;
   } catch (error) {

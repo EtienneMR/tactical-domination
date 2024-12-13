@@ -151,6 +151,7 @@ export default class MapContainer extends Container<ContainerChild> {
 
       for (const action of getEntityClass(dragTarget.entity.type).actions) {
         const entityAtPos = getEntityFromPos(game, pos);
+        const cell = getCellAt(game, pos);
         const can = canDoAction(
           game,
           me,
@@ -158,7 +159,7 @@ export default class MapContainer extends Container<ContainerChild> {
           action,
           entityAtPos,
           entityAtPos ? getEntityClass(entityAtPos.type) : null,
-          pos
+          cell
         );
 
         dragTarget.tint = can ? 0xffffff : 0xff0000;
@@ -280,6 +281,7 @@ export default class MapContainer extends Container<ContainerChild> {
           ).actions.findLast(() => true)!;
 
           const entityAtPos = getEntityFromPos(game, pos);
+          const cell = getCellAt(game, pos);
 
           const can = canDoAction(
             game,
@@ -288,7 +290,7 @@ export default class MapContainer extends Container<ContainerChild> {
             lastAction,
             entityAtPos,
             entityAtPos ? getEntityClass(entityAtPos.type) : null,
-            pos
+            cell
           );
 
           if (can) {

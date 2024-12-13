@@ -1,26 +1,5 @@
-import { H3Event } from "h3";
 import { useKv } from "~~/server/utils/useKv";
-import { assertValidString } from "../utils/checks";
-
-function assertMatchingVersions(
-  event: H3Event,
-  game: Game,
-  clientVersion: string
-) {
-  const runtimeConfig = useRuntimeConfig(event);
-
-  const buildVersion = runtimeConfig.public.gitVersion;
-  const gameVersion = game.version;
-
-  if (
-    runtimeConfig.public.gitVersion != game.version ||
-    game.version != clientVersion
-  )
-    throw createError({
-      message: `Version mismatch buildVersion = "${buildVersion}"; gameVersion = "${gameVersion}"; clientVersion = "${clientVersion}"`,
-      statusCode: 409,
-    });
-}
+import { assertMatchingVersions, assertValidString } from "../utils/checks";
 
 export default defineEventHandler(async (event) => {
   const { gid, pid, v } = getQuery(event);

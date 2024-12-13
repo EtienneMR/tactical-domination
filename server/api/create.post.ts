@@ -78,6 +78,8 @@ export default defineEventHandler(async (event) => {
       budget: 100,
     });
 
+    game.events.push("unit_created");
+
     return game;
   });
 });

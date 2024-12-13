@@ -1,3 +1,4 @@
+import { sound } from "@pixi/sound";
 import { Assets, Sprite } from "pixi.js";
 import type { Game, Player } from "~~/shared/types/game";
 
@@ -28,7 +29,13 @@ export default class ResultBanner extends Sprite {
     this.showState = game.state == "ended" ? 2 : !targetPlayer.alive ? 1 : 0;
     if (this.showState == 0) this.hiddedState = 0;
 
-    this.visible = this.showState > this.hiddedState;
+    const target = this.showState > this.hiddedState;
+
+    if (this.visible != target) {
+      this.visible = target;
+      sound.play(`sounds:game_${targetPlayer.alive ? "won" : "lost"}`);
+    }
+
     this.texture = Assets.get(
       `ui:${targetPlayer.index}_${targetPlayer.alive ? "victory" : "defeat"}`
     );

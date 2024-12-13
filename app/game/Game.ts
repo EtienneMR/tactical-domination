@@ -5,6 +5,7 @@ import ManagerContainer from "./elements/ManagerContainer";
 import MapContainer from "./elements/MapContainer/MapContainer";
 import RessourcesContainer from "./elements/RessourcesContainer";
 import ResultBanner from "./elements/ResultBanner";
+import SoundWorker from "./SoundWorker";
 import displayError from "./utils/displayError";
 import useEventSource from "./utils/useEventSource";
 import usePlayerId from "./utils/usePlayerId";
@@ -31,6 +32,7 @@ export class GameClient {
   public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
   private updateBinded: () => void;
   public pid: string;
+  private soundWorker: SoundWorker;
 
   constructor(public gid: string, oninited: () => void) {
     const pid = (this.pid = usePlayerId());
@@ -62,6 +64,9 @@ export class GameClient {
       useRuntimeConfig().public.gitVersion
     )}`;
     this.updateBinded = this.update.bind(this);
+
+    this.soundWorker = new SoundWorker();
+
     addEventListener("resize", this.updateBinded);
   }
 
@@ -99,6 +104,8 @@ export class GameClient {
       if (!this.game) {
         this.game = (await $fetch(this.fetchUrl)) as Game;
       }
+
+      this.soundWorker.updateEvents(this.game.events, true);
 
       this.loaded = true;
       this.connect();
@@ -158,6 +165,8 @@ export class GameClient {
     this.ressourcesContainer.update(me);
     this.managerContainer.update(game, me);
     this.resultBanner.update(game, me);
+
+    this.soundWorker.updateEvents(game.events, false);
 
     this.resize();
   }

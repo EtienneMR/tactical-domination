@@ -17,7 +17,7 @@ export function createGame(
 
     players: map
       .filter((cell) => cell.building == "castle" && cell.owner != null)
-      .map((cell, index) => ({
+      .map((cell) => ({
         pid: cell.owner == 0 ? initiator : null,
         alive: true,
         index: cell.owner!,
@@ -26,6 +26,7 @@ export function createGame(
         food: 5,
       })),
     entities: [],
+    events: [],
 
     map,
   };

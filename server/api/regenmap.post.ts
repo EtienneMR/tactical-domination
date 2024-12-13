@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
     assertValidGame(game, gid);
     assertGameInState(game, "initing", gid);
     game.map = generateMap(game.mapName);
+    game.events.push("unit_created");
     return game;
   });
 

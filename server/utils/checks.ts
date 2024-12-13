@@ -1,3 +1,4 @@
+import type { H3Event } from "h3";
 import { GRID_SIZE } from "~~/shared/consts";
 
 export function assertValidGame(
@@ -73,5 +74,25 @@ export function assertValidString(
       statusCode: 400,
       statusMessage: "Bad Request",
       message: `Invalid ${query} query: not a valid string`,
+    });
+}
+
+export function assertMatchingVersions(
+  event: H3Event,
+  game: Game,
+  clientVersion: string
+) {
+  const runtimeConfig = useRuntimeConfig(event);
+
+  const buildVersion = runtimeConfig.public.gitVersion;
+  const gameVersion = game.version;
+
+  if (
+    runtimeConfig.public.gitVersion != game.version ||
+    game.version != clientVersion
+  )
+    throw createError({
+      message: `Version mismatch buildVersion = "${buildVersion}"; gameVersion = "${gameVersion}"; clientVersion = "${clientVersion}"`,
+      statusCode: 409,
     });
 }

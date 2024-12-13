@@ -1,5 +1,5 @@
 import { useKv } from "~~/server/utils/useKv";
-import { BUILDINGS_CLASSES } from "~~/shared/consts";
+import type { Cell } from "~~/shared/types/game";
 import {
   getActionFromEntityClass,
   getEntityClass,
@@ -25,46 +25,29 @@ async function leaveCell(game: Game, entity: Entity) {
   const cell = getCellAt(game, entity);
 
   if (cell.building) {
-    const oldBuilding = BUILDINGS_CLASSES.find((b) => b.type == cell.building);
+    const oldBuilding = getBuildingClass(cell.building);
 
-    if (!oldBuilding)
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Internal error",
-        message: `Unknown building type "${cell.building}"`,
-      });
     if (!oldBuilding.ownable) {
       cell.owner = null;
     }
   } else cell.owner = null;
 }
 
-async function performMove(game: Game, entity: Entity, pos: Position) {
-  const cell = getCellAt(game, pos);
-
-  if (cell.building) {
-    const building = BUILDINGS_CLASSES.find((b) => b.type == cell.building);
-
-    if (!building)
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Internal error",
-        message: `Unknown building type "${cell.building}"`,
-      });
-
-    if (!building.walkable)
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Bad Request",
-        message: `Building at (${pos.x}, ${pos.y}) isn't walkable`,
-      });
-  }
-
+async function performMove(game: Game, entity: Entity, cell: Cell) {
   await leaveCell(game, entity);
 
+  game.events.push(`move_${cell.biome}`);
+
+  if (cell.building) {
+    const buildingClass = getBuildingClass(cell.building);
+    if (buildingClass.effects.length) {
+      game.events.push(`collect_${cell.building}`);
+    }
+  }
+
   cell.owner = game.turn;
-  entity.x = pos.x;
-  entity.y = pos.y;
+  entity.x = cell.x;
+  entity.y = cell.y;
 }
 
 export default defineEventHandler(async (event) => {
@@ -107,6 +90,8 @@ export default defineEventHandler(async (event) => {
     const targetEntityClass = targetEntity
       ? getEntityClass(targetEntity.type)
       : null;
+    const cell = getCellAt(game, pos);
+
     assertCanDoAction(
       game,
       player,
@@ -114,22 +99,25 @@ export default defineEventHandler(async (event) => {
       action,
       targetEntity,
       targetEntityClass,
-      pos
+      cell
     );
 
     player.food -= 1;
     entity.budget -= action.budget;
 
     if (action.type == "move") {
-      await performMove(game, entity, pos);
+      await performMove(game, entity, cell);
     } else if (action.type == "melee") {
       game.entities = game.entities.filter((e) => e.eid != targetEntity!.eid);
-      await performMove(game, entity, pos);
+      game.events.push(`atk_${entity.type}`);
+      await performMove(game, entity, cell);
     } else if (action.type == "ranged") {
       await leaveCell(game, targetEntity!);
       game.entities = game.entities.filter((e) => e.eid != targetEntity!.eid);
+      game.events.push(`atk_${entity.type}`);
     } else if (action.type == "build") {
       const cell = getCellAt(game, pos);
+      game.events.push("build");
 
       if (cell.building) cell.building = null;
       else {

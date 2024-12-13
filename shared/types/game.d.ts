@@ -37,6 +37,7 @@ export interface Game {
   players: Player[];
   turn: number;
   entities: Entity[];
+  events: string[];
   map: Cell[];
   version: string;
 }

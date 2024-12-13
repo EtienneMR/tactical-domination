@@ -74,6 +74,8 @@ export default defineEventHandler(async (event) => {
       } else if (game.players[turn]!.alive) break;
     }
 
+    game.events.push("end_turn");
+
     return game;
   });
 });

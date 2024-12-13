@@ -58,6 +58,8 @@ export default defineEventHandler(async (event) => {
       1
     );
 
+    game.events.push("unit_removed");
+
     return game;
   });
 });
