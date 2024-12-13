@@ -26,7 +26,7 @@ export type SharedCell = Pick<Cell, "biome" | "building" | "owner">;
 export interface Player {
   readonly index: number;
   pid: string | null;
-  replay: boolean;
+  alive: boolean;
   gold: number;
   food: number;
 }

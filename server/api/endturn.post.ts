@@ -1,10 +1,10 @@
 import { useKv } from "~~/server/utils/useKv";
+import { getEntityClass } from "~~/shared/utils/entities";
 import {
   assertCanPlay,
   getBuildingClass,
   getPlayer,
 } from "~~/shared/utils/game";
-import { getEntityClass } from "~~/shared/utils/entities";
 import {
   assertGameInState,
   assertValidGame,
@@ -56,7 +56,24 @@ export default defineEventHandler(async (event) => {
 
     player.food = Math.max(player.food, 1);
 
-    game.turn = (game.turn + 1) % game.players.length;
+    for (const player of game.players) {
+      player.alive =
+        game.map.some(
+          (c) => c.building == "castle" && c.owner == player.index
+        ) || game.entities.some((e) => e.owner == player.index);
+    }
+
+    const currentTurn = game.turn;
+
+    while (true) {
+      const turn = (game.turn = (game.turn + 1) % game.players.length);
+
+      if (turn == currentTurn) {
+        game.state = "ended";
+        break;
+      } else if (game.players[turn]!.alive) break;
+    }
+
     return game;
   });
 });

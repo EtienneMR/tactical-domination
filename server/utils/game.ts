@@ -19,7 +19,7 @@ export function createGame(
       .filter((cell) => cell.building == "castle" && cell.owner != null)
       .map((cell, index) => ({
         pid: cell.owner == 0 ? initiator : null,
-        replay: false,
+        alive: true,
         index: cell.owner!,
 
         gold: 2,

@@ -4,6 +4,7 @@ import { getPlayer } from "~~/shared/utils/game";
 import ManagerContainer from "./elements/ManagerContainer";
 import MapContainer from "./elements/MapContainer/MapContainer";
 import RessourcesContainer from "./elements/RessourcesContainer";
+import ResultBanner from "./elements/ResultBanner";
 import displayError from "./utils/displayError";
 import useEventSource from "./utils/useEventSource";
 import usePlayerId from "./utils/usePlayerId";
@@ -15,6 +16,7 @@ export class GameClient {
   private mapContainer: MapContainer;
   private managerContainer: ManagerContainer;
   private ressourcesContainer: RessourcesContainer;
+  private resultBanner: ResultBanner;
 
   public parent: HTMLElement;
   public game: Game | null;
@@ -45,6 +47,7 @@ export class GameClient {
     this.mapContainer = this.container.addChild(
       new MapContainer(this, { y: this.ressourcesContainer.height })
     );
+    this.resultBanner = this.container.addChild(new ResultBanner());
 
     this.app.stage.addChild(this.container);
 
@@ -73,7 +76,7 @@ export class GameClient {
   }
 
   get me(): Player | null {
-    if (!this.game || this.game.state != "started") return null;
+    if (!this.game || this.game.state == "initing") return null;
 
     return getPlayer(this.game, this.pid);
   }
@@ -120,13 +123,21 @@ export class GameClient {
     this.update();
   }
 
+  private resize() {
+    const { container, app } = this;
+
+    container.x = app.screen.width / 2;
+    container.y = app.screen.height / 2;
+
+    container.pivot.x = container.width / 2;
+    container.pivot.y = container.height / 2;
+  }
+
   private update() {
+    this.resize();
+
     const { game, me } = this;
     if (!this.loaded || !game) return;
-
-    this.mapContainer.update();
-    this.ressourcesContainer.update(me);
-    this.managerContainer.update(game, this.me);
 
     const mapSize = Math.min(
       this.app.screen.width,
@@ -137,11 +148,18 @@ export class GameClient {
     this.mapContainer.setSize(mapSize);
     this.ressourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
 
-    this.container.x = this.app.screen.width / 2;
-    this.container.y = this.app.screen.height / 2;
+    this.resultBanner.scale.set(mapSize / this.resultBanner.texture.width / 2);
+    this.resultBanner.position.set(
+      this.container.width / 2,
+      this.container.height / 2
+    );
 
-    this.container.pivot.x = this.container.width / 2;
-    this.container.pivot.y = this.container.height / 2;
+    this.mapContainer.update();
+    this.ressourcesContainer.update(me);
+    this.managerContainer.update(game, me);
+    this.resultBanner.update(game, me);
+
+    this.resize();
   }
 
   async destroy() {
