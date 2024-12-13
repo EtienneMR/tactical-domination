@@ -9,7 +9,7 @@ export interface ButtonSettings {
   stroke: string;
 }
 
-const NOT_SCALABLE_AREA = 20;
+const NOT_SCALABLE_AREA = 4;
 
 export default class SliceButton extends ButtonContainer {
   private settings: ButtonSettings;
