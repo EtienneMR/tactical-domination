@@ -62,6 +62,7 @@ onNuxtReady(() =>
         color="green"
         trailing-icon="i-mdi-access-point"
         size="xs"
+        aria-label="Connexion OK"
         @click="gameClient.connect()"
       />
       <UButton
@@ -70,6 +71,7 @@ onNuxtReady(() =>
         color="red"
         trailing-icon="i-mdi-access-point-off"
         size="xs"
+        aria-label="Connexion en cours"
         @click="gameClient.connect()"
       />
       <UButton
@@ -78,6 +80,7 @@ onNuxtReady(() =>
         color="red"
         trailing-icon="i-mdi-server-remove"
         size="xs"
+        aria-label="Connexion déconnecté"
         @click="gameClient.connect()"
       />
       <UButton
@@ -85,6 +88,7 @@ onNuxtReady(() =>
         color="gray"
         trailing-icon="i-mdi-help"
         size="xs"
+        aria-label="Connexion inconnu"
         @click="gameClient.connect()"
       />
     </Teleport>

@@ -51,6 +51,7 @@ const runtimeConfig = useRuntimeConfig();
         class="ml-1"
         target="_blank"
         to="https://github.com/EtienneMR/tactical-domination"
+        aria-label="github"
       ></UButton>
 
       <div id="header" class="flex flex-1 justify-end"></div>
