@@ -36,10 +36,10 @@ async function createAndJoinGame(mapName: string) {
           trailing
           icon="i-heroicons-arrow-right-20-solid"
         >
-          <img :src="`/maps/${map.id}.png`" /><span>{{
-            map.name
-          }}</span> </UButton
-        ><UBadge class="ml-3">{{ map.label }}</UBadge>
+          <img :src="`/maps/${map.id}.png`" width="64" height="64" />
+          <span>{{ map.name }}</span>
+        </UButton>
+        <UBadge class="ml-3">{{ map.label }}</UBadge>
       </div>
     </div>
   </div>

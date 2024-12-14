@@ -32,24 +32,6 @@ export default defineEventHandler(async (event) => {
       },
       cancel() {
         cleanup();
-
-        event.waitUntil(
-          updateGame(kv, gid, (game) => {
-            assertValidGame(game, gid);
-            assertMatchingVersions(event, game, v);
-
-            let found = false;
-
-            for (const player of game.players) {
-              if (player.pid == pid) {
-                player.pid = null;
-                found = true;
-              }
-            }
-
-            return found ? game : null;
-          })
-        );
       },
     });
 

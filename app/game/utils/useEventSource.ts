@@ -31,13 +31,15 @@ export default function useEventSource<T>(
     [
       "error",
       async ({ data }) => {
-        eventsource.close();
-        update();
-        const error = createError({
-          name: "EventSourceError",
-          message: typeof data == "string" ? data : await data.text(),
-        });
-        displayError("Erreur de connexion", error.message, error);
+        if (data) {
+          eventsource.close();
+          update();
+          const error = createError({
+            name: "EventSourceError",
+            message: typeof data == "string" ? data : await data.text(),
+          });
+          displayError("Erreur de connexion", error.message, error);
+        }
       },
     ],
     ["message", processMessage],
