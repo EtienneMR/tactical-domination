@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import displayError from "~/game/utils/displayError";
+//import displayError from "~/game/utils/displayError";
 import { MAPS } from "~~/shared/consts";
 import usePlayerId from "~/game/utils/usePlayerId";
 
@@ -17,7 +17,7 @@ async function createAndJoinGame(mapName: string) {
     });
     await useRouter().push(`/${gid}`);
   } catch (error) {
-    displayError(
+    console.error(
       "Impossible de créer une partie",
       "Nous n'avons pas pu créer votre partie",
       error
