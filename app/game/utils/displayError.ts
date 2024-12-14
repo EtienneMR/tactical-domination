@@ -1,11 +1,11 @@
-const toast = useToast();
-
 export default function displayError(
   title: string,
   message: string,
   error: any,
   action?: () => void
 ) {
+  const toast = useToast();
+  
   console.error(new Error(`${title}: ${message}`, { cause: error }));
   toast.add({
     title,
