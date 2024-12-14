@@ -1,7 +1,7 @@
 import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
+import displayError from "../utils/displayError";
 import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
 import SliceButton from "./SliceButton";
-import displayError from "../utils/displayError";
 
 export default class ManagerContainer extends Container<ContainerChild> {
   public declare children: SliceButton[];
@@ -20,7 +20,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       new SliceButton({
         label: "Jouer",
         height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT - 3,
+        fontSize: RESSOURCES_HEIGHT,
       })
     ));
 
@@ -44,7 +44,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       new SliceButton({
         label: "Regénérer",
         height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT - 3,
+        fontSize: RESSOURCES_HEIGHT,
       })
     ));
     regenerateButton.x = startButton.x + startButton.width + 20;
@@ -69,7 +69,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       new SliceButton({
         label: "Fin de tour",
         height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT - 3,
+        fontSize: RESSOURCES_HEIGHT,
         width: 200,
       })
     ));

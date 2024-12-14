@@ -5,11 +5,12 @@ export interface ButtonSettings {
   width: number;
   height: number;
   fontSize: number;
+  fontSizePadding: number;
   label: string;
   stroke: string;
 }
 
-const NOT_SCALABLE_AREA = 4;
+const NOT_SCALABLE_AREA = 6;
 
 export default class SliceButton extends ButtonContainer {
   private settings: ButtonSettings;
@@ -24,6 +25,7 @@ export default class SliceButton extends ButtonContainer {
       height: 50,
 
       fontSize: 20,
+      fontSizePadding: 6,
       label: "Button",
       stroke: "#336699",
     };
@@ -65,7 +67,7 @@ export default class SliceButton extends ButtonContainer {
 
     this.textLabel.text = this.settings.label;
     this.textLabel.style = {
-      fontSize: this.settings.fontSize + "px",
+      fontSize: this.settings.fontSize - this.settings.fontSizePadding + "px",
       fill: "#ffffff",
       stroke: this.settings.stroke,
     };
