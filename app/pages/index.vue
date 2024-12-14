@@ -1,5 +1,5 @@
 <script setup lang="ts">
-//import displayError from "~/game/utils/displayError";
+import displayError from "~/game/utils/displayError";
 import { MAPS } from "~~/shared/consts";
 import usePlayerId from "~/game/utils/usePlayerId";
 
