@@ -4,6 +4,7 @@ import { MAPS } from "~~/shared/consts";
 import usePlayerId from "~/game/utils/usePlayerId";
 
 async function createAndJoinGame(mapName: string) {
+  const nuxtApp = useNuxtApp()
   const gid = `${Math.floor(Math.random() * 1000000)}`;
   try {
     await $fetch("/api/setupgame", {
