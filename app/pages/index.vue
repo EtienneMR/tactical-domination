@@ -3,7 +3,10 @@ import displayError from "~/game/utils/displayError";
 import { MAPS } from "~~/shared/consts";
 import usePlayerId from "~/game/utils/usePlayerId";
 
+const disabled = ref(false);
+
 async function createAndJoinGame(mapName: string) {
+  disabled.value = true;
   const gid = `${Math.floor(Math.random() * 1000000)}`;
   try {
     await $fetch("/api/setupgame", {
@@ -35,9 +38,15 @@ async function createAndJoinGame(mapName: string) {
           @click="createAndJoinGame(map.id)"
           trailing
           icon="i-heroicons-arrow-right-20-solid"
+          :disabled="disabled"
         >
-          <img :src="`/maps/${map.id}.png`" width="64" height="64" />
-          <span>{{ map.name }}</span>
+          <img
+            :src="`/maps/${map.id}.png`"
+            width="64"
+            height="64"
+            :aria-labelledby="`map-icon-${map.id}`"
+          />
+          <span :id="`map-icon-${map.id}`">{{ map.name }}</span>
         </UButton>
         <UBadge class="ml-3">{{ map.label }}</UBadge>
       </div>
