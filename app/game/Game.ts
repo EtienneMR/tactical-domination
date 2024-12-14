@@ -90,7 +90,7 @@ export class GameClient {
     this.parent = parent;
     try {
       const { app } = this;
-      // Initialize the application
+
       await app.init({ background: "#1099bb", resizeTo: parent });
       await Assets.init({ manifest: manifest });
       await Assets.loadBundle("game");
@@ -166,8 +166,8 @@ export class GameClient {
     this.managerContainer.update(game, me);
     this.resultBanner.update(game, me);
 
-    if (game.state == "started")
-      this.soundWorker.updateEvents(game.events, false);
+    if (game.state == "ended") this.soundWorker.stop();
+    else this.soundWorker.updateEvents(game.events, false);
 
     this.resize();
   }

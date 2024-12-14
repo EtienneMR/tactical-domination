@@ -10,8 +10,12 @@ export default class SoundWorker {
   public updateEvents(events: string[], isReset: boolean) {
     this.events = events;
 
-    if (isReset) this.nextSoundIndex = this.events.length;
+    if (isReset) this.stop();
     else this.processQueue();
+  }
+
+  public stop() {
+    this.nextSoundIndex = this.events.length;
   }
 
   private async processQueue() {
