@@ -166,8 +166,7 @@ export class GameClient {
     this.managerContainer.update(game, me);
     this.resultBanner.update(game, me);
 
-    if (game.state == "ended") this.soundWorker.stop();
-    else this.soundWorker.updateEvents(game.events, false);
+    this.soundWorker.updateEvents(game.events, game.state == "ended");
 
     this.resize();
   }
