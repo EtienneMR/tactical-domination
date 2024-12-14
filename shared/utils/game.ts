@@ -120,7 +120,7 @@ export function assertCanDoAction(
       message: `Player "${player.pid}" hasn't enough food`,
     });
 
-  if (cell.building) {
+  if (action.walk && cell.building) {
     const building = getBuildingClass(cell.building);
 
     if (!building.walkable)

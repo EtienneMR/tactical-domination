@@ -80,12 +80,14 @@ export const ENTITIES_CLASSES = [
       {
         type: "move",
         target: null,
+        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "melee",
         target: "enemy",
+        walk: true,
         range: 1,
         budget: 50,
       },
@@ -99,12 +101,14 @@ export const ENTITIES_CLASSES = [
       {
         type: "move",
         target: null,
+        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "ranged",
         target: "enemy",
+        walk: true,
         range: 3,
         budget: 100,
       },
@@ -118,12 +122,14 @@ export const ENTITIES_CLASSES = [
       {
         type: "move",
         target: null,
+        walk: true,
         range: 1,
         budget: 50,
       },
       {
         type: "melee",
         target: "enemy",
+        walk: true,
         range: 1,
         budget: 100,
       },
@@ -137,12 +143,14 @@ export const ENTITIES_CLASSES = [
       {
         type: "move",
         target: null,
+        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "build",
         target: null,
+        walk: true,
         range: 2,
         budget: 1,
       },
@@ -156,12 +164,14 @@ export const ENTITIES_CLASSES = [
       {
         type: "move",
         target: null,
+        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "melee",
         target: "enemy",
+        walk: true,
         range: 1,
         budget: 100,
       },

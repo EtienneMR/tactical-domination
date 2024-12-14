@@ -12,6 +12,7 @@ export interface Entity {
 export interface Action {
   readonly type: ActionType;
   readonly target: null | "enemy";
+  readonly walk: boolean;
   readonly range: number;
   readonly budget: number;
 }

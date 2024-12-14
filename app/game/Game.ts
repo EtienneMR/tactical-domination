@@ -166,7 +166,8 @@ export class GameClient {
     this.managerContainer.update(game, me);
     this.resultBanner.update(game, me);
 
-    this.soundWorker.updateEvents(game.events, false);
+    if (game.state == "started")
+      this.soundWorker.updateEvents(game.events, false);
 
     this.resize();
   }

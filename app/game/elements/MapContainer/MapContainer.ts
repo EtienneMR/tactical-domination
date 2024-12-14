@@ -67,7 +67,6 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (!groundData.full) {
         const backgroundSprite = new Sprite(Assets.get(`biomes:plains`));
-        backgroundSprite.texture.source.scaleMode = "nearest";
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
         backgroundSprite.y = data.y * DEFINITION;
