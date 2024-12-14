@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import displayError from "~/game/utils/displayError.js";
+import displayError from "~/game/utils/displayError";
 import { MAPS } from "~~/shared/consts";
-import usePlayerId from "../game/utils/usePlayerId";
+import usePlayerId from "~/game/utils/usePlayerId";
 
 async function createAndJoinGame(mapName: string) {
   const gid = `${Math.floor(Math.random() * 1000000)}`;
