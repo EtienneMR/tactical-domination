@@ -17,11 +17,11 @@ async function createAndJoinGame(mapName: string) {
     });
     await useRouter().push(`/${gid}`);
   } catch (error) {
-    console.error(
+    nuxtApp.runWithContext(()=>displayError(
       "Impossible de créer une partie",
       "Nous n'avons pas pu créer votre partie",
       error
-    );
+    ));
   }
 }
 </script>
