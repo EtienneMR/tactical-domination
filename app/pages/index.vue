@@ -41,13 +41,8 @@ async function createAndJoinGame(mapName: string) {
           icon="i-heroicons-arrow-right-20-solid"
           :disabled="disabled"
         >
-          <img
-            :src="`/maps/${map.id}.png`"
-            width="64"
-            height="64"
-            :aria-labelledby="`map-icon-${map.id}`"
-          />
-          <span :id="`map-icon-${map.id}`">{{ map.name }}</span>
+          <img :src="`/maps/${map.id}.png`" width="64" height="64" alt="" />
+          <span>{{ map.name }}</span>
         </UButton>
         <UBadge class="ml-3">{{ map.label }}</UBadge>
       </div>
