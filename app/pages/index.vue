@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
-import { MAPS } from "~~/shared/consts";
 import usePlayerId from "~/game/utils/usePlayerId";
+import { MAPS } from "~~/shared/consts";
 
 const disabled = ref(false);
 
@@ -26,6 +26,7 @@ async function createAndJoinGame(mapName: string) {
       error
     );
   }
+  disabled.value = false;
 }
 </script>
 
