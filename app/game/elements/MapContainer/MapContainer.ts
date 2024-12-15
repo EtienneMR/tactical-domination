@@ -115,6 +115,8 @@ export default class MapContainer extends Container<ContainerChild> {
       if (!game.entities.find((e) => e.eid == entity.entity.eid))
         this.entitiesContainer.removeChild(entity);
     }
+
+    this.spawnPopup.updateState();
   }
 
   onDragMove(event: FederatedPointerEvent) {
@@ -242,10 +244,7 @@ export default class MapContainer extends Container<ContainerChild> {
       }
 
       const canSecondary =
-        !dragTarget.dragged &&
-        hasEntityBudget(dragTarget.entity) &&
-        me &&
-        me.food > 0;
+        !dragTarget.dragged && hasEntityBudget(dragTarget.entity);
 
       dragTarget.reset();
 

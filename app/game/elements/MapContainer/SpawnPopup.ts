@@ -1,13 +1,18 @@
+import { Assets, Sprite, Text } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
 import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
+import type { EntityClass } from "~~/shared/types/entities";
 import SliceButton from "../SliceButton";
 import RenderedEntity from "./RenderedEntity";
 
 const DEFINITION = 64;
 
+type EntityData = [EntityClass, RenderedEntity, Text];
+
 export default class SpawnPopup extends SliceButton {
   private cell: Cell | null;
+  private entities: EntityData[];
 
   constructor(private gameClient: GameClient) {
     super({
@@ -19,6 +24,7 @@ export default class SpawnPopup extends SliceButton {
     this.x = DEFINITION;
     this.visible = false;
     this.cell = null;
+    this.entities = [];
   }
 
   override init() {
@@ -37,22 +43,54 @@ export default class SpawnPopup extends SliceButton {
           null
         )
       );
+      entity.width -= 6;
+      entity.height -= 6;
+
+      const entityClass = getEntityClass(entityType);
+
+      this.addChild(
+        new Sprite({
+          texture: Assets.get(`ressources:${entityClass.ressource}`),
+          x: (Number(i) + 1) * DEFINITION - 6,
+          y: 3,
+          anchor: { x: 1, y: 0 },
+          width: DEFINITION / 4,
+          height: DEFINITION / 4,
+          zIndex: 11,
+        })
+      );
+
+      const cost = this.addChild(
+        new Text({
+          style: { fontSize: DEFINITION / 4, fill: "white" },
+          text: "Test",
+          x: (Number(i) + 1) * DEFINITION - 6 - DEFINITION / 4,
+          y: 3,
+        })
+      );
+      cost.zIndex = 11;
+      cost.anchor.set(1, 0);
+
+      const entityData: EntityData = [entityClass, entity, cost];
+
       entity.on(
         "pointerdown",
-        this.requestSpawn.bind(this, entityType),
-        entityType
+        this.requestSpawn.bind(this, entityData),
+        entityData
       );
+
+      this.entities.push(entityData);
     }
   }
 
-  async requestSpawn(entityType: string) {
-    if (this.cell) {
+  async requestSpawn([entityClass, renderedEntity]: EntityData) {
+    if (this.cell && renderedEntity.alpha == 1) {
       try {
         await $fetch("/api/create", {
           query: {
             gid: this.gameClient.gid,
             pid: this.gameClient.pid,
-            entityType,
+            entityType: entityClass.type,
             x: this.cell.x,
             y: this.cell.y,
           },
@@ -81,5 +119,20 @@ export default class SpawnPopup extends SliceButton {
   hide() {
     this.visible = false;
     this.cell = null;
+  }
+
+  updateState() {
+    const { game, me } = this.gameClient;
+
+    if (game) {
+      for (const [entityClass, renderedEntity, costText] of this.entities) {
+        const cost = me?.spawnCost[entityClass.type];
+        const canAfford = !cost || me[entityClass.ressource] >= cost;
+
+        renderedEntity.alpha = game.turn == me?.index && canAfford ? 1 : 0.5;
+        costText.text = cost ?? "";
+        costText.style.fill = canAfford ? "white" : "red";
+      }
+    }
   }
 }

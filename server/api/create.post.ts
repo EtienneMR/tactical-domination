@@ -60,18 +60,19 @@ export default defineEventHandler(async (event) => {
 
     const entityClass = getEntityClass(entityType);
 
-    if (player[entityClass.ressource] <= 0)
+    if (player[entityClass.ressource] < player.spawnCost[entityClass.type])
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
         message: `Player "${player.pid}" hasn't enough ressources`,
       });
 
-    player[entityClass.ressource] -= 1;
+    player[entityClass.ressource] -= player.spawnCost[entityClass.type];
+    player.spawnCost[entityClass.type] += 1;
 
     game.entities.push({
       eid: `e${Math.floor(Math.random() * 1000000)}`,
-      type: entityType,
+      type: entityClass.type,
       owner: player.index,
       x: pos.x,
       y: pos.y,

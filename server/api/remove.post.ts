@@ -51,7 +51,8 @@ export default defineEventHandler(async (event) => {
       });
 
     const previous = getEntityClass(entity.type);
-    player[previous.ressource] += 1;
+    player.spawnCost[entity.type] -= 1;
+    player[previous.ressource] += player.spawnCost[entity.type];
 
     game.entities.splice(
       game.entities.findIndex((e) => e.eid == entity.eid),

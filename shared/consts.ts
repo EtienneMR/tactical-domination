@@ -23,7 +23,7 @@ export const BUILDINGS_CLASSES = [
     effects: [
       {
         type: "gold",
-        value: 1,
+        value: 2,
       },
     ],
   },

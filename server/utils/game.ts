@@ -1,4 +1,5 @@
 import { H3Event } from "h3";
+import { ENTITIES_TYPES } from "~~/shared/consts";
 
 export function createGame(
   event: H3Event,
@@ -22,8 +23,12 @@ export function createGame(
         alive: true,
         index: cell.owner!,
 
-        gold: 2,
+        gold: 3,
         food: 5,
+        spawnCost: ENTITIES_TYPES.reduce((acc, type) => {
+          acc[type] = 1;
+          return acc;
+        }, {} as SpawnCostMap),
       })),
     entities: [],
     events: [],

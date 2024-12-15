@@ -1,4 +1,7 @@
-import { ActionType, EntityType } from "./game";
+import type { ACTIONS_TYPES, ENTITIES_TYPES } from "../consts";
+
+export type EntityType = (typeof ENTITIES_TYPES)[number];
+export type ActionType = (typeof ACTIONS_TYPES)[number];
 
 export interface Entity {
   readonly eid: string;

@@ -1,4 +1,5 @@
-import { BiomeType, BuildingType } from "./biomes";
+import type { BiomeType, BuildingType } from "./biomes";
+import type { EntityType } from "./entities";
 
 export type GameState = "initing" | "started" | "ended";
 
@@ -23,12 +24,17 @@ export interface Cell extends WriteCell {
 
 export type SharedCell = Pick<Cell, "biome" | "building" | "owner">;
 
+export type SpawnCostMap = {
+  [entityType in EntityType]: number;
+};
+
 export interface Player {
   readonly index: number;
   pid: string | null;
   alive: boolean;
   gold: number;
   food: number;
+  spawnCost: SpawnCostMap;
 }
 
 export interface Game {
