@@ -53,6 +53,19 @@ const runtimeConfig = useRuntimeConfig();
         to="https://github.com/EtienneMR/tactical-domination"
         aria-label="github"
       ></UButton>
+      <UButton
+        variant="outline"
+        size="2xs"
+        class="ml-1 p-1"
+        target="_blank"
+        to="https://etiennemr.fr"
+        aria-label="etiennemr.fr"
+      >
+        <img
+          src="https://share.etiennemr.fr/f/icons/icon.png"
+          class="h-4 w-4"
+        />
+      </UButton>
 
       <div id="header" class="flex flex-1 justify-end"></div>
     </div>

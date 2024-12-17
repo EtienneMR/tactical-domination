@@ -108,7 +108,7 @@ export const ENTITIES_CLASSES = [
       {
         type: "ranged",
         target: "enemy",
-        walk: true,
+        walk: false,
         range: 3,
         budget: 100,
       },
@@ -150,7 +150,7 @@ export const ENTITIES_CLASSES = [
       {
         type: "build",
         target: null,
-        walk: true,
+        walk: false,
         range: 2,
         budget: 1,
       },
