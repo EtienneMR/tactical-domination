@@ -7,6 +7,7 @@ import ResourcesContainer from "./elements/ResourcesContainer";
 import ResultBanner from "./elements/ResultBanner";
 import SoundWorker from "./SoundWorker";
 import displayError from "./utils/displayError";
+import useBundle from "./utils/useBundle";
 import useEventSource from "./utils/useEventSource";
 import useUserId from "./utils/useUserId";
 
@@ -93,7 +94,8 @@ export class GameClient {
 
       await app.init({ background: "#1099bb", resizeTo: parent });
       await Assets.init({ manifest: manifest });
-      await Assets.loadBundle("game");
+
+      await Assets.loadBundle(useBundle());
 
       parent.appendChild(app.canvas);
 
@@ -179,7 +181,7 @@ export class GameClient {
     this.app.destroy();
     this.events.value?.destroy();
     removeEventListener("resize", this.updateBinded);
-    await Assets.unloadBundle("game");
+    await Assets.unloadBundle(useBundle());
     if (import.meta.dev) Assets.reset();
   }
 }

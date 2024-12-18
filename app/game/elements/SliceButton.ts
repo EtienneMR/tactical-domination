@@ -1,5 +1,6 @@
 import { ButtonContainer } from "@pixi/ui";
 import { NineSliceSprite, Text, Texture } from "pixi.js";
+import useBundle from "../utils/useBundle";
 
 export interface ButtonSettings {
   width: number;
@@ -49,7 +50,7 @@ export default class SliceButton extends ButtonContainer {
   init() {
     this.nineSlice = this.addChild(
       new NineSliceSprite({
-        texture: Texture.from("ui:button"),
+        texture: Texture.from(`${useBundle()}:ui:button`),
         leftWidth: NOT_SCALABLE_AREA,
         topHeight: NOT_SCALABLE_AREA,
         rightWidth: NOT_SCALABLE_AREA,

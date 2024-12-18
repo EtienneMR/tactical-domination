@@ -10,6 +10,7 @@ import {
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
 import getGroundData from "~/game/utils/getGroundData";
+import useBundle from "~/game/utils/useBundle";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import RenderedEntity from "./RenderedEntity";
@@ -66,7 +67,9 @@ export default class MapContainer extends Container<ContainerChild> {
       const groundData = getGroundData(data, gameState.map);
 
       if (!groundData.full) {
-        const backgroundSprite = new Sprite(Assets.get(`biomes:plains`));
+        const backgroundSprite = new Sprite(
+          Assets.get(`${useBundle()}:biomes:plains`)
+        );
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
         backgroundSprite.y = data.y * DEFINITION;
@@ -84,8 +87,10 @@ export default class MapContainer extends Container<ContainerChild> {
       if (data.building) {
         const assetName =
           manifest.bundles[0]!.assets.find(
-            (a) => a.alias == `buildings:${data.owner}_${data.building}`
-          )?.alias ?? `buildings:null_${data.building}`;
+            (a) =>
+              a.alias ==
+              `${useBundle()}:buildings:${data.owner}_${data.building}`
+          )?.alias ?? `${useBundle()}:buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;

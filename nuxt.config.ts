@@ -69,31 +69,60 @@ export default defineNuxtConfig({
 
       const files = globSync(`${assetsDir}/**/*.*`);
 
-      const assets = files
+      interface Asset {
+        src: string;
+        alias: string;
+        data: {};
+      }
+
+      interface BundleAsset extends Asset {
+        bundle: string;
+      }
+
+      const assets: BundleAsset[] = files
         .filter((file) => !file.endsWith(".json"))
         .map((file) => {
           const path = file.split(PATH_SEP);
-          const name = (path.pop() as string).split(".")[0];
-          const scope = path.pop();
+          const name = path.pop()!.split(".")[0];
+          const scope = path.pop()!;
+          const bundle = path.pop()!;
+
           return {
             src: file
               .replace(__dirname, "")
               .replace("public", "")
               .replaceAll("\\", "/")
               .replace("//", "/"),
-            alias: `${scope}:${name}`,
+            alias: `${bundle}:${scope}:${name}`,
             data: { scaleMode: "nearest" },
+            bundle,
           };
         });
 
       const manifest = {
-        bundles: [
-          {
-            name: "game",
-            assets,
-          },
-        ],
+        bundles: assets.reduce((bundles, { bundle: bundleName, ...asset }) => {
+          const bundle = bundles.find((b) => b.name == bundleName);
+
+          if (bundle) bundle.assets.push(asset);
+          else bundles.push({ name: bundleName, assets: [asset] });
+
+          return bundles;
+        }, [] as { name: string; assets: Asset[] }[]),
       };
+
+      const baseBundle = manifest.bundles.find((b) => b.name == "base")!;
+
+      for (const bundle of manifest.bundles) {
+        if (bundle != baseBundle) {
+          for (const baseAsset of baseBundle.assets) {
+            const [_, scope, id] = baseAsset.alias.split(":");
+            const expectedAlias = `${bundle.name}:${scope}:${id}`;
+
+            if (!bundle.assets.some((a) => a.alias == expectedAlias))
+              bundle.assets.push({ ...baseAsset, alias: expectedAlias });
+          }
+        }
+      }
 
       writeFileSync(
         manifestFilePath,

@@ -1,4 +1,5 @@
 import { Assets, Rectangle, Texture } from "pixi.js";
+import useBundle from "./useBundle";
 
 const TEXTURE_FORMAT = [
   "br",
@@ -27,7 +28,7 @@ export default function getGroundData(
   if (cell.biome == "plains") {
     return { texture: null, full: false };
   }
-  const baseTexture = Assets.get(`biomes:${cell.biome}_tiles`);
+  const baseTexture = Assets.get(`${useBundle()}:biomes:${cell.biome}_tiles`);
 
   const matchinBiomes = [cell.biome, undefined];
   const is = matchinBiomes.includes.bind(matchinBiomes);

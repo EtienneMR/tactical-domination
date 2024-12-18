@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { Assets, Sprite } from "pixi.js";
+import useBundle from "~/game/utils/useBundle";
 
 const DEFINITION = 64;
 
@@ -46,14 +47,16 @@ export default class RenderedEntity extends Sprite {
     gsap.killTweensOf(this);
     gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
 
-    this.texture = Assets.get(`entities:${entity.owner}_${entity.type}`);
+    this.texture = Assets.get(
+      `${useBundle()}:entities:${entity.owner}_${entity.type}`
+    );
   }
 
   public reset() {
     gsap.killTweensOf(this);
     Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
     this.texture = Assets.get(
-      `entities:${this.entity.owner}_${this.entity.type}`
+      `${useBundle()}:entities:${this.entity.owner}_${this.entity.type}`
     );
   }
 }

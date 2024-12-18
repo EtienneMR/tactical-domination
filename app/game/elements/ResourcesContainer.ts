@@ -6,6 +6,7 @@ import {
   type ContainerChild,
   type ContainerOptions,
 } from "pixi.js";
+import useBundle from "../utils/useBundle";
 
 export const RESOURCES_HEIGHT = 20;
 
@@ -42,8 +43,8 @@ export default class ResourcesContainer extends Container<ContainerChild> {
   }
 
   init() {
-    this.foodSprite.texture = Assets.get("resources:food");
-    this.goldSprite.texture = Assets.get("resources:gold");
+    this.foodSprite.texture = Assets.get(`${useBundle()}:resources:food`);
+    this.goldSprite.texture = Assets.get(`${useBundle()}:resources:gold`);
   }
 
   update(gameState: { gold: number; food: number } | null) {

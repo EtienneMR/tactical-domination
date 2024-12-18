@@ -1,9 +1,22 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
 import useUserId from "~/game/utils/useUserId";
+import manifest from "~~/public/assets/manifest.json";
 import { MAPS } from "~~/shared/consts";
 
+const bundles = manifest.bundles.map((b) => b.name).sort();
+
 const disabled = ref(false);
+const bundleValue = ref("base");
+
+onMounted(
+  () => (bundleValue.value = localStorage.getItem("assetBundle") ?? "base")
+);
+
+function setBundle(bundle: string) {
+  localStorage.setItem("assetBundle", bundle);
+  location.reload();
+}
 
 async function createAndJoinGame(mapName: string) {
   disabled.value = true;
@@ -32,6 +45,15 @@ async function createAndJoinGame(mapName: string) {
 
 <template>
   <div class="flex-1 p-4">
+    <ClientOnly>
+      <Teleport to="#header">
+        <USelect
+          @change="setBundle"
+          :model-value="bundleValue"
+          :options="bundles"
+        />
+      </Teleport>
+    </ClientOnly>
     <h1>Créer une partie</h1>
     <div class="maplist">
       <div v-for="map of MAPS" class="flex items-center">

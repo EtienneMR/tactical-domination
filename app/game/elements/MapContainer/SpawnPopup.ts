@@ -1,6 +1,7 @@
 import { Assets, Sprite, Text } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
+import useBundle from "~/game/utils/useBundle";
 import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
 import type { EntityClass } from "~~/shared/types/entities";
 import SliceButton from "../SliceButton";
@@ -50,7 +51,9 @@ export default class SpawnPopup extends SliceButton {
 
       this.addChild(
         new Sprite({
-          texture: Assets.get(`resources:${entityClass.resource}`),
+          texture: Assets.get(
+            `${useBundle()}:resources:${entityClass.resource}`
+          ),
           x: (Number(i) + 1) * DEFINITION - 6,
           y: 3,
           anchor: { x: 1, y: 0 },
