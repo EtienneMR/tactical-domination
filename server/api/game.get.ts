@@ -2,10 +2,10 @@ import { useKv } from "~~/server/utils/useKv";
 import { assertMatchingVersions, assertValidString } from "../utils/checks";
 
 export default defineEventHandler(async (event) => {
-  const { gid, pid, v } = getQuery(event);
+  const { gid, uid, v } = getQuery(event);
 
   assertValidString(gid, "gid");
-  assertValidString(pid, "pid");
+  assertValidString(uid, "uid");
   assertValidString(v, "v");
 
   const kv = await useKv();
@@ -44,17 +44,25 @@ export default defineEventHandler(async (event) => {
           return null;
         }
 
-        let empty = null;
-
-        for (const player of game.players) {
-          if (player.pid == pid) return null;
-          else if (player.pid == null) empty = player;
+        for (const user of game.users) {
+          if (user.uid == uid) return null;
         }
 
-        if (empty) {
-          empty.pid = pid;
-          return game;
-        } else return null;
+        game.users.push({
+          index:
+            game.users.reduce(
+              (max, user) =>
+                user.index && user.index > max ? user.index : max,
+              0
+            ) + 1,
+          uid,
+          name: `Annonyme${String(Math.floor(Math.random() * 1000)).padStart(
+            4,
+            "0"
+          )}`,
+        });
+
+        return game;
       })
     );
 

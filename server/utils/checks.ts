@@ -9,16 +9,20 @@ export function assertValidGame(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Game "${gid}" not found`,
+      message: `GameState "${gid}" not found`,
     });
 }
 
-export function assertGameInState(game: Game, state: GameState, gid: string) {
-  if (game.state != state)
+export function assertGameInStatus(
+  gameState: GameState,
+  gameStatus: GameStatus,
+  gid: string
+) {
+  if (gameState.status != gameStatus)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Game "${gid}" not ${state}`,
+      message: `GameState "${gid}" not ${gameStatus}`,
     });
 }
 
@@ -36,13 +40,13 @@ export function assertValidEntity(
 
 export function assertValidPlayer(
   player: Player | null,
-  pid: string
+  uid: string
 ): asserts player is Player {
   if (!player)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Player "${pid}" not found`,
+      message: `Player "${uid}" not found`,
     });
 }
 

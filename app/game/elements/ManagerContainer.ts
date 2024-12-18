@@ -1,6 +1,6 @@
 import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
 import displayError from "../utils/displayError";
-import { RESSOURCES_HEIGHT } from "./RessourcesContainer";
+import { RESOURCES_HEIGHT } from "./ResourcesContainer";
 import SliceButton from "./SliceButton";
 
 export default class ManagerContainer extends Container<ContainerChild> {
@@ -10,7 +10,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
   private endTurnButton: SliceButton;
 
   constructor(
-    pid: string,
+    uid: string,
     gid: string,
     options?: ContainerOptions<ContainerChild>
   ) {
@@ -19,8 +19,8 @@ export default class ManagerContainer extends Container<ContainerChild> {
     const startButton = (this.startButton = this.addChild(
       new SliceButton({
         label: "Jouer",
-        height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT,
+        height: RESOURCES_HEIGHT,
+        fontSize: RESOURCES_HEIGHT,
       })
     ));
 
@@ -28,7 +28,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       startButton.active = false;
 
       try {
-        await $fetch("/api/start", { method: "POST", query: { pid, gid } });
+        await $fetch("/api/start", { method: "POST", query: { uid, gid } });
       } catch (error) {
         displayError(
           "Impossible de lancer la partie",
@@ -43,8 +43,8 @@ export default class ManagerContainer extends Container<ContainerChild> {
     const regenerateButton = (this.regenerateButton = this.addChild(
       new SliceButton({
         label: "Regénérer",
-        height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT,
+        height: RESOURCES_HEIGHT,
+        fontSize: RESOURCES_HEIGHT,
       })
     ));
     regenerateButton.x = startButton.x + startButton.width + 20;
@@ -53,7 +53,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       regenerateButton.active = false;
 
       try {
-        await $fetch("/api/regenmap", { method: "POST", query: { pid, gid } });
+        await $fetch("/api/regenmap", { method: "POST", query: { uid, gid } });
       } catch (error) {
         displayError(
           "Impossible de regénérer la carte",
@@ -68,8 +68,8 @@ export default class ManagerContainer extends Container<ContainerChild> {
     const endTurnButton = (this.endTurnButton = this.addChild(
       new SliceButton({
         label: "Fin de tour",
-        height: RESSOURCES_HEIGHT,
-        fontSize: RESSOURCES_HEIGHT,
+        height: RESOURCES_HEIGHT,
+        fontSize: RESOURCES_HEIGHT,
         width: 200,
       })
     ));
@@ -78,7 +78,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       endTurnButton.active = false;
 
       try {
-        await $fetch("/api/endturn", { method: "POST", query: { pid, gid } });
+        await $fetch("/api/endturn", { method: "POST", query: { uid, gid } });
       } catch (error) {
         displayError(
           "Impossible de finir le tour",
@@ -96,14 +96,21 @@ export default class ManagerContainer extends Container<ContainerChild> {
   }
 
   update(game: Game, me: Player | null) {
-    this.startButton.visible = game.state == "initing";
-    this.regenerateButton.visible = game.state == "initing";
+    const { state: gameState } = game;
 
-    this.endTurnButton.visible = game.state == "started";
-    this.endTurnButton.active = game.turn == me?.index;
+    this.startButton.visible = gameState.status == "initing";
+    this.regenerateButton.visible = gameState.status == "initing";
+
+    this.endTurnButton.visible = gameState.status == "started";
+    this.endTurnButton.active = gameState.turn == me?.index;
     this.endTurnButton.update({
       label:
-        game.turn == me?.index ? "Fin du tour" : `Tour de Joueur ${game.turn}`,
+        gameState.turn == me?.index
+          ? "Fin du tour"
+          : `Tour de ${
+              game.users.find((u) => u.index == gameState.turn)?.name ??
+              `Joueur ${gameState.turn}`
+            }`,
     });
   }
 }

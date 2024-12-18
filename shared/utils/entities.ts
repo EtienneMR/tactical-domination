@@ -1,4 +1,4 @@
-import { ENTITIES_CLASSES } from "~~/shared/consts";
+import { ACTIONS_DATA, ENTITIES_CLASSES } from "~~/shared/consts";
 
 export function getEntityClass(type: string) {
   const entityClass = ENTITIES_CLASSES.find((e) => e.type == type);
@@ -15,18 +15,31 @@ export function getEntityClass(type: string) {
 
 export function getActionFromEntityClass(
   entityClass: EntityClass,
-  actionName: string
+  actionType: string
 ) {
-  const action = entityClass.actions.find((a) => a.type == actionName);
+  const action = entityClass.actions.find((a) => a.type == actionType);
 
   if (!action)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Action "${actionName}" isn't defined for entity "${entityClass.type}"`,
+      message: `Action "${actionType}" isn't defined for entity "${entityClass.type}"`,
     });
 
   return action;
+}
+
+export function getActionDataFromType(actionType: string) {
+  const actionData = ACTIONS_DATA.find((a) => a.type == actionType);
+
+  if (!actionData)
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Internal error",
+      message: `Unknown action type "${actionType}"`,
+    });
+
+  return actionData;
 }
 
 export function hasEntityBudget(entity: Entity) {

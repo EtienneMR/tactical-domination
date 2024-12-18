@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
-import usePlayerId from "~/game/utils/usePlayerId";
+import useUserId from "~/game/utils/useUserId";
 import { MAPS } from "~~/shared/consts";
 
 const disabled = ref(false);
@@ -12,7 +12,7 @@ async function createAndJoinGame(mapName: string) {
     await $fetch("/api/setupgame", {
       method: "POST",
       query: {
-        pid: usePlayerId(),
+        uid: useUserId(),
         gid: `g${gid}`,
         v: useRuntimeConfig().public.gitVersion,
         mapName,

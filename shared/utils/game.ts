@@ -1,17 +1,25 @@
 import { BUILDINGS_CLASSES } from "~~/shared/consts";
-import type { Cell } from "../types/game";
+import type { Action, ActionData } from "../types/entities";
 import { hasEntityBudget } from "./entities";
 
-export function getEntityFromEid(game: Game, eid: string): Entity | null {
-  return game.entities.find((e) => e.eid == eid) ?? null;
+export function getEntityFromEid(
+  gameState: GameState,
+  eid: string
+): Entity | null {
+  return gameState.entities.find((e) => e.eid == eid) ?? null;
 }
 
-export function getEntityFromPos(game: Game, pos: Position): Entity | null {
-  return game.entities.find((e) => e.x == pos.x && e.y == pos.y) ?? null;
+export function getEntityFromPos(
+  gameState: GameState,
+  pos: Position
+): Entity | null {
+  return gameState.entities.find((e) => e.x == pos.x && e.y == pos.y) ?? null;
 }
 
-export function getPlayer(game: Game, pid: string): Player | null {
-  return game.players.find((p) => p.pid === pid) ?? null;
+export function getPlayer(game: Game, uid: string): Player | null {
+  const index = game.users.find((u) => u.uid === uid)?.index;
+
+  return game.state.players[index ?? -1] ?? null;
 }
 
 export function getBuildingClass(type: string) {
@@ -27,8 +35,8 @@ export function getBuildingClass(type: string) {
   return buildingClass;
 }
 
-export function getCellAt(game: Game, pos: Position) {
-  const cell = game.map.find((c) => c.x == pos.x && c.y == pos.y);
+export function getCellAt(gameState: GameState, pos: Position) {
+  const cell = gameState.map.find((c) => c.x == pos.x && c.y == pos.y);
 
   if (!cell)
     throw createError({
@@ -40,12 +48,12 @@ export function getCellAt(game: Game, pos: Position) {
   return cell;
 }
 
-export function assertCanPlay(game: Game, player: Player) {
-  if (game.turn != player.index)
+export function assertCanPlay(gameState: GameState, player: Player) {
+  if (gameState.turn != player.index)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Not currently "${player?.pid ?? null}"'s turn`,
+      message: `Not currently "${player?.index ?? null}"'s turn`,
     });
 }
 
@@ -65,18 +73,18 @@ export function assertActionInRange(
 }
 
 export function assertValidTargetForAction(
-  game: Game,
+  gameState: GameState,
   targetEntity: Entity | null,
   targetEntityClass: EntityClass | null,
-  action: Action
+  actionData: ActionData
 ) {
   const valid =
-    (action.target == null && targetEntity == null) ||
-    (action.target == "enemy" &&
+    (actionData.target == null && targetEntity == null) ||
+    (actionData.target == "enemy" &&
       targetEntity &&
-      targetEntity.owner != game.turn &&
+      targetEntity.owner != gameState.turn &&
       targetEntityClass &&
-      targetEntityClass.immune != action.type);
+      targetEntityClass.immune != actionData.type);
 
   if (!valid)
     throw createError({
@@ -84,22 +92,23 @@ export function assertValidTargetForAction(
       statusMessage: "Bad Request",
       message: `Invalid target entity "${
         targetEntity?.eid ?? null
-      }" for action "${action.type}"`,
+      }" for action "${actionData.type}"`,
     });
 }
 
 export function assertCanDoAction(
-  game: Game,
+  gameState: GameState,
   player: Player,
   entity: Entity,
   action: Action,
+  actionData: ActionData,
   targetEntity: Entity | null,
   targetEntityClass: EntityClass | null,
   cell: Cell
 ) {
-  assertCanPlay(game, player);
+  assertCanPlay(gameState, player);
 
-  if (entity.owner != game.turn)
+  if (entity.owner != gameState.turn)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
@@ -117,10 +126,10 @@ export function assertCanDoAction(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Player "${player.pid}" hasn't enough food`,
+      message: `Player "${player.index}" hasn't enough food`,
     });
 
-  if (action.walk && cell.building) {
+  if (actionData.walk && cell.building) {
     const building = getBuildingClass(cell.building);
 
     if (!building.walkable)
@@ -132,24 +141,31 @@ export function assertCanDoAction(
   }
 
   assertActionInRange(entity, cell, action);
-  assertValidTargetForAction(game, targetEntity, targetEntityClass, action);
+  assertValidTargetForAction(
+    gameState,
+    targetEntity,
+    targetEntityClass,
+    actionData
+  );
 }
 
 export function canDoAction(
-  game: Game,
+  gameState: GameState,
   player: Player,
   entity: Entity,
   action: Action,
+  actionData: ActionData,
   targetEntity: Entity | null,
   targetEntityClass: EntityClass | null,
   cell: Cell
 ): boolean {
   try {
     assertCanDoAction(
-      game,
+      gameState,
       player,
       entity,
       action,
+      actionData,
       targetEntity,
       targetEntityClass,
       cell

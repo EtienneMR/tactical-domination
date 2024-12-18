@@ -6,7 +6,7 @@ import {
   getPlayer,
 } from "~~/shared/utils/game";
 import {
-  assertGameInState,
+  assertGameInStatus,
   assertValidEntity,
   assertValidGame,
   assertValidPlayer,
@@ -14,19 +14,22 @@ import {
 } from "../utils/checks";
 
 export default defineEventHandler(async (event) => {
-  const { gid, pid, eid } = getQuery(event);
+  const { gid, uid, eid } = getQuery(event);
 
   assertValidString(gid, "gid");
-  assertValidString(pid, "pid");
+  assertValidString(uid, "uid");
   assertValidString(eid, "eid");
 
   const kv = await useKv();
 
   await updateGame(kv, gid, async (game) => {
     assertValidGame(game, gid);
-    assertGameInState(game, "started", gid);
 
-    const entity = getEntityFromEid(game, eid);
+    const { state: gameState } = game;
+
+    assertGameInStatus(gameState, "started", gid);
+
+    const entity = getEntityFromEid(gameState, eid);
     assertValidEntity(entity, eid);
 
     if (entity.budget < 100) {
@@ -37,11 +40,11 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const player = getPlayer(game, pid);
-    assertValidPlayer(player, pid);
-    assertCanPlay(game, player);
+    const player = getPlayer(game, uid);
+    assertValidPlayer(player, uid);
+    assertCanPlay(gameState, player);
 
-    const cell = getCellAt(game, entity);
+    const cell = getCellAt(gameState, entity);
 
     if (cell.building != "castle")
       throw createError({
@@ -52,14 +55,14 @@ export default defineEventHandler(async (event) => {
 
     const previous = getEntityClass(entity.type);
     player.spawnCost[entity.type] -= 1;
-    player[previous.ressource] += player.spawnCost[entity.type];
+    player[previous.resource] += player.spawnCost[entity.type];
 
-    game.entities.splice(
-      game.entities.findIndex((e) => e.eid == entity.eid),
+    gameState.entities.splice(
+      gameState.entities.findIndex((e) => e.eid == entity.eid),
       1
     );
 
-    game.events.push("unit_removed");
+    gameState.events.push("unit_removed");
 
     return game;
   });

@@ -1,6 +1,6 @@
 import { sound } from "@pixi/sound";
 import { Assets, Sprite } from "pixi.js";
-import type { Game, Player } from "~~/shared/types/game";
+import type { GameState, Player } from "~~/shared/types/game";
 
 export default class ResultBanner extends Sprite {
   private showState: number;
@@ -22,11 +22,12 @@ export default class ResultBanner extends Sprite {
     });
   }
 
-  update(game: Game, player: Player | null) {
+  update(gameState: GameState, player: Player | null) {
     const targetPlayer =
-      player ?? game.players.find((p) => p.alive) ?? game.players[0]!;
+      player ?? gameState.players.find((p) => p.alive) ?? gameState.players[0]!;
 
-    this.showState = game.state == "ended" ? 2 : !targetPlayer.alive ? 1 : 0;
+    this.showState =
+      gameState.status == "ended" ? 2 : !targetPlayer.alive ? 1 : 0;
     if (this.showState == 0) this.hiddedState = 0;
 
     const target = this.showState > this.hiddedState;

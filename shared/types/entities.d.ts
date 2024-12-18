@@ -1,7 +1,8 @@
-import type { ACTIONS_TYPES, ENTITIES_TYPES } from "../consts";
+import type { ACTIONS_DATA, ACTIONS_TYPES, ENTITIES_TYPES } from "../consts";
 
 export type EntityType = (typeof ENTITIES_TYPES)[number];
 export type ActionType = (typeof ACTIONS_TYPES)[number];
+export type ActionData = (typeof ACTIONS_DATA)[number];
 
 export interface Entity {
   readonly eid: string;
@@ -14,8 +15,6 @@ export interface Entity {
 
 export interface Action {
   readonly type: ActionType;
-  readonly target: null | "enemy";
-  readonly walk: boolean;
   readonly range: number;
   readonly budget: number;
 }
@@ -23,6 +22,6 @@ export interface Action {
 export interface EntityClass {
   readonly type: EntityType;
   readonly immune: null | ActionType;
-  readonly ressource: "gold" | "food";
+  readonly resource: "gold" | "food";
   readonly actions: readonly Action[];
 }

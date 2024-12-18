@@ -6,17 +6,17 @@ import {
   getPlayer,
 } from "~~/shared/utils/game";
 import {
-  assertGameInState,
+  assertGameInStatus,
   assertValidGame,
   assertValidPlayer,
   assertValidString,
 } from "../utils/checks";
 
 export default defineEventHandler(async (event) => {
-  const { gid, pid, entityType, x: strx, y: stry } = getQuery(event);
+  const { gid, uid, entityType, x: strx, y: stry } = getQuery(event);
 
   assertValidString(gid, "gid");
-  assertValidString(pid, "pid");
+  assertValidString(uid, "uid");
   assertValidString(entityType, "entityType");
   assertValidString(strx, "x");
   assertValidString(stry, "y");
@@ -29,13 +29,16 @@ export default defineEventHandler(async (event) => {
 
   await updateGame(kv, gid, async (game) => {
     assertValidGame(game, gid);
-    assertGameInState(game, "started", gid);
 
-    const player = getPlayer(game, pid);
-    assertValidPlayer(player, pid);
-    assertCanPlay(game, player);
+    const { state: gameState } = game;
 
-    const cell = getCellAt(game, pos);
+    assertGameInStatus(gameState, "started", gid);
+
+    const player = getPlayer(game, uid);
+    assertValidPlayer(player, uid);
+    assertCanPlay(gameState, player);
+
+    const cell = getCellAt(gameState, pos);
 
     if (cell.building != "castle")
       throw createError({
@@ -51,7 +54,7 @@ export default defineEventHandler(async (event) => {
         message: `Can't create an entity in an enemy castle at (${strx}, ${stry})`,
       });
 
-    if (getEntityFromPos(game, pos) != null)
+    if (getEntityFromPos(gameState, pos) != null)
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
@@ -60,17 +63,17 @@ export default defineEventHandler(async (event) => {
 
     const entityClass = getEntityClass(entityType);
 
-    if (player[entityClass.ressource] < player.spawnCost[entityClass.type])
+    if (player[entityClass.resource] < player.spawnCost[entityClass.type])
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
-        message: `Player "${player.pid}" hasn't enough ressources`,
+        message: `Player "${player.index}" hasn't enough resources`,
       });
 
-    player[entityClass.ressource] -= player.spawnCost[entityClass.type];
+    player[entityClass.resource] -= player.spawnCost[entityClass.type];
     player.spawnCost[entityClass.type] += 1;
 
-    game.entities.push({
+    gameState.entities.push({
       eid: `e${Math.floor(Math.random() * 1000000)}`,
       type: entityClass.type,
       owner: player.index,
@@ -79,7 +82,7 @@ export default defineEventHandler(async (event) => {
       budget: 100,
     });
 
-    game.events.push("unit_created");
+    gameState.events.push("unit_created");
 
     return game;
   });

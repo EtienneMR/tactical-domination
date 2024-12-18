@@ -1,4 +1,4 @@
-import { type WriteCell } from "./game";
+import { type WriteCell } from "./gameState";
 
 export interface GenerationRule {
   readonly if: (cell: WriteCell, opp: WriteCell) => boolean;

@@ -50,7 +50,7 @@ export default class SpawnPopup extends SliceButton {
 
       this.addChild(
         new Sprite({
-          texture: Assets.get(`ressources:${entityClass.ressource}`),
+          texture: Assets.get(`resources:${entityClass.resource}`),
           x: (Number(i) + 1) * DEFINITION - 6,
           y: 3,
           anchor: { x: 1, y: 0 },
@@ -89,7 +89,7 @@ export default class SpawnPopup extends SliceButton {
         await $fetch("/api/create", {
           query: {
             gid: this.gameClient.gid,
-            pid: this.gameClient.pid,
+            uid: this.gameClient.uid,
             entityType: entityClass.type,
             x: this.cell.x,
             y: this.cell.y,
@@ -122,14 +122,16 @@ export default class SpawnPopup extends SliceButton {
   }
 
   updateState() {
-    const { game, me } = this.gameClient;
+    const gameState = this.gameClient.game?.state;
+    const me = this.gameClient.me;
 
-    if (game) {
+    if (gameState) {
       for (const [entityClass, renderedEntity, costText] of this.entities) {
         const cost = me?.spawnCost[entityClass.type];
-        const canAfford = !cost || me[entityClass.ressource] >= cost;
+        const canAfford = !cost || me[entityClass.resource] >= cost;
 
-        renderedEntity.alpha = game.turn == me?.index && canAfford ? 1 : 0.5;
+        renderedEntity.alpha =
+          gameState.turn == me?.index && canAfford ? 1 : 0.5;
         costText.text = cost ?? "";
         costText.style.fill = canAfford ? "white" : "red";
       }

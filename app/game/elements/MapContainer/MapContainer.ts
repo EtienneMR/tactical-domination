@@ -56,14 +56,14 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   update() {
-    const { game } = this.gameClient;
+    const gameState = this.gameClient.game?.state;
 
-    if (!game) return;
+    if (!gameState) return;
 
     this.mapContainer.removeChildren();
 
-    for (const data of game.map) {
-      const groundData = getGroundData(data, game.map);
+    for (const data of gameState.map) {
+      const groundData = getGroundData(data, gameState.map);
 
       if (!groundData.full) {
         const backgroundSprite = new Sprite(Assets.get(`biomes:plains`));
@@ -95,7 +95,7 @@ export default class MapContainer extends Container<ContainerChild> {
       }
     }
 
-    for (const entity of game.entities) {
+    for (const entity of gameState.entities) {
       const renderedEntity = this.entitiesContainer.children.find(
         (e) => e.entity.eid == entity.eid
       );
@@ -112,7 +112,7 @@ export default class MapContainer extends Container<ContainerChild> {
     }
 
     for (const entity of this.entitiesContainer.children) {
-      if (!game.entities.find((e) => e.eid == entity.entity.eid))
+      if (!gameState.entities.find((e) => e.eid == entity.entity.eid))
         this.entitiesContainer.removeChild(entity);
     }
 
@@ -120,10 +120,12 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   onDragMove(event: FederatedPointerEvent) {
-    const { game, me } = this.gameClient;
+    const gameState = this.gameClient.game?.state;
+    const me = this.gameClient.me;
+
     const { dragTarget } = this;
 
-    if (game && me && dragTarget) {
+    if (gameState && me && dragTarget) {
       dragTarget.action = null;
 
       const point = this.toLocal(event.global);
@@ -151,13 +153,15 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: dragTarget.actionX, y: dragTarget.actionY };
 
       for (const action of getEntityClass(dragTarget.entity.type).actions) {
-        const entityAtPos = getEntityFromPos(game, pos);
-        const cell = getCellAt(game, pos);
+        const actionData = getActionDataFromType(action.type);
+        const entityAtPos = getEntityFromPos(gameState, pos);
+        const cell = getCellAt(gameState, pos);
         const can = canDoAction(
-          game,
+          gameState,
           me,
           dragTarget.entity,
           action,
+          actionData,
           entityAtPos,
           entityAtPos ? getEntityClass(entityAtPos.type) : null,
           cell
@@ -173,14 +177,14 @@ export default class MapContainer extends Container<ContainerChild> {
   }
 
   async onDragStart(target: RenderedEntity) {
-    const { game } = this.gameClient;
+    const gameState = this.gameClient.game?.state;
 
     if (
       this.clickTarget == target &&
-      game &&
-      game.turn == this.gameClient.me?.index
+      gameState &&
+      gameState.turn == this.gameClient.me?.index
     ) {
-      const cell = getCellAt(game, target.entity);
+      const cell = getCellAt(gameState, target.entity);
 
       if (
         cell.building == "castle" &&
@@ -190,7 +194,7 @@ export default class MapContainer extends Container<ContainerChild> {
           await $fetch("/api/remove", {
             query: {
               gid: this.gameClient.gid,
-              pid: this.gameClient.pid,
+              uid: this.gameClient.uid,
               eid: target.entity.eid,
             },
             method: "POST",
@@ -219,14 +223,15 @@ export default class MapContainer extends Container<ContainerChild> {
     if (dragTarget) {
       this.dragTarget = null;
 
-      const { game, me } = this.gameClient;
+      const gameState = this.gameClient.game?.state;
+      const me = this.gameClient.me;
 
-      if (game && me && dragTarget.action) {
+      if (gameState && me && dragTarget.action) {
         try {
           await $fetch("/api/doaction", {
             query: {
               gid: this.gameClient.gid,
-              pid: this.gameClient.pid,
+              uid: this.gameClient.uid,
               eid: dragTarget.entity.eid,
               action: dragTarget.action.type,
               x: dragTarget.actionX,
@@ -259,10 +264,12 @@ export default class MapContainer extends Container<ContainerChild> {
   async onSecondaryAction(event: FederatedPointerEvent) {
     this.spawnPopup.hide();
 
-    const { game, me } = this.gameClient;
+    const gameState = this.gameClient.game?.state;
+    const me = this.gameClient.me;
+
     const { clickTarget } = this;
     this.clickTarget = null;
-    if (game && me) {
+    if (gameState && me) {
       const point = this.toLocal(event.global);
 
       const actionX = Math.min(Math.floor(point.x / DEFINITION), GRID_SIZE - 1);
@@ -277,15 +284,17 @@ export default class MapContainer extends Container<ContainerChild> {
           const lastAction = getEntityClass(
             clickTarget.entity.type
           ).actions.findLast(() => true)!;
+          const lastActionData = getActionDataFromType(lastAction.type);
 
-          const entityAtPos = getEntityFromPos(game, pos);
-          const cell = getCellAt(game, pos);
+          const entityAtPos = getEntityFromPos(gameState, pos);
+          const cell = getCellAt(gameState, pos);
 
           const can = canDoAction(
-            game,
+            gameState,
             me,
             clickTarget.entity,
             lastAction,
+            lastActionData,
             entityAtPos,
             entityAtPos ? getEntityClass(entityAtPos.type) : null,
             cell
@@ -296,7 +305,7 @@ export default class MapContainer extends Container<ContainerChild> {
               await $fetch("/api/doaction", {
                 query: {
                   gid: this.gameClient.gid,
-                  pid: this.gameClient.pid,
+                  uid: this.gameClient.uid,
                   eid: clickTarget.entity.eid,
                   action: lastAction.type,
                   x: actionX,
@@ -315,12 +324,12 @@ export default class MapContainer extends Container<ContainerChild> {
         }
         clickTarget.reset();
       } else {
-        const cell = getCellAt(game, pos);
+        const cell = getCellAt(gameState, pos);
 
         if (
           cell.building == "castle" &&
           cell.owner == me.index &&
-          !getEntityFromPos(game, pos)
+          !getEntityFromPos(gameState, pos)
         ) {
           this.spawnPopup.showAt(cell);
         }

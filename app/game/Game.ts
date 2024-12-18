@@ -3,12 +3,12 @@ import manifest from "~~/public/assets/manifest.json";
 import { getPlayer } from "~~/shared/utils/game";
 import ManagerContainer from "./elements/ManagerContainer";
 import MapContainer from "./elements/MapContainer/MapContainer";
-import RessourcesContainer from "./elements/RessourcesContainer";
+import ResourcesContainer from "./elements/ResourcesContainer";
 import ResultBanner from "./elements/ResultBanner";
 import SoundWorker from "./SoundWorker";
 import displayError from "./utils/displayError";
 import useEventSource from "./utils/useEventSource";
-import usePlayerId from "./utils/usePlayerId";
+import useUserId from "./utils/useUserId";
 
 export class GameClient {
   private loaded: boolean;
@@ -16,7 +16,7 @@ export class GameClient {
   private container: Container;
   private mapContainer: MapContainer;
   private managerContainer: ManagerContainer;
-  private ressourcesContainer: RessourcesContainer;
+  private resourcesContainer: ResourcesContainer;
   private resultBanner: ResultBanner;
 
   public parent: HTMLElement;
@@ -31,23 +31,23 @@ export class GameClient {
   } | null>;
   public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
   private updateBinded: () => void;
-  public pid: string;
+  public uid: string;
   private soundWorker: SoundWorker;
 
   constructor(public gid: string, oninited: () => void) {
-    const pid = (this.pid = usePlayerId());
+    const uid = (this.uid = useUserId());
 
     this.loaded = false;
     this.app = new Application();
     this.container = new Container();
-    this.ressourcesContainer = this.container.addChild(
-      new RessourcesContainer({})
+    this.resourcesContainer = this.container.addChild(
+      new ResourcesContainer({})
     );
     this.managerContainer = this.container.addChild(
-      new ManagerContainer(pid, gid)
+      new ManagerContainer(uid, gid)
     );
     this.mapContainer = this.container.addChild(
-      new MapContainer(this, { y: this.ressourcesContainer.height })
+      new MapContainer(this, { y: this.resourcesContainer.height })
     );
     this.resultBanner = this.container.addChild(new ResultBanner());
 
@@ -60,7 +60,7 @@ export class GameClient {
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
       gid
-    )}&pid=${encodeURIComponent(pid)}&v=${encodeURIComponent(
+    )}&uid=${encodeURIComponent(uid)}&v=${encodeURIComponent(
       useRuntimeConfig().public.gitVersion
     )}`;
     this.updateBinded = this.update.bind(this);
@@ -81,9 +81,9 @@ export class GameClient {
   }
 
   get me(): Player | null {
-    if (!this.game || this.game.state == "initing") return null;
+    if (!this.game || this.game.state.status == "initing") return null;
 
-    return getPlayer(this.game, this.pid);
+    return getPlayer(this.game, this.uid);
   }
 
   async init(parent: HTMLElement) {
@@ -98,14 +98,14 @@ export class GameClient {
       parent.appendChild(app.canvas);
 
       this.managerContainer.init();
-      this.ressourcesContainer.init();
+      this.resourcesContainer.init();
       this.mapContainer.init();
 
       if (!this.game) {
         this.game = (await $fetch(this.fetchUrl)) as Game;
       }
 
-      this.soundWorker.updateEvents(this.game.events, true);
+      this.soundWorker.updateEvents(this.game.state.events, true);
 
       this.loaded = true;
       this.connect();
@@ -148,12 +148,12 @@ export class GameClient {
 
     const mapSize = Math.min(
       this.app.screen.width,
-      this.app.screen.height - this.ressourcesContainer.height,
+      this.app.screen.height - this.resourcesContainer.height,
       500
     );
 
     this.mapContainer.setSize(mapSize);
-    this.ressourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
+    this.resourcesContainer.x = this.mapContainer.x + this.mapContainer.width;
 
     this.resultBanner.scale.set(mapSize / this.resultBanner.texture.width / 2);
     this.resultBanner.position.set(
@@ -162,11 +162,14 @@ export class GameClient {
     );
 
     this.mapContainer.update();
-    this.ressourcesContainer.update(me);
+    this.resourcesContainer.update(me);
     this.managerContainer.update(game, me);
-    this.resultBanner.update(game, me);
+    this.resultBanner.update(game.state, me);
 
-    this.soundWorker.updateEvents(game.events, game.state == "ended");
+    this.soundWorker.updateEvents(
+      game.state.events,
+      game.state.status == "ended"
+    );
 
     this.resize();
   }

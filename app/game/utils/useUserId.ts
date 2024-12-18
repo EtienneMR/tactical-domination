@@ -1,6 +1,6 @@
-const ITEM_NAME = "playerId";
+const ITEM_NAME = "userId";
 
-export default function usePlayerId(): string {
+export default function useUserId(): string {
   let id = localStorage.getItem(ITEM_NAME);
   if (!id) {
     id = `u${Math.floor(Math.random() * 1000000)}`;

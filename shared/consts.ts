@@ -71,23 +71,44 @@ export const BUILDINGS_CLASSES = [
 
 export const BUILDINGS_TYPES = BUILDINGS_CLASSES.map((b) => b.type);
 
+export const ACTIONS_DATA = [
+  {
+    type: "move",
+    target: null,
+    walk: true,
+  },
+  {
+    type: "melee",
+    target: "enemy",
+    walk: true,
+  },
+  {
+    type: "ranged",
+    target: "enemy",
+    walk: false,
+  },
+  {
+    type: "build",
+    target: null,
+    walk: false,
+  },
+] as const;
+
+export const ACTIONS_TYPES = ACTIONS_DATA.map((a) => a.type);
+
 export const ENTITIES_CLASSES = [
   {
     type: "melee",
     immune: "ranged",
-    ressource: "gold",
+    resource: "gold",
     actions: [
       {
         type: "move",
-        target: null,
-        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "melee",
-        target: "enemy",
-        walk: true,
         range: 1,
         budget: 50,
       },
@@ -96,19 +117,15 @@ export const ENTITIES_CLASSES = [
   {
     type: "archer",
     immune: null,
-    ressource: "gold",
+    resource: "gold",
     actions: [
       {
         type: "move",
-        target: null,
-        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "ranged",
-        target: "enemy",
-        walk: false,
         range: 3,
         budget: 100,
       },
@@ -117,19 +134,15 @@ export const ENTITIES_CLASSES = [
   {
     type: "horseman",
     immune: null,
-    ressource: "gold",
+    resource: "gold",
     actions: [
       {
         type: "move",
-        target: null,
-        walk: true,
         range: 1,
         budget: 50,
       },
       {
         type: "melee",
-        target: "enemy",
-        walk: true,
         range: 1,
         budget: 100,
       },
@@ -138,19 +151,15 @@ export const ENTITIES_CLASSES = [
   {
     type: "builder",
     immune: null,
-    ressource: "gold",
+    resource: "gold",
     actions: [
       {
         type: "move",
-        target: null,
-        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "build",
-        target: null,
-        walk: false,
         range: 2,
         budget: 1,
       },
@@ -159,19 +168,15 @@ export const ENTITIES_CLASSES = [
   {
     type: "farmer",
     immune: null,
-    ressource: "food",
+    resource: "food",
     actions: [
       {
         type: "move",
-        target: null,
-        walk: true,
         range: 1,
         budget: 100,
       },
       {
         type: "melee",
-        target: "enemy",
-        walk: true,
         range: 1,
         budget: 100,
       },
@@ -182,9 +187,6 @@ export const ENTITIES_CLASSES = [
 ENTITIES_CLASSES satisfies readonly EntityClass[];
 
 export const ENTITIES_TYPES = ENTITIES_CLASSES.map((e) => e.type);
-export const ACTIONS_TYPES = ENTITIES_CLASSES.map((e) =>
-  e.actions.map((a) => a.type)
-).flat();
 
 export const MAPS = [
   { id: "centeredMines", name: "Les mines du centre", label: "1v1" },
