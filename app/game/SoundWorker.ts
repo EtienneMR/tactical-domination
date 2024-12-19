@@ -1,12 +1,13 @@
 import { sound } from "@pixi/sound";
 import manifest from "~~/public/assets/manifest.json";
 import displayError from "./utils/displayError";
-import useBundle from "./utils/useBundle";
 
 export default class SoundWorker {
   private nextSoundIndex: number = 0;
   private isPlaying: boolean = false;
   private events: string[] = [];
+
+  constructor(private bundle: string) {}
 
   public updateEvents(events: string[], isReset: boolean) {
     this.events = events;
@@ -36,7 +37,7 @@ export default class SoundWorker {
 
   private playSound(soundAlias: string): Promise<void> | void {
     const available = manifest.bundles[0]!.assets.filter((a) =>
-      a.alias.startsWith(`${useBundle()}:sounds:${soundAlias}`)
+      a.alias.startsWith(`${this.bundle}:sounds:${soundAlias}`)
     );
 
     if (available.length == 0) {

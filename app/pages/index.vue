@@ -3,19 +3,14 @@ import displayError from "~/game/utils/displayError";
 import useUserId from "~/game/utils/useUserId";
 import manifest from "~~/public/assets/manifest.json";
 import { MAPS } from "~~/shared/consts";
+import useBundle from "~/game/utils/useBundle";
 
 const bundles = manifest.bundles.map((b) => b.name).sort();
 
 const disabled = ref(false);
-const bundleValue = ref("base");
-
-onMounted(
-  () => (bundleValue.value = localStorage.getItem("assetBundle") ?? "base")
-);
 
 function setBundle(bundle: string) {
-  localStorage.setItem("assetBundle", bundle);
-  location.reload();
+  useBundle().set(bundle);
 }
 
 async function createAndJoinGame(mapName: string) {
@@ -49,7 +44,7 @@ async function createAndJoinGame(mapName: string) {
       <Teleport to="#header">
         <USelect
           @change="setBundle"
-          :model-value="bundleValue"
+          :model-value="useBundle().get()"
           :options="bundles"
         />
       </Teleport>

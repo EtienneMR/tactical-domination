@@ -10,6 +10,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
   private endTurnButton: SliceButton;
 
   constructor(
+    bundle: string,
     uid: string,
     gid: string,
     options?: ContainerOptions<ContainerChild>
@@ -17,7 +18,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     super(options);
 
     const startButton = (this.startButton = this.addChild(
-      new SliceButton({
+      new SliceButton(bundle, {
         label: "Jouer",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
@@ -41,7 +42,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     });
 
     const regenerateButton = (this.regenerateButton = this.addChild(
-      new SliceButton({
+      new SliceButton(bundle, {
         label: "Regénérer",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
@@ -66,7 +67,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     });
 
     const endTurnButton = (this.endTurnButton = this.addChild(
-      new SliceButton({
+      new SliceButton(bundle, {
         label: "Fin de tour",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,

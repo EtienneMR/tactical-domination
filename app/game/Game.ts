@@ -34,23 +34,25 @@ export class GameClient {
   private updateBinded: () => void;
   public uid: string;
   private soundWorker: SoundWorker;
+  public readonly bundle: string;
 
   constructor(public gid: string, oninited: () => void) {
     const uid = (this.uid = useUserId());
+    const bundle = (this.bundle = useBundle().get());
 
     this.loaded = false;
     this.app = new Application();
     this.container = new Container();
     this.resourcesContainer = this.container.addChild(
-      new ResourcesContainer({})
+      new ResourcesContainer(bundle, {})
     );
     this.managerContainer = this.container.addChild(
-      new ManagerContainer(uid, gid)
+      new ManagerContainer(bundle, uid, gid)
     );
     this.mapContainer = this.container.addChild(
       new MapContainer(this, { y: this.resourcesContainer.height })
     );
-    this.resultBanner = this.container.addChild(new ResultBanner());
+    this.resultBanner = this.container.addChild(new ResultBanner(bundle));
 
     this.app.stage.addChild(this.container);
 
@@ -66,7 +68,7 @@ export class GameClient {
     )}`;
     this.updateBinded = this.update.bind(this);
 
-    this.soundWorker = new SoundWorker();
+    this.soundWorker = new SoundWorker(bundle);
 
     addEventListener("resize", this.updateBinded);
   }
@@ -95,7 +97,7 @@ export class GameClient {
       await app.init({ background: "#1099bb", resizeTo: parent });
       await Assets.init({ manifest: manifest });
 
-      await Assets.loadBundle(useBundle());
+      await Assets.loadBundle(this.bundle);
 
       parent.appendChild(app.canvas);
 
@@ -181,7 +183,7 @@ export class GameClient {
     this.app.destroy();
     this.events.value?.destroy();
     removeEventListener("resize", this.updateBinded);
-    await Assets.unloadBundle(useBundle());
+    await Assets.unloadBundle(this.bundle);
     if (import.meta.dev) Assets.reset();
   }
 }

@@ -10,7 +10,6 @@ import {
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
 import getGroundData from "~/game/utils/getGroundData";
-import useBundle from "~/game/utils/useBundle";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
 import RenderedEntity from "./RenderedEntity";
@@ -64,11 +63,15 @@ export default class MapContainer extends Container<ContainerChild> {
     this.mapContainer.removeChildren();
 
     for (const data of gameState.map) {
-      const groundData = getGroundData(data, gameState.map);
+      const groundData = getGroundData(
+        data,
+        gameState.map,
+        this.gameClient.bundle
+      );
 
       if (!groundData.full) {
         const backgroundSprite = new Sprite(
-          Assets.get(`${useBundle()}:biomes:plains`)
+          Assets.get(`${this.gameClient.bundle}:biomes:plains`)
         );
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
@@ -89,8 +92,9 @@ export default class MapContainer extends Container<ContainerChild> {
           manifest.bundles[0]!.assets.find(
             (a) =>
               a.alias ==
-              `${useBundle()}:buildings:${data.owner}_${data.building}`
-          )?.alias ?? `${useBundle()}:buildings:null_${data.building}`;
+              `${this.gameClient.bundle}:buildings:${data.owner}_${data.building}`
+          )?.alias ??
+          `${this.gameClient.bundle}:buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;
@@ -109,7 +113,8 @@ export default class MapContainer extends Container<ContainerChild> {
       } else {
         const added = new RenderedEntity(
           entity,
-          this.gameClient.me?.index ?? null
+          this.gameClient.me?.index ?? null,
+          this.gameClient.bundle
         );
         added.on("pointerdown", this.onDragStart.bind(this, added), added);
         this.entitiesContainer.addChild(added);

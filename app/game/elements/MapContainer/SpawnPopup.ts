@@ -1,7 +1,6 @@
 import { Assets, Sprite, Text } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
-import useBundle from "~/game/utils/useBundle";
 import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
 import type { EntityClass } from "~~/shared/types/entities";
 import SliceButton from "../SliceButton";
@@ -16,7 +15,7 @@ export default class SpawnPopup extends SliceButton {
   private entities: EntityData[];
 
   constructor(private gameClient: GameClient) {
-    super({
+    super(gameClient.bundle, {
       width: DEFINITION * ENTITIES_TYPES.length,
       height: DEFINITION,
 
@@ -41,7 +40,8 @@ export default class SpawnPopup extends SliceButton {
             y: 0,
             budget: 0,
           },
-          null
+          null,
+          this.gameClient.bundle
         )
       );
       entity.width -= 6;
@@ -52,7 +52,7 @@ export default class SpawnPopup extends SliceButton {
       this.addChild(
         new Sprite({
           texture: Assets.get(
-            `${useBundle()}:resources:${entityClass.resource}`
+            `${this.gameClient.bundle}:resources:${entityClass.resource}`
           ),
           x: (Number(i) + 1) * DEFINITION - 6,
           y: 3,
