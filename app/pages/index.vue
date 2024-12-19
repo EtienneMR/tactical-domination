@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
+import useBundle from "~/game/utils/useBundle";
 import useUserId from "~/game/utils/useUserId";
 import manifest from "~~/public/assets/manifest.json";
 import { MAPS } from "~~/shared/consts";
-import useBundle from "~/game/utils/useBundle";
 
-const bundles = manifest.bundles.map((b) => b.name).sort();
+const bundles = manifest.bundles
+  .map((b) => b.name)
+  .toSorted()
+  .map((b) => ({
+    name: b.charAt(0).toUpperCase() + b.substring(1),
+    value: b,
+  }));
 
 const disabled = ref(false);
 
@@ -43,6 +49,7 @@ async function createAndJoinGame(mapName: string) {
     <ClientOnly>
       <Teleport to="#header">
         <USelect
+          option-attribute="name"
           @change="setBundle"
           :model-value="useBundle().get()"
           :options="bundles"
