@@ -89,11 +89,13 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (data.building) {
         const assetName =
-          manifest.bundles[0]!.assets.find(
-            (a) =>
-              a.alias ==
-              `${this.gameClient.bundle}:buildings:${data.owner}_${data.building}`
-          )?.alias ??
+          manifest.bundles
+            .find((b) => b.name == this.gameClient.bundle)!
+            .assets.find(
+              (a) =>
+                a.alias ==
+                `${this.gameClient.bundle}:buildings:${data.owner}_${data.building}`
+            )?.alias ??
           `${this.gameClient.bundle}:buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);

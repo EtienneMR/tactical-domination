@@ -36,9 +36,11 @@ export default class SoundWorker {
   }
 
   private playSound(soundAlias: string): Promise<void> | void {
-    const available = manifest.bundles[0]!.assets.filter((a) =>
-      a.alias.startsWith(`${this.bundle}:sounds:${soundAlias}`)
-    );
+    const available = manifest.bundles
+      .find((b) => b.name == this.bundle)!
+      .assets.filter((a) =>
+        a.alias.startsWith(`${this.bundle}:sounds:${soundAlias}`)
+      );
 
     if (available.length == 0) {
       return displayError(
