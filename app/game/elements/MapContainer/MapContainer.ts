@@ -81,7 +81,7 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (groundData.texture) {
         const tileSprite = new Sprite(groundData.texture);
-        tileSprite.setSize(DEFINITION + 4);
+        tileSprite.setSize(DEFINITION);
         tileSprite.x = data.x * DEFINITION;
         tileSprite.y = data.y * DEFINITION;
         this.mapContainer.addChild(tileSprite);

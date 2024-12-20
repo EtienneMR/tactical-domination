@@ -56,8 +56,8 @@ export default function getGroundData(
     frame: new Rectangle(
       x * tile_width,
       y * tile_height,
-      tile_height,
-      tile_width
+      tile_height - 1,
+      tile_width - 1
     ),
   });
 
