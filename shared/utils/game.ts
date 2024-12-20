@@ -140,6 +140,17 @@ export function assertCanDoAction(
       });
   }
 
+  if (
+    action.type == "build" &&
+    cell.building == "castle" &&
+    cell.owner == player.index
+  )
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Bad Request",
+      message: `Can't destroy your own castle at (${cell.x}, ${cell.y})`,
+    });
+
   assertActionInRange(entity, cell, action);
   assertValidTargetForAction(
     gameState,

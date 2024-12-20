@@ -4,9 +4,8 @@ import displayError from "~/game/utils/displayError";
 import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
 import type { EntityClass } from "~~/shared/types/entities";
 import SliceButton from "../SliceButton";
+import { DEFINITION } from "./MapContainerConsts";
 import RenderedEntity from "./RenderedEntity";
-
-const DEFINITION = 64;
 
 type EntityData = [EntityClass, RenderedEntity, Text];
 

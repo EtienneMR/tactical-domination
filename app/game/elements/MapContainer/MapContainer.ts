@@ -12,12 +12,13 @@ import displayError from "~/game/utils/displayError";
 import getGroundData from "~/game/utils/getGroundData";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
+import EntityMask from "./EntityMask";
+import { DEFINITION } from "./MapContainerConsts";
 import RenderedEntity from "./RenderedEntity";
 import SpawnPopup from "./SpawnPopup";
 
-const DEFINITION = 64;
 const SECONDARY_CLICK_DELAY = 5000;
-const TRANSFORM_CLICK_DELAY = 500;
+const REMOVE_CLICK_DELAY = 500;
 
 class EntitiesContainer extends Container<ContainerChild> {
   public declare children: RenderedEntity[];
@@ -30,6 +31,7 @@ export default class MapContainer extends Container<ContainerChild> {
   private clickTarget: RenderedEntity | null;
   private doubleClickStart: DOMHighResTimeStamp;
   private spawnPopup: SpawnPopup;
+  private entityMask: EntityMask;
 
   constructor(
     private gameClient: GameClient,
@@ -37,6 +39,7 @@ export default class MapContainer extends Container<ContainerChild> {
   ) {
     super(options);
     this.mapContainer = this.addChild(new Container());
+    this.entityMask = this.addChild(new EntityMask());
     this.entitiesContainer = this.addChild(new EntitiesContainer());
     this.spawnPopup = this.addChild(new SpawnPopup(gameClient));
     this.dragTarget = null;
@@ -69,6 +72,8 @@ export default class MapContainer extends Container<ContainerChild> {
         this.gameClient.bundle
       );
 
+      const tint = (data.x + data.y) % 2 == 0 ? "#ffffff" : "#dddddd";
+
       if (!groundData.full) {
         const backgroundSprite = new Sprite(
           Assets.get(`${this.gameClient.bundle}:biomes:plains`)
@@ -76,6 +81,7 @@ export default class MapContainer extends Container<ContainerChild> {
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
         backgroundSprite.y = data.y * DEFINITION;
+        backgroundSprite.tint = tint;
         this.mapContainer.addChild(backgroundSprite);
       }
 
@@ -84,6 +90,7 @@ export default class MapContainer extends Container<ContainerChild> {
         tileSprite.setSize(DEFINITION);
         tileSprite.x = data.x * DEFINITION;
         tileSprite.y = data.y * DEFINITION;
+        tileSprite.tint = tint;
         this.mapContainer.addChild(tileSprite);
       }
 
@@ -200,7 +207,7 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (
         cell.building == "castle" &&
-        performance.now() - this.doubleClickStart <= TRANSFORM_CLICK_DELAY
+        performance.now() - this.doubleClickStart <= REMOVE_CLICK_DELAY
       ) {
         try {
           await $fetch("/api/remove", {
@@ -222,9 +229,12 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
+      this.entityMask.visible = false;
     } else if (target.draggable) {
       target.alpha = 0.5;
       this.dragTarget = target;
+
+      this.entityMask.update(target.entity, 0);
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
     }
@@ -234,6 +244,7 @@ export default class MapContainer extends Container<ContainerChild> {
     const { dragTarget } = this;
     if (dragTarget) {
       this.dragTarget = null;
+      this.entityMask.visible = false;
 
       const gameState = this.gameClient.game?.state;
       const me = this.gameClient.me;
@@ -269,6 +280,8 @@ export default class MapContainer extends Container<ContainerChild> {
         this.clickTarget = dragTarget;
         this.doubleClickStart = performance.now();
         dragTarget.tint = 0x999999;
+
+        this.entityMask.update(dragTarget.entity, 1);
       }
     }
   }
@@ -289,6 +302,7 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: actionX, y: actionY };
 
       if (clickTarget) {
+        this.entityMask.visible = false;
         if (
           performance.now() - this.doubleClickStart <=
           SECONDARY_CLICK_DELAY

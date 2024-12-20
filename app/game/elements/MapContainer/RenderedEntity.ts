@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import { Assets, Sprite } from "pixi.js";
-
-const DEFINITION = 64;
+import { DEFINITION } from "./MapContainerConsts";
 
 export default class RenderedEntity extends Sprite {
   public draggable!: boolean;

@@ -113,6 +113,8 @@ export class GameClient {
 
       this.loaded = true;
       this.connect();
+
+      this.update();
     } catch (error) {
       this.events.value?.eventsource.close();
       this.events.value?.update();
@@ -124,8 +126,6 @@ export class GameClient {
       );
       await this.destroy();
     }
-
-    this.update();
     this.oninited();
   }
 
