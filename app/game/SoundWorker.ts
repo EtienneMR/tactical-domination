@@ -1,5 +1,6 @@
 import { sound } from "@pixi/sound";
 import manifest from "~~/public/assets/manifest.json";
+import type { GameClient } from "./Game";
 import displayError from "./utils/displayError";
 
 export default class SoundWorker {
@@ -7,7 +8,7 @@ export default class SoundWorker {
   private isPlaying: boolean = false;
   private events: string[] = [];
 
-  constructor(private bundle: string) {}
+  constructor(private gameClient: GameClient) {}
 
   public updateEvents(events: string[], isReset: boolean) {
     this.events = events;
@@ -37,9 +38,11 @@ export default class SoundWorker {
 
   private playSound(soundAlias: string): Promise<void> | void {
     const available = manifest.bundles
-      .find((b) => b.name == this.bundle)!
+      .find((b) => b.name == this.gameClient.settings.bundle)!
       .assets.filter((a) =>
-        a.alias.startsWith(`${this.bundle}:sounds:${soundAlias}`)
+        a.alias.startsWith(
+          `${this.gameClient.settings.bundle}:sounds:${soundAlias}`
+        )
       );
 
     if (available.length == 0) {

@@ -1,4 +1,5 @@
-import { Container, type ContainerChild, type ContainerOptions } from "pixi.js";
+import { Container, type ContainerChild } from "pixi.js";
+import type { GameClient } from "../Game";
 import displayError from "../utils/displayError";
 import { RESOURCES_HEIGHT } from "./ResourcesContainer";
 import SliceButton from "./SliceButton";
@@ -9,16 +10,13 @@ export default class ManagerContainer extends Container<ContainerChild> {
   private regenerateButton: SliceButton;
   private endTurnButton: SliceButton;
 
-  constructor(
-    bundle: string,
-    uid: string,
-    gid: string,
-    options?: ContainerOptions<ContainerChild>
-  ) {
-    super(options);
+  constructor(gameClient: GameClient) {
+    super();
+
+    const fetchQuery = { uid: gameClient.settings.uid, gid: gameClient.gid };
 
     const startButton = (this.startButton = this.addChild(
-      new SliceButton(bundle, {
+      new SliceButton(gameClient, {
         label: "Jouer",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
@@ -29,7 +27,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       startButton.active = false;
 
       try {
-        await $fetch("/api/start", { method: "POST", query: { uid, gid } });
+        await $fetch("/api/start", { method: "POST", query: fetchQuery });
       } catch (error) {
         displayError(
           "Impossible de lancer la partie",
@@ -42,7 +40,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     });
 
     const regenerateButton = (this.regenerateButton = this.addChild(
-      new SliceButton(bundle, {
+      new SliceButton(gameClient, {
         label: "Regénérer",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
@@ -54,7 +52,10 @@ export default class ManagerContainer extends Container<ContainerChild> {
       regenerateButton.active = false;
 
       try {
-        await $fetch("/api/regenmap", { method: "POST", query: { uid, gid } });
+        await $fetch("/api/regenmap", {
+          method: "POST",
+          query: fetchQuery,
+        });
       } catch (error) {
         displayError(
           "Impossible de regénérer la carte",
@@ -67,7 +68,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
     });
 
     const endTurnButton = (this.endTurnButton = this.addChild(
-      new SliceButton(bundle, {
+      new SliceButton(gameClient, {
         label: "Fin de tour",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
@@ -79,7 +80,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
       endTurnButton.active = false;
 
       try {
-        await $fetch("/api/endturn", { method: "POST", query: { uid, gid } });
+        await $fetch("/api/endturn", { method: "POST", query: fetchQuery });
       } catch (error) {
         displayError(
           "Impossible de finir le tour",

@@ -1,11 +1,5 @@
-import {
-  Assets,
-  Container,
-  Sprite,
-  Text,
-  type ContainerChild,
-  type ContainerOptions,
-} from "pixi.js";
+import { Assets, Container, Sprite, Text, type ContainerChild } from "pixi.js";
+import type { GameClient } from "../Game";
 
 export const RESOURCES_HEIGHT = 20;
 
@@ -15,11 +9,8 @@ export default class ResourcesContainer extends Container<ContainerChild> {
   private goldText: Text;
   private goldSprite: Sprite;
 
-  constructor(
-    private bundle: string,
-    options: ContainerOptions<ContainerChild>
-  ) {
-    super(options);
+  constructor(private gameClient: GameClient) {
+    super();
 
     this.foodText = this.addChild(
       new Text({ style: { fontSize: RESOURCES_HEIGHT } })
@@ -45,8 +36,12 @@ export default class ResourcesContainer extends Container<ContainerChild> {
   }
 
   init() {
-    this.foodSprite.texture = Assets.get(`${this.bundle}:resources:food`);
-    this.goldSprite.texture = Assets.get(`${this.bundle}:resources:gold`);
+    this.foodSprite.texture = Assets.get(
+      `${this.gameClient.settings.bundle}:resources:food`
+    );
+    this.goldSprite.texture = Assets.get(
+      `${this.gameClient.settings.bundle}:resources:gold`
+    );
   }
 
   update(gameState: { gold: number; food: number } | null) {

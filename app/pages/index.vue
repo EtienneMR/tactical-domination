@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
-import useBundle from "~/game/utils/useBundle";
-import useUserId from "~/game/utils/useUserId";
+import useSettings from "~/game/utils/useSettings";
 import manifest from "~~/public/assets/manifest.json";
 import { MAPS } from "~~/shared/consts";
+
+const settings = useSettings();
 
 const bundles = manifest.bundles
   .map((b) => b.name)
@@ -16,23 +17,23 @@ const bundles = manifest.bundles
 const disabled = ref(false);
 
 function setBundle(bundle: string) {
-  useBundle().set(bundle);
+  settings.set("bundle", bundle);
 }
 
 async function createAndJoinGame(mapName: string) {
   disabled.value = true;
-  const gid = `${Math.floor(Math.random() * 1000000)}`;
+  const gid = generateId("g");
   try {
     await $fetch("/api/setupgame", {
       method: "POST",
       query: {
-        uid: useUserId(),
-        gid: `g${gid}`,
+        uid: settings.uid,
+        gid: `${gid}`,
         v: useRuntimeConfig().public.gitVersion,
         mapName,
       },
     });
-    await useRouter().push(`/${gid}`);
+    await useRouter().push(`/${gid.substring(1)}`);
   } catch (error) {
     displayError(
       "Impossible de créer une partie",
@@ -51,7 +52,7 @@ async function createAndJoinGame(mapName: string) {
         <USelect
           option-attribute="name"
           @change="setBundle"
-          :model-value="useBundle().get()"
+          :model-value="settings.bundle"
           :options="bundles"
         />
       </Teleport>

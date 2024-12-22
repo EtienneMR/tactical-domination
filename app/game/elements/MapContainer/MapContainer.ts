@@ -39,7 +39,7 @@ export default class MapContainer extends Container<ContainerChild> {
   ) {
     super(options);
     this.mapContainer = this.addChild(new Container());
-    this.entityMask = this.addChild(new EntityMask());
+    this.entityMask = this.addChild(new EntityMask(gameClient));
     this.entitiesContainer = this.addChild(new EntitiesContainer());
     this.spawnPopup = this.addChild(new SpawnPopup(gameClient));
     this.dragTarget = null;
@@ -69,14 +69,17 @@ export default class MapContainer extends Container<ContainerChild> {
       const groundData = getGroundData(
         data,
         gameState.map,
-        this.gameClient.bundle
+        this.gameClient.settings.bundle
       );
 
-      const tint = (data.x + data.y) % 2 == 0 ? "#ffffff" : "#dddddd";
+      const tint =
+        !this.gameClient.settings.useGrid || (data.x + data.y) % 2 == 0
+          ? "#ffffff"
+          : "#dddddd";
 
       if (!groundData.full) {
         const backgroundSprite = new Sprite(
-          Assets.get(`${this.gameClient.bundle}:biomes:plains`)
+          Assets.get(`${this.gameClient.settings.bundle}:biomes:plains`)
         );
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
@@ -97,13 +100,13 @@ export default class MapContainer extends Container<ContainerChild> {
       if (data.building) {
         const assetName =
           manifest.bundles
-            .find((b) => b.name == this.gameClient.bundle)!
+            .find((b) => b.name == this.gameClient.settings.bundle)!
             .assets.find(
               (a) =>
                 a.alias ==
-                `${this.gameClient.bundle}:buildings:${data.owner}_${data.building}`
+                `${this.gameClient.settings.bundle}:buildings:${data.owner}_${data.building}`
             )?.alias ??
-          `${this.gameClient.bundle}:buildings:null_${data.building}`;
+          `${this.gameClient.settings.bundle}:buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;
@@ -123,7 +126,7 @@ export default class MapContainer extends Container<ContainerChild> {
         const added = new RenderedEntity(
           entity,
           this.gameClient.me?.index ?? null,
-          this.gameClient.bundle
+          this.gameClient.settings.bundle
         );
         added.on("pointerdown", this.onDragStart.bind(this, added), added);
         this.entitiesContainer.addChild(added);
@@ -213,7 +216,7 @@ export default class MapContainer extends Container<ContainerChild> {
           await $fetch("/api/remove", {
             query: {
               gid: this.gameClient.gid,
-              uid: this.gameClient.uid,
+              uid: this.gameClient.settings.uid,
               eid: target.entity.eid,
             },
             method: "POST",
@@ -254,7 +257,7 @@ export default class MapContainer extends Container<ContainerChild> {
           await $fetch("/api/doaction", {
             query: {
               gid: this.gameClient.gid,
-              uid: this.gameClient.uid,
+              uid: this.gameClient.settings.uid,
               eid: dragTarget.entity.eid,
               action: dragTarget.action.type,
               x: dragTarget.actionX,
@@ -331,7 +334,7 @@ export default class MapContainer extends Container<ContainerChild> {
               await $fetch("/api/doaction", {
                 query: {
                   gid: this.gameClient.gid,
-                  uid: this.gameClient.uid,
+                  uid: this.gameClient.settings.uid,
                   eid: clickTarget.entity.eid,
                   action: lastAction.type,
                   x: actionX,

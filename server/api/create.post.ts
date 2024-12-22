@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
     player.spawnCost[entityClass.type] += 1;
 
     gameState.entities.push({
-      eid: `e${Math.floor(Math.random() * 1000000)}`,
+      eid: generateId("e"),
       type: entityClass.type,
       owner: player.index,
       x: pos.x,

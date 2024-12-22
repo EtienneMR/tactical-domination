@@ -13,8 +13,8 @@ export default class SpawnPopup extends SliceButton {
   private cell: Cell | null;
   private entities: EntityData[];
 
-  constructor(private gameClient: GameClient) {
-    super(gameClient.bundle, {
+  constructor(gameClient: GameClient) {
+    super(gameClient, {
       width: DEFINITION * ENTITIES_TYPES.length,
       height: DEFINITION,
 
@@ -40,7 +40,7 @@ export default class SpawnPopup extends SliceButton {
             budget: 0,
           },
           null,
-          this.gameClient.bundle
+          this.gameClient.settings.bundle
         )
       );
       entity.width -= 6;
@@ -51,7 +51,7 @@ export default class SpawnPopup extends SliceButton {
       this.addChild(
         new Sprite({
           texture: Assets.get(
-            `${this.gameClient.bundle}:resources:${entityClass.resource}`
+            `${this.gameClient.settings.bundle}:resources:${entityClass.resource}`
           ),
           x: (Number(i) + 1) * DEFINITION - 6,
           y: 3,
@@ -91,7 +91,7 @@ export default class SpawnPopup extends SliceButton {
         await $fetch("/api/create", {
           query: {
             gid: this.gameClient.gid,
-            uid: this.gameClient.uid,
+            uid: this.gameClient.settings.uid,
             entityType: entityClass.type,
             x: this.cell.x,
             y: this.cell.y,

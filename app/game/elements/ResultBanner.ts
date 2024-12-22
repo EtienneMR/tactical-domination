@@ -1,12 +1,13 @@
 import { sound } from "@pixi/sound";
 import { Assets, Sprite } from "pixi.js";
 import type { GameState, Player } from "~~/shared/types/game";
+import type { GameClient } from "../Game";
 
 export default class ResultBanner extends Sprite {
   private showState: number;
   private hiddedState: number;
 
-  constructor(private bundle: string) {
+  constructor(private gameClient: GameClient) {
     super({
       eventMode: "static",
       visible: false,
@@ -35,12 +36,14 @@ export default class ResultBanner extends Sprite {
     if (this.visible != target) {
       this.visible = target;
       sound.play(
-        `${this.bundle}:sounds:game_${targetPlayer.alive ? "won" : "lost"}`
+        `${this.gameClient.settings.bundle}:sounds:game_${
+          targetPlayer.alive ? "won" : "lost"
+        }`
       );
     }
 
     this.texture = Assets.get(
-      `${this.bundle}:ui:${targetPlayer.index}_${
+      `${this.gameClient.settings.bundle}:ui:${targetPlayer.index}_${
         targetPlayer.alive ? "victory" : "defeat"
       }`
     );

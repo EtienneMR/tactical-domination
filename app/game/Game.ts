@@ -7,9 +7,8 @@ import ResourcesContainer from "./elements/ResourcesContainer";
 import ResultBanner from "./elements/ResultBanner";
 import SoundWorker from "./SoundWorker";
 import displayError from "./utils/displayError";
-import useBundle from "./utils/useBundle";
 import useEventSource from "./utils/useEventSource";
-import useUserId from "./utils/useUserId";
+import useSettings, { type SettingsInterface } from "./utils/useSettings";
 
 export class GameClient {
   private loaded: boolean;
@@ -32,27 +31,23 @@ export class GameClient {
   } | null>;
   public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
   private updateBinded: () => void;
-  public uid: string;
   private soundWorker: SoundWorker;
-  public readonly bundle: string;
+  public readonly settings: SettingsInterface;
 
   constructor(public gid: string, oninited: () => void) {
-    const uid = (this.uid = useUserId());
-    const bundle = (this.bundle = useBundle().get());
+    const settings = (this.settings = useSettings());
 
     this.loaded = false;
     this.app = new Application();
     this.container = new Container();
     this.resourcesContainer = this.container.addChild(
-      new ResourcesContainer(bundle, {})
+      new ResourcesContainer(this)
     );
-    this.managerContainer = this.container.addChild(
-      new ManagerContainer(bundle, uid, gid)
-    );
+    this.managerContainer = this.container.addChild(new ManagerContainer(this));
     this.mapContainer = this.container.addChild(
       new MapContainer(this, { y: this.resourcesContainer.height })
     );
-    this.resultBanner = this.container.addChild(new ResultBanner(bundle));
+    this.resultBanner = this.container.addChild(new ResultBanner(this));
 
     this.app.stage.addChild(this.container);
 
@@ -63,12 +58,12 @@ export class GameClient {
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
       gid
-    )}&uid=${encodeURIComponent(uid)}&v=${encodeURIComponent(
+    )}&uid=${encodeURIComponent(settings.uid)}&v=${encodeURIComponent(
       useRuntimeConfig().public.gitVersion
     )}`;
     this.updateBinded = this.update.bind(this);
 
-    this.soundWorker = new SoundWorker(bundle);
+    this.soundWorker = new SoundWorker(this);
 
     addEventListener("resize", this.updateBinded);
   }
@@ -86,7 +81,7 @@ export class GameClient {
   get me(): Player | null {
     if (!this.game || this.game.state.status == "initing") return null;
 
-    return getPlayer(this.game, this.uid);
+    return getPlayer(this.game, this.settings.uid);
   }
 
   async init(parent: HTMLElement) {
@@ -97,7 +92,7 @@ export class GameClient {
       await app.init({ background: "#1099bb", resizeTo: parent });
       await Assets.init({ manifest: manifest });
 
-      await Assets.loadBundle(this.bundle);
+      await Assets.loadBundle(this.settings.bundle);
 
       parent.appendChild(app.canvas);
 
@@ -183,7 +178,7 @@ export class GameClient {
     this.app.destroy();
     this.events.value?.destroy();
     removeEventListener("resize", this.updateBinded);
-    await Assets.unloadBundle(this.bundle);
+    await Assets.unloadBundle(this.settings.bundle);
     if (import.meta.dev) Assets.reset();
   }
 }

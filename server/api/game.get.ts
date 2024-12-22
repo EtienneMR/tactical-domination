@@ -56,10 +56,7 @@ export default defineEventHandler(async (event) => {
               0
             ) + 1,
           uid,
-          name: `Annonyme${String(Math.floor(Math.random() * 1000)).padStart(
-            4,
-            "0"
-          )}`,
+          name: generateId("Annonyme", 4),
         });
 
         return game;
