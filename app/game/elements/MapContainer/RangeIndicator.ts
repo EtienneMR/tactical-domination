@@ -15,7 +15,7 @@ export default class EntityClass extends Graphics {
   }
 
   update({ x, y, type }: Entity, action: number) {
-    if (this.gameClient.settings.useGrid) {
+    if (this.gameClient.settings.showRange) {
       const entityClass = getEntityClass(type);
       const range = entityClass.actions[action]?.range;
 

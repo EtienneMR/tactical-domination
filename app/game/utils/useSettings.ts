@@ -17,8 +17,12 @@ const settings = {
       : "base";
   },
 
-  get useGrid(): boolean {
-    return getRawKey("useGrid") !== "false";
+  get showGrid(): boolean {
+    return getRawKey("showGrid") !== "false";
+  },
+
+  get showRange(): boolean {
+    return getRawKey("showRange") !== "false";
   },
 
   get uid(): string {
@@ -61,14 +65,16 @@ export default function useSettings(): SettingsInterface {
       },
     };
   } else {
-    const err = () => {
-      throw new Error("Settings are not available (localStorage not defined)");
-    };
     return new Proxy(
       {},
       {
-        get: err,
-        set: err,
+        get: (_, key) => {
+          throw new Error(
+            `Attempted to index settings with ${String(
+              key
+            )} but localStorage is not defined`
+          );
+        },
       }
     ) as any;
   }

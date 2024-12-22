@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       });
     game = {
       gid,
-      users: [{ uid, name: "Host", index: 0 }],
+      users: [{ uid, name: "Host Annonyme", index: 0 }],
       version: useRuntimeConfig(event).public.gitVersion,
 
       state: createGame(mapName),

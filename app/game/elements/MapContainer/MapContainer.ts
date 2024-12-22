@@ -12,8 +12,8 @@ import displayError from "~/game/utils/displayError";
 import getGroundData from "~/game/utils/getGroundData";
 import manifest from "~~/public/assets/manifest.json";
 import { GRID_SIZE } from "~~/shared/consts";
-import EntityMask from "./EntityMask";
 import { DEFINITION } from "./MapContainerConsts";
+import RangeIndicator from "./RangeIndicator";
 import RenderedEntity from "./RenderedEntity";
 import SpawnPopup from "./SpawnPopup";
 
@@ -31,7 +31,7 @@ export default class MapContainer extends Container<ContainerChild> {
   private clickTarget: RenderedEntity | null;
   private doubleClickStart: DOMHighResTimeStamp;
   private spawnPopup: SpawnPopup;
-  private entityMask: EntityMask;
+  private rangeIndicator: RangeIndicator;
 
   constructor(
     private gameClient: GameClient,
@@ -39,7 +39,7 @@ export default class MapContainer extends Container<ContainerChild> {
   ) {
     super(options);
     this.mapContainer = this.addChild(new Container());
-    this.entityMask = this.addChild(new EntityMask(gameClient));
+    this.rangeIndicator = this.addChild(new RangeIndicator(gameClient));
     this.entitiesContainer = this.addChild(new EntitiesContainer());
     this.spawnPopup = this.addChild(new SpawnPopup(gameClient));
     this.dragTarget = null;
@@ -73,7 +73,7 @@ export default class MapContainer extends Container<ContainerChild> {
       );
 
       const tint =
-        !this.gameClient.settings.useGrid || (data.x + data.y) % 2 == 0
+        !this.gameClient.settings.showGrid || (data.x + data.y) % 2 == 0
           ? "#ffffff"
           : "#dddddd";
 
@@ -232,12 +232,12 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
-      this.entityMask.visible = false;
+      this.rangeIndicator.visible = false;
     } else if (target.draggable) {
       target.alpha = 0.5;
       this.dragTarget = target;
 
-      this.entityMask.update(target.entity, 0);
+      this.rangeIndicator.update(target.entity, 0);
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
     }
@@ -247,7 +247,7 @@ export default class MapContainer extends Container<ContainerChild> {
     const { dragTarget } = this;
     if (dragTarget) {
       this.dragTarget = null;
-      this.entityMask.visible = false;
+      this.rangeIndicator.visible = false;
 
       const gameState = this.gameClient.game?.state;
       const me = this.gameClient.me;
@@ -284,7 +284,7 @@ export default class MapContainer extends Container<ContainerChild> {
         this.doubleClickStart = performance.now();
         dragTarget.tint = 0x999999;
 
-        this.entityMask.update(dragTarget.entity, 1);
+        this.rangeIndicator.update(dragTarget.entity, 1);
       }
     }
   }
@@ -305,7 +305,7 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: actionX, y: actionY };
 
       if (clickTarget) {
-        this.entityMask.visible = false;
+        this.rangeIndicator.visible = false;
         if (
           performance.now() - this.doubleClickStart <=
           SECONDARY_CLICK_DELAY

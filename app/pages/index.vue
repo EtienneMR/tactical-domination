@@ -1,24 +1,9 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
 import useSettings from "~/game/utils/useSettings";
-import manifest from "~~/public/assets/manifest.json";
 import { MAPS } from "~~/shared/consts";
 
-const settings = useSettings();
-
-const bundles = manifest.bundles
-  .map((b) => b.name)
-  .toSorted()
-  .map((b) => ({
-    name: b.charAt(0).toUpperCase() + b.substring(1),
-    value: b,
-  }));
-
 const disabled = ref(false);
-
-function setBundle(bundle: string) {
-  settings.set("bundle", bundle);
-}
 
 async function createAndJoinGame(mapName: string) {
   disabled.value = true;
@@ -27,7 +12,7 @@ async function createAndJoinGame(mapName: string) {
     await $fetch("/api/setupgame", {
       method: "POST",
       query: {
-        uid: settings.uid,
+        uid: useSettings().uid,
         gid: `${gid}`,
         v: useRuntimeConfig().public.gitVersion,
         mapName,
@@ -49,12 +34,7 @@ async function createAndJoinGame(mapName: string) {
   <div class="flex-1 p-4">
     <ClientOnly>
       <Teleport to="#header">
-        <USelect
-          option-attribute="name"
-          @change="setBundle"
-          :model-value="settings.bundle"
-          :options="bundles"
-        />
+        <SettingsSlideover />
       </Teleport>
     </ClientOnly>
     <h1>Créer une partie</h1>

@@ -60,7 +60,7 @@ export class GameClient {
       gid
     )}&uid=${encodeURIComponent(settings.uid)}&v=${encodeURIComponent(
       useRuntimeConfig().public.gitVersion
-    )}`;
+    )}&username=${encodeURIComponent(settings.username)}`;
     this.updateBinded = this.update.bind(this);
 
     this.soundWorker = new SoundWorker(this);
