@@ -25,11 +25,10 @@ const bundles = manifest.bundles
     />
 
     <USlideover v-model="isOpen">
-      <div class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
-        <h1 class="flex items-center gap-1 text-lg font-bold">
+      <div class="p-4 pb-0 flex-1 flex flex-col gap-4 overflow-y-auto">
+        <SlideoverH1>
           <UIcon name="i-mdi-cog" />
           <span class="flex-1">Paramètres</span>
-
           <UButton
             color="gray"
             variant="ghost"
@@ -37,10 +36,10 @@ const bundles = manifest.bundles
             icon="i-mdi-close"
             @click="isOpen = false"
           />
-        </h1>
+        </SlideoverH1>
         <hr class="text-gray-500" />
 
-        <SlideoverH2 icon="i-mdi-account" label="Utilisateur" />
+        <SlideoverH2><UIcon name="i-mdi-account" />Utilisateur</SlideoverH2>
 
         <UFormGroup
           label="Pseudo"
@@ -53,7 +52,9 @@ const bundles = manifest.bundles
           />
         </UFormGroup>
 
-        <SlideoverH2 icon="i-mdi-format-color-fill" label="Affichage" />
+        <SlideoverH2>
+          <UIcon name="i-mdi-format-color-fill" /> Affichage
+        </SlideoverH2>
 
         <UFormGroup
           label="Pack de textures"
@@ -102,7 +103,7 @@ const bundles = manifest.bundles
           />
         </UFormGroup>
 
-        <SlideoverH2 icon="i-mdi-plus" label="Avancé" />
+        <SlideoverH2><UIcon name="i-mdi-plus" /> Avancé</SlideoverH2>
 
         <UFormGroup
           label="Identifiant"

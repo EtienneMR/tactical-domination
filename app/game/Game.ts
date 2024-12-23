@@ -11,18 +11,8 @@ import useEventSource from "./utils/useEventSource";
 import useSettings, { type SettingsInterface } from "./utils/useSettings";
 
 export class GameClient {
-  private loaded: boolean;
-  private app: Application;
-  private container: Container;
-  private mapContainer: MapContainer;
-  private managerContainer: ManagerContainer;
-  private resourcesContainer: ResourcesContainer;
-  private resultBanner: ResultBanner;
-
   public parent: HTMLElement;
   public game: Game | null;
-  private fetchUrl: string;
-  private oninited: () => void;
   public events: Ref<{
     state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
     eventsource: EventSource;
@@ -30,14 +20,23 @@ export class GameClient {
     destroy: () => void;
   } | null>;
   public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
+  public readonly settings: SettingsInterface;
+
+  private loaded: boolean;
+  private app: Application;
+  private container: Container;
+  private mapContainer: MapContainer;
+  private managerContainer: ManagerContainer;
+  private resourcesContainer: ResourcesContainer;
+  private resultBanner: ResultBanner;
+  private fetchUrl: string;
+  private oninited: () => void;
   private updateBinded: () => void;
   private soundWorker: SoundWorker;
-  public readonly settings: SettingsInterface;
 
   constructor(public gid: string, oninited: () => void) {
     const settings = (this.settings = useSettings());
 
-    this.loaded = false;
     this.app = new Application();
     this.container = new Container();
     this.resourcesContainer = this.container.addChild(
@@ -48,6 +47,7 @@ export class GameClient {
       new MapContainer(this, { y: this.resourcesContainer.height })
     );
     this.resultBanner = this.container.addChild(new ResultBanner(this));
+    this.soundWorker = new SoundWorker(this);
 
     this.app.stage.addChild(this.container);
 
@@ -55,6 +55,7 @@ export class GameClient {
     this.game = null;
     this.state = ref("Unknown");
     this.events = ref(null);
+    this.loaded = false;
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
       gid
@@ -62,8 +63,6 @@ export class GameClient {
       useRuntimeConfig().public.gitVersion
     )}&username=${encodeURIComponent(settings.username)}`;
     this.updateBinded = this.update.bind(this);
-
-    this.soundWorker = new SoundWorker(this);
 
     addEventListener("resize", this.updateBinded);
   }
