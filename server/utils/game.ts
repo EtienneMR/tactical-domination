@@ -10,9 +10,11 @@ export function createGame(mapName: string): GameState {
 
     players: map
       .filter((cell) => cell.building == "castle" && cell.owner != null)
-      .map((cell) => ({
+      .map((cell) => cell.owner!)
+      .toSorted()
+      .map((owner) => ({
         alive: true,
-        index: cell.owner!,
+        index: owner,
 
         gold: 3,
         food: 5,

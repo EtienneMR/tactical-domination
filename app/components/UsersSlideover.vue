@@ -12,15 +12,17 @@ const { gameRef } = gameClient;
 const groupedUsers = computed(() => {
   const teams = new Map<number | null, User[]>();
 
+  const spectators: User[] = [];
+  teams.set(null, spectators);
+
   for (const cell of gameRef.value?.state.map ?? []) {
     if (cell.building == "castle" && cell.owner != null) {
       teams.set(cell.owner, []);
     }
-    teams.set(null, []);
   }
 
   for (const user of gameRef.value?.users ?? []) {
-    teams.get(user.index)?.push(user);
+    (teams.get(user.index) ?? spectators).push(user);
   }
 
   return teams;
