@@ -62,7 +62,8 @@ export class GameClient {
     )}&uid=${encodeURIComponent(settings.uid)}&v=${encodeURIComponent(
       useRuntimeConfig().public.gitVersion
     )}&username=${encodeURIComponent(settings.username)}`;
-    this.updateBinded = this.update.bind(this);
+
+    this.updateBinded = () => requestAnimationFrame(this.update.bind(this));
 
     addEventListener("resize", this.updateBinded);
   }
@@ -147,10 +148,10 @@ export class GameClient {
   }
 
   private update() {
-    this.resize();
-
     const { game, me } = this;
     if (!this.loaded || !game) return;
+
+    this.resize();
 
     const mapSize = Math.min(
       this.app.screen.width,
@@ -181,6 +182,7 @@ export class GameClient {
   }
 
   async destroy() {
+    this.loaded = false;
     this.app.canvas.remove();
     this.app.destroy();
     this.eventSource.value?.destroy();
