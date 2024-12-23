@@ -19,6 +19,7 @@ const bundles = manifest.bundles
   <div>
     <UButton
       icon="i-mdi-cog"
+      size="xs"
       aria-label="Paramètres"
       @click="isOpen = true"
       :ui="{ icon: { base: 'flex-shrink-0 hover:animate-spin' } }"

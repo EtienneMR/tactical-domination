@@ -9,6 +9,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
   private startButton: SliceButton;
   private regenerateButton: SliceButton;
   private endTurnButton: SliceButton;
+  private resetTurnButton: SliceButton;
 
   constructor(gameClient: GameClient) {
     super();
@@ -34,7 +35,6 @@ export default class ManagerContainer extends Container<ContainerChild> {
           "Nous n'avons pas pu lancer votre partie",
           error
         );
-      } finally {
         startButton.active = true;
       }
     });
@@ -62,7 +62,6 @@ export default class ManagerContainer extends Container<ContainerChild> {
           "Nous n'avons pas pu regénérer la carte",
           error
         );
-      } finally {
         regenerateButton.active = true;
       }
     });
@@ -72,7 +71,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
         label: "Fin de tour",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
-        width: 200,
+        width: 125,
       })
     ));
 
@@ -87,7 +86,36 @@ export default class ManagerContainer extends Container<ContainerChild> {
           "Nous n'avons pas pu finir votre tour",
           error
         );
-      } finally {
+        endTurnButton.active = true;
+      }
+    });
+
+    const resetTurnButton = (this.resetTurnButton = this.addChild(
+      new SliceButton(gameClient, {
+        label: "Anuler",
+        height: RESOURCES_HEIGHT,
+        fontSize: RESOURCES_HEIGHT,
+        width: 75,
+      })
+    ));
+    resetTurnButton.x = endTurnButton.x + endTurnButton.width + 20;
+
+    resetTurnButton.onPress.connect(async () => {
+      resetTurnButton.active = false;
+      endTurnButton.active = false;
+
+      try {
+        await $fetch("/api/resetturn", {
+          method: "POST",
+          query: fetchQuery,
+        });
+      } catch (error) {
+        displayError(
+          "Impossible de regénérer la carte",
+          "Nous n'avons pas pu regénérer la carte",
+          error
+        );
+        resetTurnButton.active = true;
         endTurnButton.active = true;
       }
     });
@@ -114,5 +142,9 @@ export default class ManagerContainer extends Container<ContainerChild> {
               `Joueur ${gameState.turn}`
             }`,
     });
+
+    this.resetTurnButton.visible = gameState.status == "started";
+    this.resetTurnButton.active =
+      gameState.turn == me?.index && game.previousState != null;
   }
 }

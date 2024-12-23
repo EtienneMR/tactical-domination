@@ -8,6 +8,7 @@ import {
 import {
   assertGameInStatus,
   assertValidGame,
+  assertValidPlayer,
   assertValidString,
 } from "../utils/checks";
 
@@ -79,6 +80,8 @@ export default defineEventHandler(async (event) => {
     }
 
     gameState.events.push("end_turn");
+
+    game.previousState = structuredClone(gameState);
 
     return game;
   });

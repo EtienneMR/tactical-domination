@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: "Bad Request",
         message: `Game "${gid}" already exist`,
       });
+
     game = {
       gid,
       users: [{ uid, name: "Host Annonyme", index: 0 }],

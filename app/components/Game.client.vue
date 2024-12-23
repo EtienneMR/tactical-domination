@@ -15,7 +15,7 @@ const gamediv = ref();
 
 const gameClient = new GameClient(props.gid, () => (loading.value = false));
 
-const eventState = gameClient.state;
+const eventState = gameClient.eventSourceState;
 
 // @ts-expect-error Permet le debug
 window.gameClient = gameClient;
@@ -91,6 +91,7 @@ onNuxtReady(() =>
         aria-label="Connexion inconnu"
         @click="gameClient.connect()"
       />
+      <UsersSlideover :gameClient="gameClient" />
     </Teleport>
     <div class="flex-1 gamediv" ref="gamediv"></div>
   </div>

@@ -16,8 +16,11 @@ export default defineEventHandler(async (event) => {
   await updateGame(kv, gid, (game) => {
     assertValidGame(game, gid);
     assertGameInStatus(game.state, "initing", gid);
+
     game.state.status = "started";
     game.state.events.push("end_turn");
+    game.previousState = structuredClone(game.state);
+
     return game;
   });
 

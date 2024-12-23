@@ -1,6 +1,5 @@
 import { Application, Assets, Container } from "pixi.js";
 import manifest from "~~/public/assets/manifest.json";
-import { getPlayer } from "~~/shared/utils/game";
 import ManagerContainer from "./elements/ManagerContainer";
 import MapContainer from "./elements/MapContainer/MapContainer";
 import ResourcesContainer from "./elements/ResourcesContainer";
@@ -12,14 +11,15 @@ import useSettings, { type SettingsInterface } from "./utils/useSettings";
 
 export class GameClient {
   public parent: HTMLElement;
-  public game: Game | null;
-  public events: Ref<{
+  public gameRef: Ref<Game | null>;
+  public eventSource: Ref<{
     state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
     eventsource: EventSource;
     update: () => void;
     destroy: () => void;
   } | null>;
-  public state: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
+  public eventSourceState: Ref<"CONNECTING" | "OPEN" | "CLOSED" | "Unknown">;
+
   public readonly settings: SettingsInterface;
 
   private loaded: boolean;
@@ -52,9 +52,9 @@ export class GameClient {
     this.app.stage.addChild(this.container);
 
     this.parent = document.body;
-    this.game = null;
-    this.state = ref("Unknown");
-    this.events = ref(null);
+    this.gameRef = ref(null);
+    this.eventSourceState = ref("Unknown");
+    this.eventSource = ref(null);
     this.loaded = false;
     this.oninited = oninited;
     this.fetchUrl = `/api/game?gid=${encodeURIComponent(
@@ -69,15 +69,23 @@ export class GameClient {
 
   async connect() {
     if (!this.loaded) return;
-    this.events.value?.eventsource.close();
-    this.events.value = useEventSource<Game>(
+    this.eventSource.value?.eventsource.close();
+    this.eventSource.value = useEventSource<Game>(
       this.fetchUrl,
       this.onMessage.bind(this),
-      this.state
+      this.eventSourceState
     );
   }
 
-  get me(): Player | null {
+  public get game(): Game | null {
+    return this.gameRef.value;
+  }
+
+  public set game(value: Game | null) {
+    this.gameRef.value = value;
+  }
+
+  public get me(): Player | null {
     if (!this.game || this.game.state.status == "initing") return null;
 
     return getPlayer(this.game, this.settings.uid);
@@ -110,8 +118,8 @@ export class GameClient {
 
       this.update();
     } catch (error) {
-      this.events.value?.eventsource.close();
-      this.events.value?.update();
+      this.eventSource.value?.eventsource.close();
+      this.eventSource.value?.update();
       displayError(
         "Erreur de chargement",
         "Nous n'avons pas pu charger votre partie.",
@@ -175,7 +183,7 @@ export class GameClient {
   async destroy() {
     this.app.canvas.remove();
     this.app.destroy();
-    this.events.value?.destroy();
+    this.eventSource.value?.destroy();
     removeEventListener("resize", this.updateBinded);
     await Assets.unloadBundle(this.settings.bundle);
     if (import.meta.dev) Assets.reset();
