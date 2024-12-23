@@ -26,18 +26,17 @@ const bundles = manifest.bundles
 
     <USlideover v-model="isOpen">
       <div class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
-        <UButton
-          color="gray"
-          variant="ghost"
-          size="sm"
-          icon="i-mdi-close"
-          class="flex sm:hidden absolute end-5 top-5 z-10"
-          square
-          padded
-          @click="isOpen = false"
-        />
         <h1 class="flex items-center gap-1 text-lg font-bold">
-          <UIcon name="i-mdi-cog" /> Paramètres
+          <UIcon name="i-mdi-cog" />
+          <span class="flex-1">Paramètres</span>
+
+          <UButton
+            color="gray"
+            variant="ghost"
+            size="sm"
+            icon="i-mdi-close"
+            @click="isOpen = false"
+          />
         </h1>
         <hr class="text-gray-500" />
 
