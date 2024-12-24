@@ -76,7 +76,7 @@ async function joinTeam(team: number | null) {
           <SlideoverH2>
             <UIcon name="i-mdi-flag" />
             <span class="flex-1">{{
-              index ? TEAMS_NAMES[index] ?? index : "Spectateurs"
+              index != null ? TEAMS_NAMES[index] ?? index : "Spectateurs"
             }}</span>
             <UButton
               color="gray"
