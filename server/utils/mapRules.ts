@@ -99,6 +99,88 @@ export const rules = {
       when: "step",
     },
   ],
+  castlesDuo: [
+    {
+      if: (cell) => is(cell, { x: 1, y: 0 }),
+      then: {
+        building: "castle",
+        owner: 0,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => is(cell, { x: 0, y: 1 }),
+      then: {
+        building: "castle",
+        owner: 2,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => is(cell, { x: GRID_SIZE - 1, y: GRID_SIZE - 2 }),
+      then: {
+        building: "castle",
+        owner: 1,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => is(cell, { x: GRID_SIZE - 2, y: GRID_SIZE - 1 }),
+      then: {
+        building: "castle",
+        owner: 3,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) =>
+        distance(cell, { x: 0 }) <= 4 ||
+        distance(cell, { x: GRID_SIZE - 1 }) <= 4,
+      then: {
+        biome: "plains",
+        heightLimits: [0.2, 0.2],
+      },
+      when: "step",
+    },
+  ],
+  castlesTriple: [
+    {
+      if: (cell) => is(cell, { x: 0, y: 0 }),
+      then: {
+        building: "castle",
+        owner: 0,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => is(cell, { x: GRID_SIZE - 1, y: 0 }),
+      then: {
+        building: "castle",
+        owner: 1,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) =>
+        is(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }),
+      then: {
+        building: "castle",
+        owner: 2,
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) =>
+        distance(cell, { x: 0, y: 0 }) <= 4 ||
+        distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4 ||
+        distance(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }) <= 4,
+      then: {
+        biome: "plains",
+        heightLimits: [0.2, 0.2],
+      },
+      when: "step",
+    },
+  ],
 
   minesEdge: [
     {
@@ -116,7 +198,7 @@ export const rules = {
         distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 0.8],
+        heightLimits: [0.8, 1],
       },
       when: "step",
     },
@@ -134,7 +216,7 @@ export const rules = {
       if: (cell) => distance(cell, { x: (GRID_SIZE - 1) / 2 }) <= 2,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 0.8],
+        heightLimits: [0.8, 1],
       },
       when: "step",
     },
@@ -155,7 +237,26 @@ export const rules = {
       if: (cell) => distance(cell, { x: (GRID_SIZE - 1) / 2 }) <= 4,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 0.8],
+        heightLimits: [0.8, 1],
+      },
+      when: "step",
+    },
+  ],
+  minesClose: [
+    {
+      if: (cell) => is(cell, { x: 3 }) || is(cell, { x: GRID_SIZE - 1 - 3 }),
+      then: {
+        building: "mine",
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) =>
+        distance(cell, { x: 3 }) <= 2 ||
+        distance(cell, { x: GRID_SIZE - 1 - 3 }) <= 2,
+      then: {
+        biome: "rocks",
+        heightLimits: [0.8, 1],
       },
       when: "step",
     },
@@ -268,6 +369,23 @@ export const rules = {
       when: "post",
     },
   ],
+  middleMountains: [
+    {
+      if: (cell) => Math.abs(cell.x - (GRID_SIZE - 1 - cell.y)) < 2,
+      then: {
+        building: "mountain",
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => Math.abs(cell.x - (GRID_SIZE - 1 - cell.y)) < 3,
+      then: {
+        biome: "rocks",
+        heightLimits: [0.8, 1],
+      },
+      when: "step",
+    },
+  ],
 } satisfies { [ruleName: string]: GenerationRule[] };
 
 export function getNoiseRule(): GenerationRule {
@@ -299,7 +417,7 @@ export const mapsRules = {
     ...rules.food,
     ...rules.obstacles,
   ],
-  fourKingdoms: [
+  fourCastles: [
     ...rules.castlesBasic,
     ...rules.castlesPlus,
     ...rules.minesSquare,
@@ -307,12 +425,34 @@ export const mapsRules = {
     ...rules.food,
     ...rules.obstacles,
   ],
-  forgotenCastles: [
+  emptyCastles: [
     ...rules.castlesBasic,
     ...rules.castlesNeutral,
     ...rules.minesSquare,
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+  ],
+  duoCastles: [
+    ...rules.castlesDuo,
+    ...rules.minesEdge,
+    ...rules.biomes,
+    ...rules.food,
+    ...rules.obstacles,
+  ],
+  tripleCastles: [
+    ...rules.castlesTriple,
+    ...rules.minesCenter,
+    ...rules.biomes,
+    ...rules.food,
+    ...rules.obstacles,
+  ],
+  mountainBarrier: [
+    ...rules.castlesBasic,
+    ...rules.minesClose,
+    ...rules.biomes,
+    ...rules.food,
+    ...rules.obstacles,
+    ...rules.middleMountains,
   ],
 } satisfies { [ruleName in (typeof MAP_IDS)[number]]: GenerationRule[] };

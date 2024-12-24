@@ -39,14 +39,26 @@ async function createAndJoinGame(mapName: string) {
     </ClientOnly>
     <h1>Créer une partie</h1>
     <div class="maplist">
-      <div v-for="map of MAPS" class="flex items-center">
+      <div v-for="(map, i) of MAPS" class="flex items-center">
         <UButton
           @click="createAndJoinGame(map.id)"
           trailing
           icon="i-heroicons-arrow-right-20-solid"
+          class="p-1.5"
           :disabled="disabled"
         >
-          <img :src="`/maps/${map.id}.png`" width="64" height="64" alt="" />
+          <img
+            :src="
+              map.image
+                ? `/maps/${map.id}.png`
+                : `/assets/base/buildings/${i % 4}_castle.png`
+            "
+            width="64"
+            height="64"
+            alt=""
+            :class="map.image ? '' : 'p-1'"
+            style="image-rendering: pixelated"
+          />
           <span>{{ map.name }}</span>
         </UButton>
         <UBadge class="ml-3">{{ map.label }}</UBadge>

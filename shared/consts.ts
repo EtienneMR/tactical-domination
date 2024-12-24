@@ -189,9 +189,37 @@ ENTITIES_CLASSES satisfies readonly EntityClass[];
 export const ENTITIES_TYPES = ENTITIES_CLASSES.map((e) => e.type);
 
 export const MAPS = [
-  { id: "centeredMines", name: "Les mines du centre", label: "1v1" },
-  { id: "edgeMines", name: "Les mines des angles", label: "1v1" },
-  { id: "fourKingdoms", name: "Les quatres royaumes", label: "1v1v1v1" },
-  { id: "forgotenCastles", name: "Les châteaux oubliés", label: "1v1" },
+  {
+    id: "centeredMines",
+    name: "Les mines du centre",
+    label: "1v1",
+    image: true,
+  },
+  { id: "edgeMines", name: "Les mines des angles", label: "1v1", image: true },
+  {
+    id: "fourCastles",
+    name: "Les quatre châteaux",
+    label: "1v1v1v1",
+    image: true,
+  },
+  {
+    id: "emptyCastles",
+    name: "Les châteaux oubliés",
+    label: "1v1",
+    image: true,
+  },
+  { id: "duoCastles", name: "Les duo de châteaux", label: "2v2", image: false },
+  {
+    id: "tripleCastles",
+    name: "Les trois châteaux",
+    label: "1v1v1",
+    image: false,
+  },
+  {
+    id: "mountainBarrier",
+    name: "La barrière montagneuse",
+    label: "1v1",
+    image: false,
+  },
 ] as const;
 export const MAP_IDS = MAPS.map((m) => m.id);
