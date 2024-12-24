@@ -35,8 +35,8 @@ export default class ManagerContainer extends Container<ContainerChild> {
           "Nous n'avons pas pu lancer votre partie",
           error
         );
-        startButton.active = true;
       }
+      startButton.active = true;
     });
 
     const regenerateButton = (this.regenerateButton = this.addChild(
@@ -62,8 +62,8 @@ export default class ManagerContainer extends Container<ContainerChild> {
           "Nous n'avons pas pu regénérer la carte",
           error
         );
-        regenerateButton.active = true;
       }
+      regenerateButton.active = true;
     });
 
     const endTurnButton = (this.endTurnButton = this.addChild(

@@ -37,7 +37,7 @@ const settings = {
   get username(): string {
     let username = getRawKey("username");
     if (!username) {
-      username = generateId("Annonyme");
+      username = generateId("Anonyme", 2);
       setRawKey("username", username);
     }
     return username;
