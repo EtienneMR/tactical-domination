@@ -92,7 +92,7 @@ export default class ManagerContainer extends Container<ContainerChild> {
 
     const resetTurnButton = (this.resetTurnButton = this.addChild(
       new SliceButton(gameClient, {
-        label: "Anuler",
+        label: "Annuler",
         height: RESOURCES_HEIGHT,
         fontSize: RESOURCES_HEIGHT,
         width: 75,

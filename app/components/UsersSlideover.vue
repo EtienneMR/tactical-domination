@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { GameClient } from "~/game/Game.js";
 
+const TEAMS_NAMES = ["Rouge", "Bleu", "Rose", "Jaune"];
+
 const isOpen = ref(false);
 
 const { gameClient } = defineProps<{
@@ -73,7 +75,9 @@ async function joinTeam(team: number | null) {
         <template v-for="index of groupedUsersKeys" :key="`team-${index}`">
           <SlideoverH2>
             <UIcon name="i-mdi-flag" />
-            <span class="flex-1">{{ index ?? "Spectateurs" }}</span>
+            <span class="flex-1">{{
+              index ? TEAMS_NAMES[index] ?? index : "Spectateurs"
+            }}</span>
             <UButton
               color="gray"
               variant="ghost"
