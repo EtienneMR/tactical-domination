@@ -38,7 +38,7 @@ export const rules = {
         distance(cell, { x: GRID_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0.2, 0.2],
+        heightLimits: [0, 0],
       },
       when: "step",
     },
@@ -66,7 +66,7 @@ export const rules = {
         distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0.2, 0.2],
+        heightLimits: [0, 0],
       },
       when: "step",
     },
@@ -94,7 +94,7 @@ export const rules = {
         distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0.2, 0.2],
+        heightLimits: [0, 0],
       },
       when: "step",
     },
@@ -138,7 +138,7 @@ export const rules = {
         distance(cell, { x: GRID_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0.2, 0.2],
+        heightLimits: [0, 0],
       },
       when: "step",
     },
@@ -153,7 +153,8 @@ export const rules = {
       when: "pre",
     },
     {
-      if: (cell) => is(cell, { x: GRID_SIZE - 1, y: 0 }),
+      if: (cell) =>
+        is(cell, { x: GRID_SIZE - 1, y: Math.floor((GRID_SIZE - 1) / 2 - 2) }),
       then: {
         building: "castle",
         owner: 1,
@@ -162,7 +163,7 @@ export const rules = {
     },
     {
       if: (cell) =>
-        is(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }),
+        is(cell, { x: Math.floor((GRID_SIZE - 1) / 2 - 2), y: GRID_SIZE - 1 }),
       then: {
         building: "castle",
         owner: 2,
@@ -172,11 +173,17 @@ export const rules = {
     {
       if: (cell) =>
         distance(cell, { x: 0, y: 0 }) <= 4 ||
-        distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4 ||
-        distance(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }) <= 4,
+        distance(cell, {
+          x: GRID_SIZE - 1,
+          y: Math.floor((GRID_SIZE - 1) / 2 - 2),
+        }) <= 4 ||
+        distance(cell, {
+          x: Math.floor((GRID_SIZE - 1) / 2 - 2),
+          y: GRID_SIZE - 1,
+        }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0.2, 0.2],
+        heightLimits: [0, 0],
       },
       when: "step",
     },
@@ -334,8 +341,8 @@ export const rules = {
         cell.biome == "plains" &&
         opp.building == null &&
         opp.biome == "plains" &&
-        distance(cell, { x: 0 }) > 2 &&
-        distance(cell, { x: GRID_SIZE - 1 }) > 2 &&
+        cell.height > 0 &&
+        opp.height > 0 &&
         random(0.05),
       then: {
         building: "lake",
