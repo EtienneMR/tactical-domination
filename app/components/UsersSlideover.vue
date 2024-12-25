@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GameClient } from "~/game/Game.js";
 
-const TEAMS_NAMES = ["Rouge", "Bleu", "Rose", "Jaune"];
+const TEAMS_NAMES = ["Rouge", "Bleu", "Jaune", "Violet"];
 
 const isOpen = ref(false);
 

@@ -112,7 +112,7 @@ export const rules = {
       if: (cell) => is(cell, { x: 0, y: 1 }),
       then: {
         building: "castle",
-        owner: 2,
+        owner: 3,
       },
       when: "pre",
     },
@@ -128,7 +128,7 @@ export const rules = {
       if: (cell) => is(cell, { x: GRID_SIZE - 2, y: GRID_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: 3,
+        owner: 2,
       },
       when: "pre",
     },
@@ -153,8 +153,7 @@ export const rules = {
       when: "pre",
     },
     {
-      if: (cell) =>
-        is(cell, { x: GRID_SIZE - 1, y: Math.floor((GRID_SIZE - 1) / 2 - 2) }),
+      if: (cell) => is(cell, { x: GRID_SIZE - 1, y: 0 }),
       then: {
         building: "castle",
         owner: 1,
@@ -163,7 +162,7 @@ export const rules = {
     },
     {
       if: (cell) =>
-        is(cell, { x: Math.floor((GRID_SIZE - 1) / 2 - 2), y: GRID_SIZE - 1 }),
+        is(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }),
       then: {
         building: "castle",
         owner: 2,
@@ -173,14 +172,8 @@ export const rules = {
     {
       if: (cell) =>
         distance(cell, { x: 0, y: 0 }) <= 4 ||
-        distance(cell, {
-          x: GRID_SIZE - 1,
-          y: Math.floor((GRID_SIZE - 1) / 2 - 2),
-        }) <= 4 ||
-        distance(cell, {
-          x: Math.floor((GRID_SIZE - 1) / 2 - 2),
-          y: GRID_SIZE - 1,
-        }) <= 4,
+        distance(cell, { x: GRID_SIZE - 1, y: 0 }) <= 4 ||
+        distance(cell, { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
         heightLimits: [0, 0],
@@ -261,6 +254,26 @@ export const rules = {
       if: (cell) =>
         distance(cell, { x: 3 }) <= 2 ||
         distance(cell, { x: GRID_SIZE - 1 - 3 }) <= 2,
+      then: {
+        biome: "rocks",
+        heightLimits: [0.8, 1],
+      },
+      when: "step",
+    },
+  ],
+  minesTriangle: [
+    {
+      if: (cell) =>
+        is(cell, { x: 4 }) ||
+        is(cell, { x: GRID_SIZE - 1 - 4, y: 4 }) ||
+        is(cell, { x: Math.floor((GRID_SIZE - 1) / 2), y: GRID_SIZE - 1 - 4 }),
+      then: {
+        building: "mine",
+      },
+      when: "pre",
+    },
+    {
+      if: (cell) => distance(cell, { x: (GRID_SIZE - 1) / 2 }) <= 3,
       then: {
         biome: "rocks",
         heightLimits: [0.8, 1],
@@ -449,7 +462,7 @@ export const mapsRules = {
   ],
   tripleCastles: [
     ...rules.castlesTriple,
-    ...rules.minesCenter,
+    ...rules.minesTriangle,
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
