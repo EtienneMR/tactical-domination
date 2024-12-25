@@ -208,18 +208,18 @@ export const MAPS = [
     label: "1v1",
     image: true,
   },
-  { id: "duoCastles", name: "Les duo de châteaux", label: "2v2", image: false },
+  { id: "duoCastles", name: "Les duo de châteaux", label: "2v2", image: true },
   {
     id: "tripleCastles",
     name: "Les trois châteaux",
     label: "1v1v1",
-    image: false,
+    image: true,
   },
   {
     id: "mountainBarrier",
     name: "La barrière montagneuse",
     label: "1v1",
-    image: false,
+    image: true,
   },
 ] as const;
 export const MAP_IDS = MAPS.map((m) => m.id);
