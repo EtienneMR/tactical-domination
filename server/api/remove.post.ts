@@ -4,6 +4,7 @@ import {
   getCellAt,
   getEntityFromEid,
   getPlayer,
+  getSpawnCost,
 } from "~~/shared/utils/game";
 import {
   assertGameInStatus,
@@ -54,8 +55,9 @@ export default defineEventHandler(async (event) => {
       });
 
     const previous = getEntityClass(entity.type);
-    player.spawnCost[entity.type] -= 1;
-    player[previous.resource] += player.spawnCost[entity.type];
+    const spawnCost = getSpawnCost(gameState, player);
+
+    player[previous.resource] += spawnCost[entity.type] - 1;
 
     gameState.entities.splice(
       gameState.entities.findIndex((e) => e.eid == entity.eid),

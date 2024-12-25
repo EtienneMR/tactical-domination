@@ -1,5 +1,6 @@
-import { BUILDINGS_CLASSES } from "~~/shared/consts";
+import { BUILDINGS_CLASSES, ENTITIES_TYPES } from "~~/shared/consts";
 import type { Action, ActionData } from "../types/entities";
+import type { GameState } from "../types/game";
 import { hasEntityBudget } from "./entities";
 
 export function getEntityFromEid(
@@ -46,6 +47,16 @@ export function getCellAt(gameState: GameState, pos: Position) {
     });
 
   return cell;
+}
+
+export function getSpawnCost(gameState: GameState, { index }: Player) {
+  const spawnCost = {} as { [entityType in EntityType]: number };
+
+  for (const entityType of ENTITIES_TYPES) spawnCost[entityType] = 1;
+  for (const entity of gameState.entities)
+    if (entity.owner == index) spawnCost[entity.type] += 1;
+
+  return Object.freeze(spawnCost);
 }
 
 export function assertCanPlay(gameState: GameState, player: Player) {

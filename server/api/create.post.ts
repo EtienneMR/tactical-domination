@@ -4,6 +4,7 @@ import {
   getCellAt,
   getEntityFromPos,
   getPlayer,
+  getSpawnCost,
 } from "~~/shared/utils/game";
 import {
   assertGameInStatus,
@@ -62,16 +63,16 @@ export default defineEventHandler(async (event) => {
       });
 
     const entityClass = getEntityClass(entityType);
+    const spawnCost = getSpawnCost(gameState, player);
 
-    if (player[entityClass.resource] < player.spawnCost[entityClass.type])
+    if (player[entityClass.resource] < spawnCost[entityClass.type])
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
         message: `Player "${player.index}" hasn't enough resources`,
       });
 
-    player[entityClass.resource] -= player.spawnCost[entityClass.type];
-    player.spawnCost[entityClass.type] += 1;
+    player[entityClass.resource] -= spawnCost[entityClass.type];
 
     gameState.entities.push({
       eid: generateId("e"),

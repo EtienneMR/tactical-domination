@@ -3,6 +3,7 @@ import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
 import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
 import type { EntityClass } from "~~/shared/types/entities";
+import { getSpawnCost } from "~~/shared/utils/game";
 import SliceButton from "../SliceButton";
 import { DEFINITION } from "./MapContainerConsts";
 import RenderedEntity from "./RenderedEntity";
@@ -127,9 +128,11 @@ export default class SpawnPopup extends SliceButton {
     const gameState = this.gameClient.game?.state;
     const me = this.gameClient.me;
 
-    if (gameState) {
+    if (gameState && me) {
+      const spawnCost = getSpawnCost(gameState, me);
+
       for (const [entityClass, renderedEntity, costText] of this.entities) {
-        const cost = me?.spawnCost[entityClass.type];
+        const cost = spawnCost[entityClass.type];
         const canAfford = !cost || me[entityClass.resource] >= cost;
 
         renderedEntity.alpha =
