@@ -208,7 +208,7 @@ export const MAPS = [
     label: "1v1",
     image: true,
   },
-  { id: "duoCastles", name: "Les duo de châteaux", label: "2v2", image: true },
+  { id: "duoCastles", name: "Les duos de châteaux", label: "2v2", image: true },
   {
     id: "tripleCastles",
     name: "Les trois châteaux",
