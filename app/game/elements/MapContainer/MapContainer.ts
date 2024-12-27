@@ -198,7 +198,7 @@ export default class MapContainer extends Container<ContainerChild> {
     }
   }
 
-  async onDragStart(target: RenderedEntity) {
+  async onDragStart(target: RenderedEntity, event: FederatedPointerEvent) {
     const gameState = this.gameClient.game?.state;
 
     if (
@@ -232,14 +232,18 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
-      this.rangeIndicator.visible = false;
+      this.rangeIndicator.hide();
     } else if (target.draggable) {
       target.alpha = 0.5;
       this.dragTarget = target;
 
-      this.rangeIndicator.update(target.entity, 0);
+      this.rangeIndicator.showOwned(target.entity, 0);
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
+      event.stopPropagation();
+    } else if (target.entity.owner != this.gameClient.me?.index) {
+      this.rangeIndicator.showEnemy(target.entity);
+      event.stopPropagation(); // prevent hiding the range indicator because of the secondary action
     }
   }
 
@@ -247,7 +251,7 @@ export default class MapContainer extends Container<ContainerChild> {
     const { dragTarget } = this;
     if (dragTarget) {
       this.dragTarget = null;
-      this.rangeIndicator.visible = false;
+      this.rangeIndicator.hide();
 
       const gameState = this.gameClient.game?.state;
       const me = this.gameClient.me;
@@ -284,13 +288,14 @@ export default class MapContainer extends Container<ContainerChild> {
         this.doubleClickStart = performance.now();
         dragTarget.tint = 0x999999;
 
-        this.rangeIndicator.update(dragTarget.entity, 1);
+        this.rangeIndicator.showOwned(dragTarget.entity, 1);
       }
     }
   }
 
   async onSecondaryAction(event: FederatedPointerEvent) {
     this.spawnPopup.hide();
+    this.rangeIndicator.hide();
 
     const gameState = this.gameClient.game?.state;
     const me = this.gameClient.me;
@@ -305,7 +310,7 @@ export default class MapContainer extends Container<ContainerChild> {
       const pos = { x: actionX, y: actionY };
 
       if (clickTarget) {
-        this.rangeIndicator.visible = false;
+        this.rangeIndicator.hide();
         if (
           performance.now() - this.doubleClickStart <=
           SECONDARY_CLICK_DELAY
