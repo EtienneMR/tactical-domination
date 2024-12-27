@@ -1,36 +1,94 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import { GRID_SIZE } from "~~/shared/consts";
 import type { Entity } from "~~/shared/types/entities";
 import { DEFINITION } from "./MapContainerConsts";
 
-export default class EntityClass extends Graphics {
+export default class RangeIndicator extends Container {
+  private graphic: Graphics;
+
   constructor(private gameClient: GameClient) {
     super();
     this.visible = false;
     this.eventMode = "none";
+    this.alpha = 0.5;
 
-    this.rect(0, 0, DEFINITION, DEFINITION);
-    this.fill({ alpha: 0.5, color: "black" });
+    this.graphic = this.addChild(new Graphics());
+
+    this.addChild(
+      (this.mask = new Graphics()
+        .rect(0, 0, DEFINITION, DEFINITION)
+        .fill(0xffffff))
+    );
   }
 
-  update({ x, y, type }: Entity, action: number) {
-    if (this.gameClient.settings.showRange) {
-      const entityClass = getEntityClass(type);
+  get isEnabled() {
+    return this.gameClient.settings.showRange;
+  }
+
+  private draw(size: number, color: number) {
+    const { graphic } = this;
+    const sizeFactor = (DEFINITION * DEFINITION) / size;
+
+    graphic.clear();
+
+    graphic.rect(0, 0, DEFINITION, DEFINITION);
+    graphic.fill({ color: 0 });
+
+    for (let i = -DEFINITION; i < DEFINITION; i += sizeFactor) {
+      graphic.moveTo(i, 0);
+      graphic.lineTo(i + DEFINITION, DEFINITION);
+    }
+
+    graphic.stroke({ width: sizeFactor / 8, color });
+  }
+
+  private update({ x, y, type }: Entity, range: number, color: number) {
+    const minX = Math.max(x - range, 0);
+    const minY = Math.max(y - range, 0);
+    const maxX = Math.min(x + range, GRID_SIZE);
+    const maxY = Math.min(y + range, GRID_SIZE);
+
+    const width = maxX - minX + 1;
+    const height = maxY - minY + 1;
+
+    this.draw(Math.max(width * DEFINITION, height * DEFINITION), color);
+
+    this.setSize(width * DEFINITION, height * DEFINITION);
+    this.position.set(minX * DEFINITION, minY * DEFINITION);
+
+    this.visible = true;
+  }
+
+  hide() {
+    this.visible = false;
+  }
+
+  showOwned(entity: Entity, action: number) {
+    if (this.isEnabled) {
+      const entityClass = getEntityClass(entity.type);
       const range = entityClass.actions[action]?.range;
 
-      if (range) {
-        const minX = Math.max(x - range, 0);
-        const minY = Math.max(y - range, 0);
-        const maxX = Math.min(x + range, GRID_SIZE);
-        const maxY = Math.min(y + range, GRID_SIZE);
+      if (range) this.update(entity, range, action === 0 ? 0x4caf50 : 0xff4500);
+    }
+  }
 
-        this.x = minX * DEFINITION;
-        this.y = minY * DEFINITION;
-        this.width = (maxX - minX + 1) * DEFINITION;
-        this.height = (maxY - minY + 1) * DEFINITION;
-        this.visible = true;
+  showEnemy(entity: Entity) {
+    if (this.isEnabled) {
+      const entityClass = getEntityClass(entity.type);
+
+      const walkAction = entityClass.actions[0];
+      const attackAction = entityClass.actions[1];
+
+      let range = attackAction.range;
+      let budget = entity.budget;
+
+      while (budget > walkAction.budget) {
+        range += walkAction.range;
+        budget -= walkAction.budget;
       }
+
+      this.update(entity, range, 0x8b0000);
     }
   }
 }

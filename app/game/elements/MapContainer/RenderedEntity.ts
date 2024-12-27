@@ -18,7 +18,6 @@ export default class RenderedEntity extends Sprite {
       alpha: hasEntityBudget(entity) ? 1 : 0.75,
       draggable: hasEntityBudget(entity) && entity.owner == myIndex,
       tint: 0xffffff,
-      simpleClick: true,
       dragged: false,
     };
   }
