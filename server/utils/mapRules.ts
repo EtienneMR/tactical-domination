@@ -406,6 +406,20 @@ export const rules = {
       when: "step",
     },
   ],
+
+  ruins: [
+    {
+      if: (cell) =>
+        cell.building == null &&
+        cell.biome == "plains" &&
+        cell.height > 0 &&
+        random(0.05),
+      then: {
+        building: "ruins",
+      },
+      when: "post",
+    },
+  ],
 } satisfies { [ruleName: string]: GenerationRule[] };
 
 export function getNoiseRule(): GenerationRule {
@@ -429,6 +443,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   edgeMines: [
     ...rules.castlesBasic,
@@ -436,6 +451,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   fourCastles: [
     ...rules.castlesBasic,
@@ -444,6 +460,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   emptyCastles: [
     ...rules.castlesBasic,
@@ -452,6 +469,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   duoCastles: [
     ...rules.castlesDuo,
@@ -459,6 +477,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   tripleCastles: [
     ...rules.castlesTriple,
@@ -466,6 +485,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
+    ...rules.ruins,
   ],
   mountainBarrier: [
     ...rules.castlesBasic,
@@ -474,5 +494,6 @@ export const mapsRules = {
     ...rules.food,
     ...rules.obstacles,
     ...rules.middleMountains,
+    ...rules.ruins,
   ],
 } satisfies { [ruleName in (typeof MAP_IDS)[number]]: GenerationRule[] };
