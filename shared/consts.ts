@@ -67,6 +67,12 @@ export const BUILDINGS_CLASSES = [
     ownable: false,
     effects: [],
   },
+  {
+    type: "ruins",
+    walkable: true,
+    ownable: false,
+    effects: [],
+  },
 ] as const;
 
 export const BUILDINGS_TYPES = BUILDINGS_CLASSES.map((b) => b.type);

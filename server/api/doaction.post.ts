@@ -132,8 +132,12 @@ export default defineEventHandler(async (event) => {
       const cell = getCellAt(gameState, pos);
       gameState.events.push("build");
 
-      if (cell.building) cell.building = null;
-      else {
+      const isEmpty = cell.building == null || cell.building == "ruins";
+
+      if (!isEmpty) {
+        cell.building = "ruins";
+        cell.owner = null;
+      } else {
         cell.building = gameState.map.some(
           (c) => c.building == "castle" && c.owner == player.index
         )
