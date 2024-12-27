@@ -41,7 +41,10 @@ async function performMove(gameState: GameState, entity: Entity, cell: Cell) {
 
   if (cell.building) {
     const buildingClass = getBuildingClass(cell.building);
-    if (buildingClass.effects.length) {
+    if (!buildingClass.walkable) {
+      cell.building = null;
+      gameState.events.push(`build`);
+    } else if (buildingClass.effects.length) {
       gameState.events.push(`collect_${cell.building}`);
     }
   }
