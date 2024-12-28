@@ -34,7 +34,7 @@ export const BUILDINGS_CLASSES = [
     effects: [
       {
         type: "food",
-        value: 5,
+        value: 3,
       },
     ],
   },
@@ -45,7 +45,7 @@ export const BUILDINGS_CLASSES = [
     effects: [
       {
         type: "food",
-        value: 5,
+        value: 3,
       },
     ],
   },
@@ -132,7 +132,7 @@ export const ENTITIES_CLASSES = [
       },
       {
         type: "ranged",
-        range: 3,
+        range: 2,
         budget: 100,
       },
     ],

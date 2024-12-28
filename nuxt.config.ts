@@ -124,11 +124,7 @@ export default defineNuxtConfig({
         }
       }
 
-      writeFileSync(
-        manifestFilePath,
-        JSON.stringify(manifest, null, 2),
-        "utf-8"
-      );
+      writeFileSync(manifestFilePath, JSON.stringify(manifest), "utf-8");
 
       console.info(`Generated Assets manifest with ${assets.length} entries`);
     },
