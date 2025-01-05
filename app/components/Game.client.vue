@@ -6,14 +6,14 @@ const STATUS_TOAST_ID = "EventSource_Status";
 const toast = useToast();
 
 const props = defineProps<{
-  gid: string;
+  gameId: string;
 }>();
 
 const loading = defineModel<boolean>();
 
 const gamediv = ref();
 
-const gameClient = new GameClient(props.gid, () => (loading.value = false));
+const gameClient = new GameClient(props.gameId, () => (loading.value = false));
 
 const eventState = gameClient.eventSourceState;
 

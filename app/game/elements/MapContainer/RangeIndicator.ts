@@ -1,7 +1,5 @@
 import { Container, Graphics } from "pixi.js";
 import type { GameClient } from "~/game/Game";
-import { GRID_SIZE } from "~~/shared/consts";
-import type { Entity } from "~~/shared/types/entities";
 import { DEFINITION } from "./MapContainerConsts";
 
 export default class RangeIndicator extends Container {
@@ -43,11 +41,11 @@ export default class RangeIndicator extends Container {
     graphic.stroke({ width: sizeFactor / 8, color });
   }
 
-  private update({ x, y, type }: Entity, range: number, color: number) {
+  private update({ x, y }: Entity, range: number, color: number) {
     const minX = Math.max(x - range, 0);
     const minY = Math.max(y - range, 0);
-    const maxX = Math.min(x + range, GRID_SIZE);
-    const maxY = Math.min(y + range, GRID_SIZE);
+    const maxX = Math.min(x + range, MAP_SIZE);
+    const maxY = Math.min(y + range, MAP_SIZE);
 
     const width = maxX - minX + 1;
     const height = maxY - minY + 1;
@@ -66,7 +64,7 @@ export default class RangeIndicator extends Container {
 
   showOwned(entity: Entity, action: number) {
     if (this.isEnabled) {
-      const entityClass = getEntityClass(entity.type);
+      const entityClass = getEntityClassFromName(entity.className);
       const range = entityClass.actions[action]?.range;
 
       if (range) this.update(entity, range, action === 0 ? 0x4caf50 : 0xff4500);
@@ -75,7 +73,7 @@ export default class RangeIndicator extends Container {
 
   showEnemy(entity: Entity) {
     if (this.isEnabled) {
-      const entityClass = getEntityClass(entity.type);
+      const entityClass = getEntityClassFromName(entity.className);
 
       const walkAction = entityClass.actions[0];
       const attackAction = entityClass.actions[1];

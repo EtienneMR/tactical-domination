@@ -1,25 +1,18 @@
-import { useKv } from "~~/server/utils/useKv";
-import {
-  assertGameInStatus,
-  assertValidGame,
-  assertValidString,
-} from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { gid, uid } = getQuery(event);
+  const { gameId, userId } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
 
   const kv = await useKv();
 
-  await updateGame(kv, gid, (game) => {
-    assertValidGame(game, gid);
+  await updateGame(kv, gameId, (game) => {
+    assertValidGame(game, gameId);
 
     const { state: gameState } = game;
 
-    assertGameInStatus(gameState, "initing", gid);
-    gameState.map = generateMap(gameState.mapName);
+    assertGameInStatus(gameState, "initing", gameId);
+    gameState.map = generateMap(game.mapName);
     gameState.events.push("unit_created");
     return game;
   });

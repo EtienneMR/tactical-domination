@@ -34,7 +34,7 @@ export class GameClient {
   private updateBinded: () => void;
   private soundWorker: SoundWorker;
 
-  constructor(public gid: string, oninited: () => void) {
+  constructor(public gameId: string, oninited: () => void) {
     const settings = (this.settings = useSettings());
 
     this.app = new Application();
@@ -57,9 +57,9 @@ export class GameClient {
     this.eventSource = ref(null);
     this.loaded = false;
     this.oninited = oninited;
-    this.fetchUrl = `/api/game?gid=${encodeURIComponent(
-      gid
-    )}&uid=${encodeURIComponent(settings.uid)}&v=${encodeURIComponent(
+    this.fetchUrl = `/api/game?gameId=${encodeURIComponent(
+      gameId
+    )}&userId=${encodeURIComponent(settings.userId)}&v=${encodeURIComponent(
       useRuntimeConfig().public.gitVersion
     )}&username=${encodeURIComponent(settings.username)}`;
 
@@ -89,7 +89,7 @@ export class GameClient {
   public get me(): Player | null {
     if (!this.game || this.game.state.status == "initing") return null;
 
-    return getPlayer(this.game, this.settings.uid);
+    return getPlayerFromUserId(this.game, this.settings.userId);
   }
 
   async init(parent: HTMLElement) {
@@ -169,9 +169,9 @@ export class GameClient {
     );
 
     this.mapContainer.update();
-    this.resourcesContainer.update(me);
-    this.managerContainer.update(game, me);
-    this.resultBanner.update(game.state, me);
+    this.resourcesContainer.update();
+    this.managerContainer.update();
+    this.resultBanner.update();
 
     this.soundWorker.updateEvents(
       game.state.events,

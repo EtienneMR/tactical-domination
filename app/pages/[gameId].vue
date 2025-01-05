@@ -21,7 +21,10 @@ useSeoMeta({
       <div class="banter-loader__box"></div>
     </div>
     <div class="content flex-1 flex">
-      <Game :gid="'g'+(route.params.gid as string)" v-model="loading"></Game>
+      <Game
+        :gameId="'g'+(route.params.gameId as string)"
+        v-model="loading"
+      ></Game>
     </div>
   </div>
 </template>

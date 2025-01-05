@@ -17,7 +17,7 @@ const groupedUsers = computed(() => {
   const spectators: User[] = [];
   teams.set(null, spectators);
 
-  for (const cell of gameRef.value?.state.map ?? []) {
+  for (const cell of gameRef.value?.state.map.flat() ?? []) {
     if (cell.building == "castle" && cell.owner != null) {
       teams.set(cell.owner, []);
     }
@@ -39,7 +39,11 @@ const groupedUsersKeys = computed(() =>
 async function joinTeam(team: number | null) {
   await $fetch("/api/jointeam", {
     method: "POST",
-    query: { team, gid: gameClient.gid, uid: gameClient.settings.uid },
+    query: {
+      team,
+      gameId: gameClient.gameId,
+      userId: gameClient.settings.userId,
+    },
   });
 }
 </script>
@@ -88,7 +92,7 @@ async function joinTeam(team: number | null) {
           </SlideoverH2>
           <span
             v-for="user of groupedUsers.get(index)"
-            :key="`user-${user.uid}`"
+            :key="`user-${user.userId}`"
             class="flex items-center gap-1"
           >
             <UIcon name="i-mdi-account" /> {{ user.name }}

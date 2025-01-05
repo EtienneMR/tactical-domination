@@ -1,25 +1,22 @@
-import { useKv } from "~~/server/utils/useKv";
-import { assertValidString } from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { team, gid, uid, v } = getQuery(event);
+  const { team, gameId, userId, v } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
   assertValidString(team, "team");
 
   const kv = await useKv();
 
-  const success = await updateGame(kv, gid, (game) => {
-    assertValidGame(game, gid);
+  const success = await updateGame(kv, gameId, (game) => {
+    assertValidGame(game, gameId);
 
-    const user = game.users.find((u) => u.uid === uid);
+    const user = game.users.find((u) => u.userId === userId);
 
     if (!user)
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
-        message: `User "${uid}" not found`,
+        message: `User "${userId}" not found`,
       });
 
     user.index = team == "null" ? null : parseInt(team);

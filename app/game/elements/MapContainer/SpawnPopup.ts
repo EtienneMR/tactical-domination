@@ -1,9 +1,6 @@
 import { Assets, Sprite, Text } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
-import { ENTITIES_TYPES, GRID_SIZE } from "~~/shared/consts";
-import type { EntityClass } from "~~/shared/types/entities";
-import { getSpawnCost } from "~~/shared/utils/game";
 import SliceButton from "../SliceButton";
 import { DEFINITION } from "./MapContainerConsts";
 import RenderedEntity from "./RenderedEntity";
@@ -29,12 +26,12 @@ export default class SpawnPopup extends SliceButton {
 
   override init() {
     super.init();
-    for (const [i, entityType] of Object.entries(ENTITIES_TYPES)) {
+    for (const [i, entityClassName] of Object.entries(ENTITIES_TYPES)) {
       const entity = this.addChild(
         new RenderedEntity(
           {
-            eid: `spawnPopupFakeEntity-${entityType}`,
-            type: entityType,
+            entityId: `spawnPopupFakeEntity-${entityClassName}`,
+            className: entityClassName,
             owner: null,
             x: Number(i),
             y: 0,
@@ -47,7 +44,7 @@ export default class SpawnPopup extends SliceButton {
       entity.width -= 6;
       entity.height -= 6;
 
-      const entityClass = getEntityClass(entityType);
+      const entityClass = getEntityClassFromName(entityClassName);
 
       this.addChild(
         new Sprite({
@@ -91,9 +88,9 @@ export default class SpawnPopup extends SliceButton {
       try {
         await $fetch("/api/create", {
           query: {
-            gid: this.gameClient.gid,
-            uid: this.gameClient.settings.uid,
-            entityType: entityClass.type,
+            gameId: this.gameClient.gameId,
+            userId: this.gameClient.settings.userId,
+            entityClassName: entityClass.name,
             x: this.cell.x,
             y: this.cell.y,
           },
@@ -113,7 +110,7 @@ export default class SpawnPopup extends SliceButton {
     this.visible = true;
     this.cell = cell;
 
-    const alignLeft = cell.x > GRID_SIZE / 2 ? 1 : 0;
+    const alignLeft = cell.x > MAP_SIZE / 2 ? 1 : 0;
 
     this.x = (cell.x + 1 - alignLeft) * DEFINITION - alignLeft * this.width;
     this.y = cell.y * DEFINITION;
@@ -132,11 +129,11 @@ export default class SpawnPopup extends SliceButton {
       const spawnCost = getSpawnCost(gameState, me);
 
       for (const [entityClass, renderedEntity, costText] of this.entities) {
-        const cost = spawnCost[entityClass.type];
-        const canAfford = !cost || me[entityClass.resource] >= cost;
+        const cost = spawnCost[entityClass.name];
+        const canAfford = !cost || me.ressources[entityClass.resource] >= cost;
 
         renderedEntity.alpha =
-          gameState.turn == me?.index && canAfford ? 1 : 0.5;
+          gameState.currentPlayer == me?.index && canAfford ? 1 : 0.5;
         costText.text = cost ?? "";
         costText.style.fill = canAfford ? "white" : "red";
       }

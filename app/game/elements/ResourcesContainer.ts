@@ -44,13 +44,15 @@ export default class ResourcesContainer extends Container<ContainerChild> {
     );
   }
 
-  update(gameState: { gold: number; food: number } | null) {
-    this.visible = gameState != null;
-    if (gameState) {
-      this.foodText.text = String(gameState.food);
+  update() {
+    const ressources = this.gameClient.me?.ressources;
+
+    this.visible = !!ressources;
+    if (ressources) {
+      this.foodText.text = String(ressources.food);
       this.foodSprite.x = this.foodText.x + this.foodText.width;
 
-      this.goldText.text = String(gameState.gold);
+      this.goldText.text = String(ressources.gold);
       this.goldText.x = this.foodSprite.x + this.foodSprite.width + 20;
       this.goldSprite.x = this.goldText.x + this.goldText.width;
       this.pivot.x = this.width;

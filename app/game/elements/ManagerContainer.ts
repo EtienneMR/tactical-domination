@@ -11,10 +11,13 @@ export default class ManagerContainer extends Container<ContainerChild> {
   private endTurnButton: SliceButton;
   private resetTurnButton: SliceButton;
 
-  constructor(gameClient: GameClient) {
+  constructor(private gameClient: GameClient) {
     super();
 
-    const fetchQuery = { uid: gameClient.settings.uid, gid: gameClient.gid };
+    const fetchQuery = {
+      userId: gameClient.settings.userId,
+      gameId: gameClient.gameId,
+    };
 
     const startButton = (this.startButton = this.addChild(
       new SliceButton(gameClient, {
@@ -125,26 +128,28 @@ export default class ManagerContainer extends Container<ContainerChild> {
     this.children.forEach((c) => c.init());
   }
 
-  update(game: Game, me: Player | null) {
+  update() {
+    const game = this.gameClient.game!;
     const { state: gameState } = game;
+    const { me } = this.gameClient;
 
     this.startButton.visible = gameState.status == "initing";
     this.regenerateButton.visible = gameState.status == "initing";
 
     this.endTurnButton.visible = gameState.status == "started";
-    this.endTurnButton.active = gameState.turn == me?.index;
+    this.endTurnButton.active = gameState.currentPlayer == me?.index;
     this.endTurnButton.update({
       label:
-        gameState.turn == me?.index
+        gameState.currentPlayer == me?.index
           ? "Fin du tour"
           : `Tour de ${
-              game.users.find((u) => u.index == gameState.turn)?.name ??
-              `Joueur ${gameState.turn}`
+              game.users.find((u) => u.index == gameState.currentPlayer)
+                ?.name ?? `Joueur ${gameState.currentPlayer}`
             }`,
     });
 
     this.resetTurnButton.visible = gameState.status == "started";
     this.resetTurnButton.active =
-      gameState.turn == me?.index && game.previousState != null;
+      gameState.currentPlayer == me?.index && game.previousState != null;
   }
 }

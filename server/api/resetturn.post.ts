@@ -1,29 +1,20 @@
-import { useKv } from "~~/server/utils/useKv";
-import { assertCanPlay, getPlayer } from "~~/shared/utils/game";
-import {
-  assertGameInStatus,
-  assertValidGame,
-  assertValidPlayer,
-  assertValidString,
-} from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { gid, uid } = getQuery(event);
+  const { gameId, userId } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
 
   const kv = await useKv();
 
-  await updateGame(kv, gid, (game) => {
-    assertValidGame(game, gid);
+  await updateGame(kv, gameId, (game) => {
+    assertValidGame(game, gameId);
 
     const { state: gameState } = game;
 
-    assertGameInStatus(gameState, "started", gid);
+    assertGameInStatus(gameState, "started", gameId);
 
-    const player = getPlayer(game, uid);
-    assertValidPlayer(player, uid);
+    const player = getPlayerFromUserId(game, userId);
+    assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 
     if (!game.previousState)

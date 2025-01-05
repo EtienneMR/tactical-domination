@@ -1,14 +1,12 @@
-import { ENTITIES_TYPES } from "~~/shared/consts";
-
 export function createGame(mapName: string): GameState {
   const map = generateMap(mapName);
 
   return {
-    mapName,
     status: "initing",
-    turn: 0,
+    currentPlayer: 0,
 
     players: map
+      .flat()
       .filter((cell) => cell.building == "castle" && cell.owner != null)
       .map((cell) => cell.owner!)
       .toSorted()
@@ -16,12 +14,7 @@ export function createGame(mapName: string): GameState {
         alive: true,
         index: owner,
 
-        gold: 3,
-        food: 5,
-        spawnCost: ENTITIES_TYPES.reduce((acc, type) => {
-          acc[type] = 1;
-          return acc;
-        }, {} as SpawnCostMap),
+        ressources: { gold: 3, food: 5 },
       })),
     entities: [],
     events: [],

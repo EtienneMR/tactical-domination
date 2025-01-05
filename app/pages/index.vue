@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import displayError from "~/game/utils/displayError";
 import useSettings from "~/game/utils/useSettings";
-import { MAPS } from "~~/shared/consts";
 
 const disabled = ref(false);
 
 async function createAndJoinGame(mapName: string) {
   disabled.value = true;
-  const gid = generateId("g");
+  const gameId = generateId("g");
   try {
     await $fetch("/api/setupgame", {
       method: "POST",
       query: {
-        uid: useSettings().uid,
-        gid: `${gid}`,
+        userId: useSettings().userId,
+        gameId: `${gameId}`,
         v: useRuntimeConfig().public.gitVersion,
         mapName,
       },
     });
-    await useRouter().push(`/${gid.substring(1)}`);
+    await useRouter().push(`/${gameId.substring(1)}`);
   } catch (error) {
     displayError(
       "Impossible de créer une partie",

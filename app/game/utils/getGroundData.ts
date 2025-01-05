@@ -22,7 +22,7 @@ const TEXTURE_FULL = "tblr";
 
 export default function getGroundData(
   cell: Cell,
-  map: Cell[],
+  map: Cell[][],
   bundle: string
 ): { texture: Texture | null; full: boolean } {
   if (cell.biome == "plains") {
@@ -30,14 +30,16 @@ export default function getGroundData(
   }
   const baseTexture = Assets.get(`${bundle}:biomes:${cell.biome}_tiles`);
 
-  const matchinBiomes = [cell.biome, undefined];
-  const is = matchinBiomes.includes.bind(matchinBiomes);
+  const matchinBiomes = [cell.biome as BiomeType, undefined];
+
+  const isMatching = (x: number, y: number) =>
+    matchinBiomes.includes((map[x] && map[x][y])?.biome);
 
   const frameCode = [
-    is(map.find((c) => c.x == cell.x && c.y == cell.y - 1)?.biome) ? "t" : "",
-    is(map.find((c) => c.x == cell.x && c.y == cell.y + 1)?.biome) ? "b" : "",
-    is(map.find((c) => c.x == cell.x - 1 && c.y == cell.y)?.biome) ? "l" : "",
-    is(map.find((c) => c.x == cell.x + 1 && c.y == cell.y)?.biome) ? "r" : "",
+    isMatching(cell.x, cell.y - 1) ? "t" : "",
+    isMatching(cell.x, cell.y + 1) ? "b" : "",
+    isMatching(cell.x - 1, cell.y) ? "l" : "",
+    isMatching(cell.x + 1, cell.y) ? "r" : "",
   ].join("");
 
   const tiles_per_row = Math.sqrt(TEXTURE_FORMAT.length);

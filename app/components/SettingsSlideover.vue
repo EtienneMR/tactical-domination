@@ -113,8 +113,8 @@ const bundles = manifest.bundles
         >
           <UInput
             icon="i-mdi-identifier"
-            :model-value="settings.uid"
-            @change="(uid) => settings.set('uid', uid)"
+            :model-value="settings.userId"
+            @change="(userId) => settings.set('userId', userId)"
           />
         </UFormGroup>
       </div>

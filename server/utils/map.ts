@@ -1,8 +1,9 @@
-import { GRID_SIZE, SMOOTH_REPEATS } from "~~/shared/consts";
 import { mapsRules } from "./mapRules";
 
+const SMOOTH_REPEATS = 30;
+
 function opp(cell: Cell, map: Cell[][]) {
-  return map[GRID_SIZE - cell.x - 1]![GRID_SIZE - cell.y - 1]!;
+  return map[MAP_SIZE - cell.x - 1]![MAP_SIZE - cell.y - 1]!;
 }
 
 function applyRule(rule: GenerationRule, cell: Cell, opp: Cell) {
@@ -26,7 +27,7 @@ function pickClampedLerped(t: Cell[][], x: number, y: number, v: Cell): number {
   return v.height + Math.random() * (target.height - v.height);
 }
 
-export function generateMap(mapName: string): Cell[] {
+export function generateMap(mapName: string): Cell[][] {
   const rules = (mapsRules as { [mapName: string]: GenerationRule[] })[mapName];
 
   if (!rules)
@@ -46,8 +47,8 @@ export function generateMap(mapName: string): Cell[] {
     stages[rule.when].push(rule);
   }
 
-  const map: WriteCell[][] = Array.from({ length: GRID_SIZE }, (_, x) =>
-    Array.from({ length: GRID_SIZE }, (_, y) => ({
+  const map: WriteCell[][] = Array.from({ length: MAP_SIZE }, (_, x) =>
+    Array.from({ length: MAP_SIZE }, (_, y) => ({
       x,
       y,
       biome: "plains",
@@ -93,5 +94,5 @@ export function generateMap(mapName: string): Cell[] {
       }
     }
   }
-  return map.flat();
+  return map;
 }

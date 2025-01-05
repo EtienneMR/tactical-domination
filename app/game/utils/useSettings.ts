@@ -25,13 +25,13 @@ const settings = {
     return getRawKey("showRange") !== "false";
   },
 
-  get uid(): string {
-    let uid = getRawKey("uid");
-    if (!uid) {
-      uid = generateId("u");
-      setRawKey("uid", uid);
+  get userId(): string {
+    let userId = getRawKey("userId");
+    if (!userId) {
+      userId = generateId("u");
+      setRawKey("userId", userId);
     }
-    return uid;
+    return userId;
   },
 
   get username(): string {

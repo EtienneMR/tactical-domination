@@ -6,25 +6,25 @@ const SET_OPTIONS = {
 
 export async function updateGame(
   kv: Kv,
-  gid: string,
+  gameId: string,
   perform: (game: Game | null, ao: AtomicOperation) => MaybePromise<MaybeGame>,
   tries: number = 3
 ) {
   const ao = kv.atomic();
 
-  const getRes = await kv.get<Game>(["games", gid]);
+  const getRes = await kv.get<Game>(["games", gameId]);
 
-  ao.check({ key: ["games", gid], versionstamp: getRes.versionstamp });
+  ao.check({ key: ["games", gameId], versionstamp: getRes.versionstamp });
 
   const value = await perform(getRes.value, ao);
 
   if (value != null) {
-    ao.set(["games", gid], value, SET_OPTIONS);
+    ao.set(["games", gameId], value, SET_OPTIONS);
     const { ok } = await ao.commit();
     if (ok) {
       return true;
     } else if (tries > 0) {
-      return updateGame(kv, gid, perform, tries - 1);
+      return updateGame(kv, gameId, perform, tries - 1);
     } else
       throw createError({
         message: "Failled to update game",
@@ -34,21 +34,21 @@ export async function updateGame(
   } else return false;
 }
 
-export async function getGame(kv: Kv, gid: string) {
-  const res = await kv.get<Game>(["games", gid]);
+export async function getGame(kv: Kv, gameId: string) {
+  const res = await kv.get<Game>(["games", gameId]);
   return res.value;
 }
 
-export async function setGame(kv: Kv, gid: string, game: Game) {
-  return (await kv.set(["games", gid], game, SET_OPTIONS)).ok;
+export async function setGame(kv: Kv, gameId: string, game: Game) {
+  return (await kv.set(["games", gameId], game, SET_OPTIONS)).ok;
 }
 
 export function subscribeGame(
   kv: Kv,
-  gid: string,
+  gameId: string,
   cb: (game: Game) => void
 ): () => void {
-  const stream = kv.watch([["games", gid]]);
+  const stream = kv.watch([["games", gameId]]);
   const reader = stream.getReader();
 
   (async () => {

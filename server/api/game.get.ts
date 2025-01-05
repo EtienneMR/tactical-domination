@@ -1,11 +1,8 @@
-import { useKv } from "~~/server/utils/useKv";
-import { assertMatchingVersions, assertValidString } from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { gid, uid, v, username } = getQuery(event);
+  const { gameId, userId, v, username } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
   assertValidString(v, "v");
   assertValidString(username, "username");
 
@@ -17,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const body = new ReadableStream({
       async start(controller) {
         controller.enqueue(`retry: 1000\n\n`);
-        cleanup = subscribeGame(kv, gid, (game) => {
+        cleanup = subscribeGame(kv, gameId, (game) => {
           try {
             assertMatchingVersions(event, game, v);
             const data = JSON.stringify(game);
@@ -37,16 +34,16 @@ export default defineEventHandler(async (event) => {
     });
 
     event.waitUntil(
-      updateGame(kv, gid, async (game) => {
+      updateGame(kv, gameId, async (game) => {
         try {
-          assertValidGame(game, gid);
+          assertValidGame(game, gameId);
           assertMatchingVersions(event, game, v);
         } catch (error) {
           return null;
         }
 
         for (const user of game.users) {
-          if (user.uid == uid) {
+          if (user.userId == userId) {
             user.name = username;
             return game;
           }
@@ -59,7 +56,7 @@ export default defineEventHandler(async (event) => {
                 user.index && user.index > max ? user.index : max,
               0
             ) + 1,
-          uid,
+          userId,
           name: username,
         });
 
@@ -74,8 +71,8 @@ export default defineEventHandler(async (event) => {
       },
     });
   } else {
-    const game = await getGame(kv, gid);
-    assertValidGame(game, gid);
+    const game = await getGame(kv, gameId);
+    assertValidGame(game, gameId);
     assertMatchingVersions(event, game, v);
     return game;
   }

@@ -1,66 +1,19 @@
-import { BUILDINGS_CLASSES, ENTITIES_TYPES } from "~~/shared/consts";
-import type { Action, ActionData } from "../types/entities";
-import type { GameState } from "../types/game";
-import { hasEntityBudget } from "./entities";
-
-export function getEntityFromEid(
-  gameState: GameState,
-  eid: string
-): Entity | null {
-  return gameState.entities.find((e) => e.eid == eid) ?? null;
-}
-
-export function getEntityFromPos(
-  gameState: GameState,
-  pos: Position
-): Entity | null {
-  return gameState.entities.find((e) => e.x == pos.x && e.y == pos.y) ?? null;
-}
-
-export function getPlayer(game: Game, uid: string): Player | null {
-  const index = game.users.find((u) => u.uid === uid)?.index;
-
-  return game.state.players[index ?? -1] ?? null;
-}
-
-export function getBuildingClass(type: string) {
-  const buildingClass = BUILDINGS_CLASSES.find((b) => b.type == type);
-
-  if (!buildingClass)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Internal error",
-      message: `Unknown building type "${type}"`,
-    });
-
-  return buildingClass;
-}
-
-export function getCellAt(gameState: GameState, pos: Position) {
-  const cell = gameState.map.find((c) => c.x == pos.x && c.y == pos.y);
-
-  if (!cell)
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Internal error",
-      message: `Can't find cell at (${pos.x}, ${pos.y})`,
-    });
-
-  return cell;
-}
-
 export function getSpawnCost(gameState: GameState, { index }: Player) {
-  const spawnCost = {} as { [entityType in EntityType]: number };
+  const spawnCost = {} as { [entityClassName in EntityType]: number };
 
-  for (const entityType of ENTITIES_TYPES) spawnCost[entityType] = 1;
+  for (const entityClassName of ENTITIES_TYPES) spawnCost[entityClassName] = 1;
   for (const entity of gameState.entities)
-    if (entity.owner == index) spawnCost[entity.type] += 1;
+    if (entity.owner == index) spawnCost[entity.className] += 1;
 
   return Object.freeze(spawnCost);
 }
 
+export function hasEntityBudget(entity: Entity) {
+  return entity.budget > 0;
+}
+
 export function assertCanPlay(gameState: GameState, player: Player) {
-  if (gameState.turn != player.index)
+  if (gameState.currentPlayer != player.index)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
@@ -79,7 +32,7 @@ export function assertActionInRange(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Position (${pos.x}, ${pos.y}) not in range for action "${action.type}" with enity "${entity.eid}"`,
+      message: `Position (${pos.x}, ${pos.y}) not in range for action "${action.type}" with enity "${entity.entityId}"`,
     });
 }
 
@@ -93,7 +46,7 @@ export function assertValidTargetForAction(
     (actionData.target == null && targetEntity == null) ||
     (actionData.target == "enemy" &&
       targetEntity &&
-      targetEntity.owner != gameState.turn &&
+      targetEntity.owner != gameState.currentPlayer &&
       targetEntityClass &&
       targetEntityClass.immune != actionData.type);
 
@@ -102,7 +55,7 @@ export function assertValidTargetForAction(
       statusCode: 400,
       statusMessage: "Bad Request",
       message: `Invalid target entity "${
-        targetEntity?.eid ?? null
+        targetEntity?.entityId ?? null
       }" for action "${actionData.type}"`,
     });
 }
@@ -119,21 +72,21 @@ export function assertCanDoAction(
 ) {
   assertCanPlay(gameState, player);
 
-  if (entity.owner != gameState.turn)
+  if (entity.owner != gameState.currentPlayer)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Entity "${entity.eid}" isn't owned by you`,
+      message: `Entity "${entity.entityId}" isn't owned by you`,
     });
 
   if (!hasEntityBudget(entity))
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Entity "${entity.eid}" has no budget left`,
+      message: `Entity "${entity.entityId}" has no budget left`,
     });
 
-  if (player.food <= 0)
+  if (player.ressources.food <= 0)
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
@@ -141,7 +94,7 @@ export function assertCanDoAction(
     });
 
   if (actionData.walk && cell.building && cell.owner != player.index) {
-    const building = getBuildingClass(cell.building);
+    const building = getBuildingClassFromType(cell.building);
 
     if (!building.walkable)
       throw createError({
@@ -172,26 +125,10 @@ export function assertCanDoAction(
 }
 
 export function canDoAction(
-  gameState: GameState,
-  player: Player,
-  entity: Entity,
-  action: Action,
-  actionData: ActionData,
-  targetEntity: Entity | null,
-  targetEntityClass: EntityClass | null,
-  cell: Cell
+  ...args: Parameters<typeof assertCanDoAction>
 ): boolean {
   try {
-    assertCanDoAction(
-      gameState,
-      player,
-      entity,
-      action,
-      actionData,
-      targetEntity,
-      targetEntityClass,
-      cell
-    );
+    assertCanDoAction(...args);
     return true;
   } catch (error) {
     return false;

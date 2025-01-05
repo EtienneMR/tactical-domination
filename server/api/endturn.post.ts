@@ -1,79 +1,66 @@
-import { useKv } from "~~/server/utils/useKv";
-import { getEntityClass } from "~~/shared/utils/entities";
-import {
-  assertCanPlay,
-  getBuildingClass,
-  getPlayer,
-} from "~~/shared/utils/game";
-import {
-  assertGameInStatus,
-  assertValidGame,
-  assertValidPlayer,
-  assertValidString,
-} from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { gid, uid } = getQuery(event);
+  const { gameId, userId } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
 
   const kv = await useKv();
 
-  await updateGame(kv, gid, (game) => {
-    assertValidGame(game, gid);
+  await updateGame(kv, gameId, (game) => {
+    assertValidGame(game, gameId);
 
     const { state: gameState } = game;
 
-    assertGameInStatus(gameState, "started", gid);
+    assertGameInStatus(gameState, "started", gameId);
 
-    const player = getPlayer(game, uid);
-    assertValidPlayer(player, uid);
+    const player = getPlayerFromUserId(game, userId);
+    assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 
     for (const entity of gameState.entities) {
-      if (entity.owner == gameState.turn) {
+      if (entity.owner == gameState.currentPlayer) {
         entity.budget = 100;
 
-        const entityClass = getEntityClass(entity.type);
-        if (entityClass.resource == "gold") player.food -= 1;
+        const entityClass = getEntityClassFromName(entity.className);
+        if (entityClass.resource == "gold") player.ressources.food -= 1;
       }
     }
 
-    for (const cell of gameState.map) {
-      if (cell.owner == gameState.turn && cell.building) {
-        for (const effect of getBuildingClass(cell.building).effects) {
-          player[effect.type] += effect.value;
+    for (const cell of gameState.map.flat()) {
+      if (cell.owner == gameState.currentPlayer && cell.building) {
+        for (const effect of getBuildingClassFromType(cell.building).effects) {
+          player.ressources[effect.type] += effect.value;
         }
       }
     }
 
-    for (let _ = 0; _ < -player.food; _++) {
+    for (let _ = 0; _ < -player.ressources.food; _++) {
       const entity = gameState.entities.find((e) => e.owner == player.index);
       if (entity) {
         entity.owner = null;
 
-        const cell = getCellAt(gameState, entity);
+        const cell = getCellFromPosition(gameState, entity);
         cell.owner = null;
       }
     }
 
-    player.food = Math.max(player.food, 1);
+    player.ressources.food = Math.max(player.ressources.food, 1);
 
     for (const player of gameState.players) {
       player.alive =
-        gameState.map.some(
-          (c) => c.building == "castle" && c.owner == player.index
-        ) || gameState.entities.some((e) => e.owner == player.index);
+        gameState.map
+          .flat()
+          .some((c) => c.building == "castle" && c.owner == player.index) ||
+        gameState.entities.some((e) => e.owner == player.index);
     }
 
-    const currentTurn = gameState.turn;
+    const currentPlayer = gameState.currentPlayer;
 
     while (true) {
-      const turn = (gameState.turn =
-        (gameState.turn + 1) % gameState.players.length);
+      const turn = (gameState.currentPlayer =
+        (gameState.currentPlayer + 1) % gameState.players.length);
 
-      if (turn == currentTurn) {
+      if (turn == currentPlayer) {
         gameState.status = "ended";
         break;
       } else if (gameState.players[turn]!.alive) break;

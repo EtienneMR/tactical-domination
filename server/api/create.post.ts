@@ -1,24 +1,9 @@
-import { useKv } from "~~/server/utils/useKv";
-import {
-  assertCanPlay,
-  getCellAt,
-  getEntityFromPos,
-  getPlayer,
-  getSpawnCost,
-} from "~~/shared/utils/game";
-import {
-  assertGameInStatus,
-  assertValidGame,
-  assertValidPlayer,
-  assertValidString,
-} from "../utils/checks";
-
 export default defineEventHandler(async (event) => {
-  const { gid, uid, entityType, x: strx, y: stry } = getQuery(event);
+  const { gameId, userId, entityClassName, x: strx, y: stry } = getQuery(event);
 
-  assertValidString(gid, "gid");
-  assertValidString(uid, "uid");
-  assertValidString(entityType, "entityType");
+  assertValidString(gameId, "gameId");
+  assertValidString(userId, "userId");
+  assertValidString(entityClassName, "entityClassName");
   assertValidString(strx, "x");
   assertValidString(stry, "y");
 
@@ -28,18 +13,18 @@ export default defineEventHandler(async (event) => {
 
   const kv = await useKv();
 
-  await updateGame(kv, gid, async (game) => {
-    assertValidGame(game, gid);
+  await updateGame(kv, gameId, async (game) => {
+    assertValidGame(game, gameId);
 
     const { state: gameState } = game;
 
-    assertGameInStatus(gameState, "started", gid);
+    assertGameInStatus(gameState, "started", gameId);
 
-    const player = getPlayer(game, uid);
-    assertValidPlayer(player, uid);
+    const player = getPlayerFromUserId(game, userId);
+    assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 
-    const cell = getCellAt(gameState, pos);
+    const cell = getCellFromPosition(gameState, pos);
 
     if (cell.building != "castle")
       throw createError({
@@ -55,28 +40,28 @@ export default defineEventHandler(async (event) => {
         message: `Can't create an entity in an enemy castle at (${strx}, ${stry})`,
       });
 
-    if (getEntityFromPos(gameState, pos) != null)
+    if (getEntityFromPosition(gameState, pos) != null)
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
         message: `Can't create an entity if an other is there`,
       });
 
-    const entityClass = getEntityClass(entityType);
+    const entityClass = getEntityClassFromName(entityClassName);
     const spawnCost = getSpawnCost(gameState, player);
 
-    if (player[entityClass.resource] < spawnCost[entityClass.type])
+    if (player.ressources[entityClass.resource] < spawnCost[entityClass.name])
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
         message: `Player "${player.index}" hasn't enough resources`,
       });
 
-    player[entityClass.resource] -= spawnCost[entityClass.type];
+    player.ressources[entityClass.resource] -= spawnCost[entityClass.name];
 
     gameState.entities.push({
-      eid: generateId("e"),
-      type: entityClass.type,
+      entityId: generateId("e"),
+      className: entityClass.name,
       owner: player.index,
       x: pos.x,
       y: pos.y,
