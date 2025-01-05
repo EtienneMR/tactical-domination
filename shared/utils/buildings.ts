@@ -62,7 +62,7 @@ export function getCellFromPosition(
   gameState: GameState,
   position: Position
 ): Cell {
-  const row = gameState.map[position.y];
-  const cell = row ? row[position.x] : undefined;
+  const row = gameState.map[position.x];
+  const cell = row ? row[position.y] : undefined;
   return ensureNotUndefined(cell);
 }
