@@ -64,10 +64,17 @@ export default class RangeIndicator extends Container {
 
   showOwned(entity: Entity, action: number) {
     if (this.isEnabled) {
-      const entityClass = getEntityClassFromName(entity.className);
-      const range = entityClass.actions[action]?.range;
+      const range =
+        entity.budget > 0
+          ? getEntityClassFromName(entity.className).actions[action]?.range
+          : 0;
 
-      if (range) this.update(entity, range, action === 0 ? 0x4caf50 : 0xff4500);
+      if (range !== undefined)
+        this.update(
+          entity,
+          range,
+          entity.budget <= 0 ? 0x777777 : action === 0 ? 0x4caf50 : 0xff4500
+        );
     }
   }
 
@@ -78,8 +85,8 @@ export default class RangeIndicator extends Container {
       const walkAction = entityClass.actions[0];
       const attackAction = entityClass.actions[1];
 
-      let range = attackAction.range;
       let budget = entity.budget;
+      let range = budget > 0 ? attackAction.range : 0;
 
       while (budget > walkAction.budget) {
         range += walkAction.range;

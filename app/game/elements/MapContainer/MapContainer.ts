@@ -241,7 +241,10 @@ export default class MapContainer extends Container<ContainerChild> {
       if (this.clickTarget) this.clickTarget.reset();
       this.clickTarget = null;
       event.stopPropagation();
-    } else if (target.entity.owner != this.gameClient.me?.index) {
+    } else if (target.entity.owner == this.gameClient.me?.index) {
+      this.rangeIndicator.showOwned(target.entity, 1);
+      event.stopPropagation();
+    } else {
       this.rangeIndicator.showEnemy(target.entity);
       event.stopPropagation(); // prevent hiding the range indicator because of the secondary action
     }
