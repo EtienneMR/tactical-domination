@@ -1,6 +1,7 @@
 import { Assets, Sprite, Text } from "pixi.js";
 import type { GameClient } from "~/game/Game";
 import displayError from "~/game/utils/displayError";
+import { MAP_SIZE } from "~~/shared/utils/maps";
 import SliceButton from "../SliceButton";
 import { DEFINITION } from "./MapContainerConsts";
 import RenderedEntity from "./RenderedEntity";

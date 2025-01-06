@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { globSync } from "glob";
 import { sep as PATH_SEP, resolve } from "path";
 
@@ -77,13 +77,17 @@ export default defineNuxtConfig({
 
       interface BundleAsset extends Asset {
         bundle: string;
+        ext: string | undefined;
+        path: string;
       }
 
       const assets: BundleAsset[] = files
         .filter((file) => !file.endsWith(".json"))
         .map((file) => {
           const path = file.split(PATH_SEP);
-          const name = path.pop()!.split(".")[0];
+          const fileName = path.pop()!.split(".");
+          const name = fileName[0]!;
+          const ext = fileName[1];
           const scope = path.pop()!;
           const bundle = path.pop()!;
 
@@ -93,21 +97,43 @@ export default defineNuxtConfig({
               .replace("public", "")
               .replaceAll("\\", "/")
               .replace("//", "/"),
+            path: file,
             alias: `${bundle}:${scope}:${name}`,
             data: { scaleMode: "nearest" },
             bundle,
+            ext,
           };
         });
 
       const manifest = {
-        bundles: assets.reduce((bundles, { bundle: bundleName, ...asset }) => {
-          const bundle = bundles.find((b) => b.name == bundleName);
+        bundles: assets.reduce(
+          (bundles, { bundle: bundleName, ext, path, ...asset }) => {
+            const bundle = bundles.find((b) => b.name == bundleName);
 
-          if (bundle) bundle.assets.push(asset);
-          else bundles.push({ name: bundleName, assets: [asset] });
+            if (ext == "alias") {
+              const targetAlias = readFileSync(path, "utf-8");
+              const targetAsset = assets.find((a) => a.alias == targetAlias);
 
-          return bundles;
-        }, [] as { name: string; assets: Asset[] }[]),
+              if (!targetAsset)
+                throw new Error(
+                  `Invalid asset alias "${asset.alias}": target asset "${targetAlias}" not found`
+                );
+
+              asset.src = `${targetAsset.src}#${encodeURIComponent(
+                asset.alias
+              )}`;
+              asset.data = targetAsset.data;
+            } else if (ext == "source") {
+              return bundles;
+            }
+
+            if (bundle) bundle.assets.push(asset);
+            else bundles.push({ name: bundleName, assets: [asset] });
+
+            return bundles;
+          },
+          [] as { name: string; assets: Asset[] }[]
+        ),
       };
 
       const baseBundle = manifest.bundles.find((b) => b.name == "base")!;
@@ -115,10 +141,11 @@ export default defineNuxtConfig({
       for (const bundle of manifest.bundles) {
         if (bundle != baseBundle) {
           for (const baseAsset of baseBundle.assets) {
-            const [_, scope, id] = baseAsset.alias.split(":");
+            const [_, scope, idTrack] = baseAsset.alias.split(":");
+            const id = idTrack?.split("-")[0];
             const expectedAlias = `${bundle.name}:${scope}:${id}`;
 
-            if (!bundle.assets.some((a) => a.alias == expectedAlias))
+            if (!bundle.assets.some((a) => a.alias.startsWith(expectedAlias)))
               bundle.assets.push({ ...baseAsset, alias: expectedAlias });
           }
         }
