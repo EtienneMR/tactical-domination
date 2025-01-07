@@ -1,3 +1,5 @@
+import { createValueError } from "./errors";
+
 export function assertValidPayloadString(
   value: unknown,
   field: string
@@ -13,9 +15,10 @@ export function assertValidPayloadOptionalString(
   field: string
 ): asserts value is string | undefined {
   if (value !== undefined && typeof value !== "string")
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Invalid payload: ${field} is not an optional string`,
+    throw createValueError({
+      object: "payload",
+      field,
+      expected: "string or undefined",
     });
 }
 
@@ -24,10 +27,7 @@ export function assertValidPayloadNumber(
   field: string
 ): asserts value is number {
   if (typeof value !== "number")
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Invalid payload: ${field} is not a number`,
-    });
+    throw createValueError({ object: "payload", field, expected: "number" });
 }
 
 export function assertValidPayloadObject(
@@ -35,24 +35,39 @@ export function assertValidPayloadObject(
   field: string
 ): asserts value is { [key: string]: unknown } {
   if (typeof value !== "object" || value == null)
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Invalid payload: ${field} is not an object`,
-    });
+    throw createValueError({ object: "payload", field, expected: "object" });
 }
 
 export function assertValidPayloadPosition(
   value: unknown,
   field: string
 ): asserts value is Position {
-  assertValidPayloadObject(value, field);
-  assertValidPayloadNumber(value.x, `${field}.x`);
-  assertValidPayloadNumber(value.y, `${field}.y`);
+  try {
+    assertValidPayloadObject(value, field);
+    assertValidPayloadNumber(value.x, `${field}.x`);
+    assertValidPayloadNumber(value.y, `${field}.y`);
+  } catch (error) {
+    throw createValueError({
+      object: "payload",
+      field,
+      expected: "Position",
+      cause: error,
+    });
+  }
 }
 
 export function assertValidPayload(
   value: unknown
 ): asserts value is TransformationPayload {
-  assertValidPayloadObject(value, "@root");
-  assertValidPayloadString(value.type, "type");
+  try {
+    assertValidPayloadObject(value, "@root");
+    assertValidPayloadString(value.type, "type");
+  } catch (error) {
+    throw createValueError({
+      object: "payload",
+      field: "@root",
+      expected: "TransformationPayload",
+      cause: error,
+    });
+  }
 }

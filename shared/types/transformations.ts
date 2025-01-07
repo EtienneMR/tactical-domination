@@ -4,12 +4,12 @@ export interface TransformationPayload {
 }
 
 export interface Transformation {
-  type: string;
   validate(gameState: GameState): void;
   apply(gameState: GameState): void;
   toPayload(): TransformationPayload;
 }
 
 export interface TransformationClass {
+  type: string;
   fromPayload(payload: TransformationPayload): Transformation;
 }

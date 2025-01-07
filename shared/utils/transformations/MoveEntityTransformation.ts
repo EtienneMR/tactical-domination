@@ -1,5 +1,5 @@
 export class MoveEntityTransformation implements Transformation {
-  readonly type = "MoveEntity";
+  static readonly type = "MoveEntity";
   entityId: string;
   targetPosition: Position;
 
@@ -20,7 +20,7 @@ export class MoveEntityTransformation implements Transformation {
 
   toPayload(): TransformationPayload {
     return {
-      type: this.type,
+      type: MoveEntityTransformation.type,
       entityId: this.entityId,
       targetPosition: this.targetPosition,
     };
