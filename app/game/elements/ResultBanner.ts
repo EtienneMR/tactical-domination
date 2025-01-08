@@ -39,14 +39,14 @@ export default class ResultBanner extends Sprite {
     if (this.visible != target) {
       this.visible = target;
       sound.play(
-        `${this.gameClient.settings.bundle}:sounds:game_${
+        `${this.gameClient.settings.activeBundle}:sounds:game_${
           targetPlayer.alive ? "won" : "lost"
         }`
       );
     }
 
     this.texture = Assets.get(
-      `${this.gameClient.settings.bundle}:ui:${targetPlayer.index}_${
+      `${this.gameClient.settings.activeBundle}:ui:${targetPlayer.index}_${
         targetPlayer.alive ? "victory" : "defeat"
       }`
     );

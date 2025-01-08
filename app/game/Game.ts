@@ -100,7 +100,7 @@ export class GameClient {
       await app.init({ background: "#1099bb", resizeTo: parent });
       await Assets.init({ manifest: manifest });
 
-      await Assets.loadBundle(this.settings.bundle);
+      await Assets.loadBundle(this.settings.activeBundle);
 
       parent.appendChild(app.canvas);
 
@@ -187,7 +187,7 @@ export class GameClient {
     this.app.destroy();
     this.eventSource.value?.destroy();
     removeEventListener("resize", this.updateBinded);
-    await Assets.unloadBundle(this.settings.bundle);
+    await Assets.unloadBundle(this.settings.activeBundle);
     if (import.meta.dev) Assets.reset();
   }
 }

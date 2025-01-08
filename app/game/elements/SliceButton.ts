@@ -53,7 +53,9 @@ export default class SliceButton extends ButtonContainer {
   init() {
     this.nineSlice = this.addChild(
       new NineSliceSprite({
-        texture: Texture.from(`${this.gameClient.settings.bundle}:ui:button`),
+        texture: Texture.from(
+          `${this.gameClient.settings.activeBundle}:ui:button`
+        ),
         leftWidth: NOT_SCALABLE_AREA,
         topHeight: NOT_SCALABLE_AREA,
         rightWidth: NOT_SCALABLE_AREA,

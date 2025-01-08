@@ -68,7 +68,7 @@ export default class MapContainer extends Container<ContainerChild> {
       const groundData = getGroundData(
         data,
         gameState.map,
-        this.gameClient.settings.bundle
+        this.gameClient.settings.activeBundle
       );
 
       const tint =
@@ -78,7 +78,7 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (!groundData.full) {
         const backgroundSprite = new Sprite(
-          Assets.get(`${this.gameClient.settings.bundle}:biomes:plains`)
+          Assets.get(`${this.gameClient.settings.activeBundle}:biomes:plains`)
         );
         backgroundSprite.setSize(DEFINITION);
         backgroundSprite.x = data.x * DEFINITION;
@@ -99,13 +99,13 @@ export default class MapContainer extends Container<ContainerChild> {
       if (data.building) {
         const assetName =
           manifest.bundles
-            .find((b) => b.name == this.gameClient.settings.bundle)!
+            .find((b) => b.name == this.gameClient.settings.activeBundle)!
             .assets.find(
               (a) =>
                 a.alias ==
-                `${this.gameClient.settings.bundle}:buildings:${data.owner}_${data.building}`
+                `${this.gameClient.settings.activeBundle}:buildings:${data.owner}_${data.building}`
             )?.alias ??
-          `${this.gameClient.settings.bundle}:buildings:null_${data.building}`;
+          `${this.gameClient.settings.activeBundle}:buildings:null_${data.building}`;
         const buildingSprite = new Sprite(Assets.get(assetName));
         buildingSprite.setSize(DEFINITION * 0.8, DEFINITION * 0.8);
         buildingSprite.zIndex += 1;
@@ -125,7 +125,7 @@ export default class MapContainer extends Container<ContainerChild> {
         const added = new RenderedEntity(
           entity,
           this.gameClient.me?.index ?? null,
-          this.gameClient.settings.bundle
+          this.gameClient.settings.activeBundle
         );
         added.on("pointerdown", this.onDragStart.bind(this, added), added);
         this.entitiesContainer.addChild(added);
@@ -279,19 +279,20 @@ export default class MapContainer extends Container<ContainerChild> {
             error
           );
         }
-      }
+        dragTarget.reset();
+      } else {
+        const canSecondary =
+          !dragTarget.dragged && hasEntityBudget(dragTarget.entity);
 
-      const canSecondary =
-        !dragTarget.dragged && hasEntityBudget(dragTarget.entity);
+        dragTarget.reset();
 
-      dragTarget.reset();
+        if (canSecondary) {
+          this.clickTarget = dragTarget;
+          this.doubleClickStart = performance.now();
+          dragTarget.tint = 0x999999;
 
-      if (canSecondary) {
-        this.clickTarget = dragTarget;
-        this.doubleClickStart = performance.now();
-        dragTarget.tint = 0x999999;
-
-        this.rangeIndicator.showOwned(dragTarget.entity, 1);
+          this.rangeIndicator.showOwned(dragTarget.entity, 1);
+        }
       }
     }
   }

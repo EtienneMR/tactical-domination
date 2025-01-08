@@ -25,7 +25,7 @@ export default class RenderedEntity extends Sprite {
   constructor(
     public entity: Entity,
     private myIndex: number | null,
-    private bundle: string
+    private activeBundle: string
   ) {
     super({
       width: DEFINITION * 0.8,
@@ -49,7 +49,7 @@ export default class RenderedEntity extends Sprite {
     gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
 
     this.texture = Assets.get(
-      `${this.bundle}:entities:${entity.owner}_${entity.className}`
+      `${this.activeBundle}:entities:${entity.owner}_${entity.className}`
     );
   }
 
@@ -57,7 +57,7 @@ export default class RenderedEntity extends Sprite {
     gsap.killTweensOf(this);
     Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
     this.texture = Assets.get(
-      `${this.bundle}:entities:${this.entity.owner}_${this.entity.className}`
+      `${this.activeBundle}:entities:${this.entity.owner}_${this.entity.className}`
     );
   }
 }

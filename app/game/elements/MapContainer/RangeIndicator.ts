@@ -44,8 +44,8 @@ export default class RangeIndicator extends Container {
   private update({ x, y }: Entity, range: number, color: number) {
     const minX = Math.max(x - range, 0);
     const minY = Math.max(y - range, 0);
-    const maxX = Math.min(x + range, MAP_SIZE);
-    const maxY = Math.min(y + range, MAP_SIZE);
+    const maxX = Math.min(x + range, MAP_SIZE - 1);
+    const maxY = Math.min(y + range, MAP_SIZE - 1);
 
     const width = maxX - minX + 1;
     const height = maxY - minY + 1;

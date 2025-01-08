@@ -13,6 +13,7 @@ const bundles = manifest.bundles
     name: b.charAt(0).toUpperCase() + b.substring(1),
     value: b,
   }));
+bundles.push({ name: "Aléatoire", value: "random" });
 </script>
 
 <template>

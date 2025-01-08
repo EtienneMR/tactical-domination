@@ -37,10 +37,10 @@ export default class ResourcesContainer extends Container<ContainerChild> {
 
   init() {
     this.foodSprite.texture = Assets.get(
-      `${this.gameClient.settings.bundle}:resources:food`
+      `${this.gameClient.settings.activeBundle}:resources:food`
     );
     this.goldSprite.texture = Assets.get(
-      `${this.gameClient.settings.bundle}:resources:gold`
+      `${this.gameClient.settings.activeBundle}:resources:gold`
     );
   }
 
