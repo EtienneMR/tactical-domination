@@ -41,16 +41,16 @@ export default defineEventHandler(async (event) => {
     y: stry,
   } = getQuery(event);
 
-  assertValidString(gameId, "gameId");
-  assertValidString(userId, "userId");
-  assertValidString(entityId, "entityId");
-  assertValidString(actionType, "action");
-  assertValidString(strx, "x");
-  assertValidString(stry, "y");
+  assertValidString_old(gameId, "gameId");
+  assertValidString_old(userId, "userId");
+  assertValidString_old(entityId, "entityId");
+  assertValidString_old(actionType, "action");
+  assertValidString_old(strx, "x");
+  assertValidString_old(stry, "y");
 
   const pos = { x: Number(strx), y: Number(stry) };
 
-  assertValidPosition(pos);
+  assertValidPosition_old(pos);
 
   const kv = await useKv();
 

@@ -49,7 +49,7 @@ export function assertValidPlayer(
     });
 }
 
-export function assertValidPosition(pos: {
+export function assertValidPosition_old(pos: {
   x: number;
   y: number;
 }): asserts pos is Position {
@@ -68,7 +68,7 @@ export function assertValidPosition(pos: {
     });
 }
 
-export function assertValidString(
+export function assertValidString_old(
   str: unknown,
   query: string
 ): asserts str is string {

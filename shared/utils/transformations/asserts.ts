@@ -1,54 +1,56 @@
 import { createValueError } from "./errors";
 
-export function assertValidPayloadString(
+export function assertValidString(
   value: unknown,
+  object: string,
   field: string
 ): asserts value is string {
   if (typeof value !== "string")
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Invalid payload: ${field} is not a string`,
-    });
+    throw createValueError({ object, field, expected: "string" });
 }
-export function assertValidPayloadOptionalString(
+export function assertValidOptionalString(
   value: unknown,
+  object: string,
   field: string
 ): asserts value is string | undefined {
   if (value !== undefined && typeof value !== "string")
     throw createValueError({
-      object: "payload",
+      object,
       field,
       expected: "string or undefined",
     });
 }
 
-export function assertValidPayloadNumber(
+export function assertValidNumber(
   value: unknown,
+  object: string,
   field: string
 ): asserts value is number {
   if (typeof value !== "number")
-    throw createValueError({ object: "payload", field, expected: "number" });
+    throw createValueError({ object, field, expected: "number" });
 }
 
-export function assertValidPayloadObject(
+export function assertValidObject(
   value: unknown,
-  field: string
+  object: string,
+  field?: string
 ): asserts value is { [key: string]: unknown } {
   if (typeof value !== "object" || value == null)
-    throw createValueError({ object: "payload", field, expected: "object" });
+    throw createValueError({ object, field, expected: "object" });
 }
 
-export function assertValidPayloadPosition(
+export function assertValidPosition(
   value: unknown,
-  field: string
+  object: string,
+  field?: string
 ): asserts value is Position {
   try {
-    assertValidPayloadObject(value, field);
-    assertValidPayloadNumber(value.x, `${field}.x`);
-    assertValidPayloadNumber(value.y, `${field}.y`);
+    assertValidObject(value, object, field);
+    assertValidNumber(value.x, object, `${field}.x`);
+    assertValidNumber(value.y, object, `${field}.y`);
   } catch (error) {
     throw createValueError({
-      object: "payload",
+      object,
       field,
       expected: "Position",
       cause: error,
@@ -60,13 +62,12 @@ export function assertValidPayload(
   value: unknown
 ): asserts value is TransformationPayload {
   try {
-    assertValidPayloadObject(value, "@root");
-    assertValidPayloadString(value.type, "type");
+    assertValidObject(value, "payload");
+    assertValidString(value.type, "payload", "type");
   } catch (error) {
     throw createValueError({
       object: "payload",
-      field: "@root",
-      expected: "TransformationPayload",
+      expected: "Transformation",
       cause: error,
     });
   }

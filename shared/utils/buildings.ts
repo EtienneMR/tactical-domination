@@ -66,3 +66,37 @@ export function getCellFromPosition(
   const cell = row ? row[position.y] : undefined;
   return ensureNotUndefined(cell);
 }
+
+export function leaveCell(cell: Cell, buildingClass: BuildingClass | null) {
+  if (!buildingClass || !buildingClass.ownable) cell.owner = null;
+}
+
+export function performMove(
+  gameState: GameState,
+  entity: Entity,
+  cell: Cell,
+  buildingClass: BuildingClass | null
+) {
+  const currentCell = getCellFromPosition(gameState, entity);
+  const currentBuildingClass = currentCell.building
+    ? getBuildingClassFromType(currentCell.building)
+    : null;
+
+  leaveCell(currentCell, currentBuildingClass);
+
+  gameState.events.push(`move_${cell.biome}`);
+
+  if (buildingClass) {
+    if (!buildingClass.walkable) {
+      cell.building = "ruins";
+      cell.owner = null;
+      gameState.events.push(`build`);
+    } else if (buildingClass.effects.length) {
+      gameState.events.push(`collect_${cell.building}`);
+    }
+  }
+
+  cell.owner = gameState.currentPlayer;
+  entity.x = cell.x;
+  entity.y = cell.y;
+}

@@ -1,10 +1,10 @@
 export default defineEventHandler(async (event) => {
   const { mapName, gameId, userId, v } = getQuery(event);
 
-  assertValidString(gameId, "gameId");
-  assertValidString(userId, "userId");
-  assertValidString(v, "v");
-  assertValidString(mapName, "mapName");
+  assertValidString_old(gameId, "gameId");
+  assertValidString_old(userId, "userId");
+  assertValidString_old(v, "v");
+  assertValidString_old(mapName, "mapName");
 
   const kv = await useKv();
 

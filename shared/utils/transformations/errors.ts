@@ -4,7 +4,7 @@ interface BaseErrorDetails {
 
 interface ValueErrorDetails extends BaseErrorDetails {
   object: string;
-  field: string;
+  field?: string;
   expected: string;
 }
 
@@ -16,7 +16,9 @@ export const createValueError = ({
 }: ValueErrorDetails) =>
   createError({
     statusCode: 400,
-    statusMessage: `Invalid ${object}: ${field} is not of ${expected} type`,
+    statusMessage: `Invalid ${object}: ${
+      field ?? object
+    } is not a valid ${expected}`,
     cause,
   });
 
