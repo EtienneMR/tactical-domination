@@ -5,6 +5,12 @@ export default abstract class PlayerTransformation {
 
   validate(gameState: GameState) {
     const player = getPlayerFromIndex(gameState, this.playerIndex);
+
+    if (gameState.status != "started")
+      throw createTransformationError({
+        message: `Game not started (${gameState.status})`,
+      });
+
     if (player.index != gameState.currentPlayer)
       throw createTransformationError({
         message: `Not currently player #${this.playerIndex}'s turn`,
