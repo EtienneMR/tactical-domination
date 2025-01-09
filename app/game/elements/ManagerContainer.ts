@@ -1,4 +1,5 @@
 import { Container, type ContainerChild } from "pixi.js";
+import EndTurnTransformation from "~~/shared/utils/transformations/EndTurnTransformation";
 import type { GameClient } from "../Game";
 import displayError from "../utils/displayError";
 import { RESOURCES_HEIGHT } from "./ResourcesContainer";
@@ -81,8 +82,17 @@ export default class ManagerContainer extends Container<ContainerChild> {
     endTurnButton.onPress.connect(async () => {
       endTurnButton.active = false;
 
+      const index = gameClient.me?.index;
+      if (index == null) return;
+
+      const transformation = new EndTurnTransformation(index);
+
       try {
-        await $fetch("/api/endturn", { method: "POST", query: fetchQuery });
+        await applyTransformation(
+          transformation,
+          gameClient.game!.state,
+          fetchQuery.gameId
+        );
       } catch (error) {
         displayError(
           "Impossible de finir le tour",

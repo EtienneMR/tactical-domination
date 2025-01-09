@@ -4,15 +4,14 @@ export default class MoveActionTransformation
   extends ActionTransformation
   implements Transformation
 {
-  static readonly type = "MoveAction";
+  static override readonly type = "MoveAction";
+  static override readonly actionTarget = null;
+  static override readonly intentWalk = true;
 
   override apply(gameState: GameState) {
     const validateData = this.validate(gameState);
-    const { entity, cell, buildingClass } = validateData;
 
     super.apply(gameState, validateData);
-
-    performMove(gameState, entity, cell, buildingClass);
   }
 
   toPayload() {
@@ -20,7 +19,6 @@ export default class MoveActionTransformation
       type: MoveActionTransformation.type,
       playerIndex: this.playerIndex,
       entityId: this.entityId,
-      actionType: this.actionType,
       position: this.position,
     };
   }
@@ -28,13 +26,11 @@ export default class MoveActionTransformation
   static fromPayload(payload: TransformationPayload) {
     assertValidNumber(payload.playerIndex, "payload", "playerIndex");
     assertValidString(payload.entityId, "payload", "entityId");
-    assertValidString(payload.actionType, "payload", "actionType");
     assertValidPosition(payload.position, "payload", "position");
 
     return new MoveActionTransformation(
       payload.playerIndex,
       payload.entityId,
-      payload.actionType,
       payload.position
     );
   }

@@ -91,21 +91,21 @@ export default defineEventHandler(async (event) => {
     player.ressources.food -= 1;
     entity.budget -= action.budget;
 
-    if (action.type == "move") {
+    if (action.type == "ActionMove") {
       await performMove(gameState, entity, cell);
-    } else if (action.type == "melee") {
+    } else if (action.type == "ActionMelee") {
       gameState.entities = gameState.entities.filter(
         (e) => e.entityId != targetEntity!.entityId
       );
       gameState.events.push(`atk_${entity.className}`);
       await performMove(gameState, entity, cell);
-    } else if (action.type == "ranged") {
+    } else if (action.type == "ActionRanged") {
       await leaveCell(gameState, targetEntity!);
       gameState.entities = gameState.entities.filter(
         (e) => e.entityId != targetEntity!.entityId
       );
       gameState.events.push(`atk_${entity.className}`);
-    } else if (action.type == "build") {
+    } else if (action.type == "ActionBuild") {
       const cell = getCellFromPosition(gameState, pos);
       gameState.events.push("build");
 

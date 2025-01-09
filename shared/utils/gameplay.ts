@@ -105,7 +105,7 @@ export function assertCanDoAction(
   }
 
   if (
-    action.type == "build" &&
+    action.type == "ActionBuild" &&
     cell.building == "castle" &&
     cell.owner == player.index
   )

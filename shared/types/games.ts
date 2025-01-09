@@ -7,6 +7,7 @@ export interface GameState {
   entities: Entity[];
   events: string[];
   map: Cell[][];
+  uniqueIdCounter: number;
 }
 
 export interface Game {

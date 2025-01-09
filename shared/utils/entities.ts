@@ -1,11 +1,11 @@
 export const ENTITIES_CLASSES = [
   {
     name: "melee",
-    immune: "ranged",
+    immune: "ActionRanged",
     resource: "gold",
     actions: [
-      { type: "move", range: 1, budget: 100 },
-      { type: "melee", range: 1, budget: 50 },
+      { type: "ActionMove", range: 1, budget: 100 },
+      { type: "ActionMelee", range: 1, budget: 50 },
     ],
   },
   {
@@ -13,8 +13,8 @@ export const ENTITIES_CLASSES = [
     immune: null,
     resource: "gold",
     actions: [
-      { type: "move", range: 1, budget: 100 },
-      { type: "ranged", range: 2, budget: 100 },
+      { type: "ActionMove", range: 1, budget: 100 },
+      { type: "ActionRanged", range: 2, budget: 100 },
     ],
   },
   {
@@ -22,8 +22,8 @@ export const ENTITIES_CLASSES = [
     immune: null,
     resource: "gold",
     actions: [
-      { type: "move", range: 1, budget: 50 },
-      { type: "melee", range: 1, budget: 100 },
+      { type: "ActionMove", range: 1, budget: 50 },
+      { type: "ActionMelee", range: 1, budget: 100 },
     ],
   },
   {
@@ -31,8 +31,8 @@ export const ENTITIES_CLASSES = [
     immune: null,
     resource: "gold",
     actions: [
-      { type: "move", range: 1, budget: 100 },
-      { type: "build", range: 2, budget: 1 },
+      { type: "ActionMove", range: 1, budget: 100 },
+      { type: "ActionBuild", range: 2, budget: 1 },
     ],
   },
   {
@@ -40,8 +40,8 @@ export const ENTITIES_CLASSES = [
     immune: null,
     resource: "food",
     actions: [
-      { type: "move", range: 1, budget: 100 },
-      { type: "melee", range: 1, budget: 100 },
+      { type: "ActionMove", range: 1, budget: 100 },
+      { type: "ActionMelee", range: 1, budget: 100 },
     ],
   },
 ] as const;

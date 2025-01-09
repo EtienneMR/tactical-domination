@@ -5,11 +5,13 @@ export default class BuildActionTransformation
   extends ActionTransformation
   implements Transformation
 {
-  static readonly type = "RangedAction";
+  static override readonly type = "BuildAction";
+  static override readonly actionTarget = null;
+  static override readonly intentWalk = false;
 
   override validate(gameState: GameState) {
     const validateData = super.validate(gameState);
-    const { targetEntity, cell, player } = validateData;
+    const { cell } = validateData;
 
     if (cell.building == "castle" && cell.owner == validateData.player.index)
       throw createTransformationError({
@@ -47,7 +49,6 @@ export default class BuildActionTransformation
       type: BuildActionTransformation.type,
       playerIndex: this.playerIndex,
       entityId: this.entityId,
-      actionType: this.actionType,
       position: this.position,
     };
   }
@@ -55,13 +56,11 @@ export default class BuildActionTransformation
   static fromPayload(payload: TransformationPayload) {
     assertValidNumber(payload.playerIndex, "payload", "playerIndex");
     assertValidString(payload.entityId, "payload", "entityId");
-    assertValidString(payload.actionType, "payload", "actionType");
     assertValidPosition(payload.position, "payload", "position");
 
     return new BuildActionTransformation(
       payload.playerIndex,
       payload.entityId,
-      payload.actionType,
       payload.position
     );
   }

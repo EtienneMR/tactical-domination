@@ -1,8 +1,8 @@
 export const ACTIONS_DATA = [
-  { type: "move", target: null, walk: true },
-  { type: "melee", target: "enemy", walk: true },
-  { type: "ranged", target: "enemy", walk: false },
-  { type: "build", target: null, walk: false },
+  { type: "ActionMove", target: null, walk: true },
+  { type: "ActionMelee", target: "enemy", walk: true },
+  { type: "ActionRanged", target: "enemy", walk: false },
+  { type: "ActionBuild", target: null, walk: false },
 ] as const;
 
 ACTIONS_DATA satisfies readonly ActionData[];

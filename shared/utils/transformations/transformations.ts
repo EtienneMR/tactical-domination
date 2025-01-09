@@ -1,13 +1,19 @@
 import BuildActionTransformation from "./BuildActionTransformation";
+import CreateEntityTransformation from "./CreateEntityTransformation";
+import EndTurnTransformation from "./EndTurnTransformation";
 import MeleeActionTransformation from "./MeleeActionTransformation";
 import MoveActionTransformation from "./MoveActionTransformation";
 import RangedActionTransformation from "./RangedActionTransformation";
+import ReturnEntityTransformation from "./ReturnEntityTransformation";
 
 const transformations = [
   MoveActionTransformation,
   MeleeActionTransformation,
   RangedActionTransformation,
   BuildActionTransformation,
+  EndTurnTransformation,
+  CreateEntityTransformation,
+  ReturnEntityTransformation,
 ] satisfies TransformationClass[];
 
 export function getTransformationClass(type: string): TransformationClass {

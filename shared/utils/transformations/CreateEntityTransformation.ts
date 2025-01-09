@@ -53,8 +53,11 @@ export default class CreateEntityTransformation
 
     player.ressources[entityClass.resource] -= spawnCost[entityClass.name];
 
+    const entityId = gameState.uniqueIdCounter;
+    gameState.uniqueIdCounter += 1;
+
     gameState.entities.push({
-      entityId: generateId("e"),
+      entityId: `e${String(entityId).padStart(6, "0")}`,
       className: entityClass.name,
       owner: player.index,
       x: cell.x,

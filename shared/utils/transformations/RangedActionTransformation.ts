@@ -4,7 +4,9 @@ export default class RangedActionTransformation
   extends ActionTransformation
   implements Transformation
 {
-  static readonly type = "RangedAction";
+  static override readonly type = "RangedAction";
+  static override readonly actionTarget = "enemy";
+  static override readonly intentWalk = false;
 
   override apply(gameState: GameState) {
     const validateData = this.validate(gameState);
@@ -24,7 +26,6 @@ export default class RangedActionTransformation
       type: RangedActionTransformation.type,
       playerIndex: this.playerIndex,
       entityId: this.entityId,
-      actionType: this.actionType,
       position: this.position,
     };
   }
@@ -32,13 +33,11 @@ export default class RangedActionTransformation
   static fromPayload(payload: TransformationPayload) {
     assertValidNumber(payload.playerIndex, "payload", "playerIndex");
     assertValidString(payload.entityId, "payload", "entityId");
-    assertValidString(payload.actionType, "payload", "actionType");
     assertValidPosition(payload.position, "payload", "position");
 
     return new RangedActionTransformation(
       payload.playerIndex,
       payload.entityId,
-      payload.actionType,
       payload.position
     );
   }

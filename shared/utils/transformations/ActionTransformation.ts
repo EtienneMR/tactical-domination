@@ -2,10 +2,13 @@ import { createTransformationError } from "./errors";
 import PlayerTransformation from "./PlayerTransformation";
 
 export default abstract class ActionTransformation extends PlayerTransformation {
+  static type: string;
+  static actionTarget: "enemy" | null;
+  static intentWalk: boolean;
+
   constructor(
     playerIndex: number,
     protected entityId: string,
-    protected actionType: string,
     protected position: Position
   ) {
     super(playerIndex);
@@ -14,10 +17,11 @@ export default abstract class ActionTransformation extends PlayerTransformation 
   override validate(gameState: GameState) {
     const { player } = super.validate(gameState);
 
+    const actionData = this.constructor as typeof ActionTransformation;
+
     const entity = getEntityFromId(gameState, this.entityId);
     const entityClass = getEntityClassFromName(entity.className);
-    const action = getActionFromEntityClass(entityClass, this.actionType);
-    const actionData = getActionDataFromType(action.type);
+    const action = getActionFromEntityClass(entityClass, actionData.type);
     const cell = getCellFromPosition(gameState, this.position);
     const buildingClass = cell.building
       ? getBuildingClassFromType(cell.building)
@@ -40,7 +44,7 @@ export default abstract class ActionTransformation extends PlayerTransformation 
         message: `Player #${player.index} has not enough food`,
       });
     if (
-      actionData.walk &&
+      actionData.intentWalk &&
       cell.owner != player.index &&
       buildingClass &&
       !buildingClass.walkable
@@ -60,8 +64,8 @@ export default abstract class ActionTransformation extends PlayerTransformation 
       });
 
     if (
-      (actionData.target != null || targetEntity != null) &&
-      (actionData.target != "enemy" ||
+      (actionData.actionTarget != null || targetEntity != null) &&
+      (actionData.actionTarget != "enemy" ||
         !targetEntity ||
         targetEntity.owner == gameState.currentPlayer ||
         !targetEntityClass ||
@@ -85,7 +89,43 @@ export default abstract class ActionTransformation extends PlayerTransformation 
     };
   }
 
-  apply(gameState: GameState, { player }: ReturnType<typeof this.validate>) {
+  apply(
+    gameState: GameState,
+    {
+      player,
+      entity,
+      action,
+      cell,
+      buildingClass,
+    }: ReturnType<typeof this.validate>
+  ) {
+    const actionData = this.constructor as typeof ActionTransformation;
+
     player.ressources.food -= 1;
+    entity.budget -= action.budget;
+
+    if (actionData.intentWalk)
+      performMove(gameState, entity, cell, buildingClass);
   }
 }
+
+/*
+{
+  "type": "MoveAction",
+  "playerIndex": 0,
+  "entityId": "e000001",
+  "position": {
+    "x": 0,
+    "y": 0
+  }
+}
+{
+  "type": "CreateEntity",
+  "playerIndex": 0,
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "entityType": "melee"
+}
+*/

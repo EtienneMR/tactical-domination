@@ -18,6 +18,7 @@ export function createGame(mapName: string): GameState {
       })),
     entities: [],
     events: [],
+    uniqueIdCounter: 0,
 
     map,
   };

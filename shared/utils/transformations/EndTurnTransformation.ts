@@ -4,7 +4,7 @@ export default class EndTurnTransformation
   extends PlayerTransformation
   implements Transformation
 {
-  static readonly type = "EnduTurn";
+  static readonly type = "EndTurn";
 
   apply(gameState: GameState) {
     const validateData = this.validate(gameState);
@@ -75,7 +75,7 @@ export default class EndTurnTransformation
     };
   }
 
-  static fromPayload(payload: EndTurnTransformation) {
+  static fromPayload(payload: TransformationPayload) {
     assertValidNumber(payload.playerIndex, "payload", "playerIndex");
 
     return new EndTurnTransformation(payload.playerIndex);
