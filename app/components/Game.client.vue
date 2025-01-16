@@ -20,7 +20,7 @@ const eventState = gameClient.eventSourceState;
 // @ts-expect-error Permet le debug
 window.gameClient = gameClient;
 // @ts-expect-error Permet le debug
-window.trans = createTransformation;
+window.createTransformation = createTransformation;
 
 onMounted(() => nextTick(async () => gameClient.init(gamediv.value)));
 
