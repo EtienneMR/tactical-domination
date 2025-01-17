@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MapButton from "~/components/MapButton.vue";
 import displayError from "~/game/utils/displayError";
 import useSettings from "~/game/utils/useSettings";
 
@@ -27,6 +28,12 @@ async function createAndJoinGame(mapName: string) {
   }
   disabled.value = false;
 }
+
+function createAndJoinRandomGame() {
+  const maps = MAPS.filter((m) => m.label == "1v1");
+  const selected = maps[Math.floor(Math.random() * maps.length)]!.id;
+  return createAndJoinGame(selected);
+}
 </script>
 
 <template>
@@ -38,30 +45,26 @@ async function createAndJoinGame(mapName: string) {
     </ClientOnly>
     <h1>Créer une partie</h1>
     <div class="maplist">
-      <div v-for="(map, i) of MAPS" class="flex items-center">
-        <UButton
-          @click="createAndJoinGame(map.id)"
-          trailing
-          icon="i-heroicons-arrow-right-20-solid"
-          class="p-1.5"
-          :disabled="disabled"
-        >
-          <img
-            :src="
-              map.image
-                ? `/maps/${map.id}.png`
-                : `/assets/base/buildings/${i % 4}_castle.png`
-            "
-            width="64"
-            height="64"
-            alt=""
-            :class="map.image ? '' : 'p-1'"
-            style="image-rendering: pixelated"
-          />
-          <span>{{ map.name }}</span>
-        </UButton>
-        <UBadge class="ml-3">{{ map.label }}</UBadge>
-      </div>
+      <MapButton
+        v-for="(map, i) of MAPS"
+        :disabled="disabled"
+        :image="{
+          src: map.image
+            ? `/maps/${map.id}.png`
+            : `/assets/base/buildings/${i % 4}_castle.png`,
+          default: !!map.image,
+        }"
+        :name="map.name"
+        :label="map.label"
+        @click="createAndJoinGame(map.id)"
+      />
+      <MapButton
+        :disabled="disabled"
+        :image="{ src: `/maps/random.png`, default: false }"
+        name="Aléatoire"
+        label="1v1"
+        @click="createAndJoinRandomGame()"
+      />
     </div>
   </div>
 </template>
@@ -69,7 +72,7 @@ async function createAndJoinGame(mapName: string) {
 <style scoped>
 .maplist {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 400px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 300px), 1fr));
   grid-gap: 1em;
   justify-items: stretch;
   width: 100%;

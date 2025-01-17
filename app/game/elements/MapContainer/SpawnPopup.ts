@@ -39,7 +39,7 @@ export default class SpawnPopup extends SliceButton {
             budget: 0,
           },
           null,
-          this.gameClient.settings.bundle
+          this.gameClient.settings.activeBundle
         )
       );
       entity.width -= 6;
@@ -50,7 +50,7 @@ export default class SpawnPopup extends SliceButton {
       this.addChild(
         new Sprite({
           texture: Assets.get(
-            `${this.gameClient.settings.bundle}:resources:${entityClass.resource}`
+            `${this.gameClient.settings.activeBundle}:resources:${entityClass.resource}`
           ),
           x: (Number(i) + 1) * DEFINITION - 6,
           y: 3,

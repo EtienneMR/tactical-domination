@@ -39,10 +39,10 @@ export default class SoundWorker {
 
   private playSound(soundAlias: string): Promise<void> | void {
     const available = manifest.bundles
-      .find((b) => b.name == this.gameClient.settings.bundle)!
+      .find((b) => b.name == this.gameClient.settings.activeBundle)!
       .assets.filter((a) =>
         a.alias.startsWith(
-          `${this.gameClient.settings.bundle}:sounds:${soundAlias}`
+          `${this.gameClient.settings.activeBundle}:sounds:${soundAlias}`
         )
       );
 

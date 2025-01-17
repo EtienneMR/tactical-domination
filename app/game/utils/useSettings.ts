@@ -12,9 +12,18 @@ const setRawKey = (key: string, value: string): void => {
 const settings = {
   get bundle(): string {
     const requested = getRawKey("bundle");
-    return requested && manifest.bundles.some((m) => m.name === requested)
+    return requested &&
+      (requested == "random" ||
+        manifest.bundles.some((m) => m.name === requested))
       ? requested
       : "base";
+  },
+
+  get activeBundle(): string {
+    if (this.bundle != "random") return this.bundle;
+    return manifest.bundles[
+      Math.floor(Math.random() * manifest.bundles.length)
+    ]!.name;
   },
 
   get showGrid(): boolean {
