@@ -1,4 +1,4 @@
-export type GameStatus = "initing" | "started" | "ended";
+export type GameStatus = "unknown" | "initing" | "started" | "ended";
 
 export interface GameState {
   status: GameStatus;

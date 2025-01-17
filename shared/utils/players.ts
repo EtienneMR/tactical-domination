@@ -5,11 +5,15 @@ export function getPlayerFromIndex(
   return ensureNotUndefined(gameState.players[index]);
 }
 
-export function getUserFromId(game: Game, userId: string): User {
-  return ensureNotUndefined(game.users.find((user) => user.userId === userId));
+export function getUserFromId(users: User[], userId: string): User {
+  return ensureNotUndefined(users.find((user) => user.userId === userId));
 }
 
-export function getPlayerFromUserId(game: Game, userId: string): Player | null {
-  const index = getUserFromId(game, userId).index;
-  return index != null ? getPlayerFromIndex(game.state, index) : null;
+export function getPlayerFromUserId(
+  gameState: GameState,
+  users: User[],
+  userId: string
+): Player | null {
+  const index = getUserFromId(users, userId).index;
+  return index != null ? getPlayerFromIndex(gameState, index) : null;
 }
