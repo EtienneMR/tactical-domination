@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
     assertGameInStatus(gameState, "started", gameId);
 
-    const player = getPlayerFromUserId(game, userId);
+    const player = getPlayerFromUserId(game.state, game.users, userId);
     assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 

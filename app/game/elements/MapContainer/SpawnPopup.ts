@@ -85,18 +85,16 @@ export default class SpawnPopup extends SliceButton {
   }
 
   async requestSpawn([entityClass, renderedEntity]: EntityData) {
-    if (this.cell && renderedEntity.alpha == 1) {
+    const index = this.gameClient.me?.index;
+    const state = this.gameClient.game?.state;
+
+    if (this.cell && renderedEntity.alpha == 1 && index != null && state) {
       try {
-        await $fetch("/api/create", {
-          query: {
-            gameId: this.gameClient.gameId,
-            userId: this.gameClient.settings.userId,
-            entityClassName: entityClass.name,
-            x: this.cell.x,
-            y: this.cell.y,
-          },
-          method: "POST",
-        });
+        await applyTransformation(
+          new CreateEntityTransformation(index, this.cell, entityClass.name),
+          state,
+          this.gameClient.gameId
+        );
       } catch (error) {
         displayError(
           "Impossible de créer une unitée",

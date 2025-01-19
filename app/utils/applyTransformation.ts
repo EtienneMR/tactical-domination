@@ -5,7 +5,7 @@ export default async function applyTransformation(
 ) {
   const payload = transformation.toPayload();
 
-  transformation.apply(gameState);
+  transformation.validate(gameState);
 
   await $fetch(`/api/${gameId}/transform`, {
     method: "POST",

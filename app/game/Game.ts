@@ -89,7 +89,11 @@ export class GameClient {
   public get me(): Player | null {
     if (!this.game || this.game.state.status == "initing") return null;
 
-    return getPlayerFromUserId(this.game, this.settings.userId);
+    return getPlayerFromUserId(
+      this.game.state,
+      this.game.users,
+      this.settings.userId
+    );
   }
 
   async init(parent: HTMLElement) {

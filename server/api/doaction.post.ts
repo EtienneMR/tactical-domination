@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
     const entity = getEntityFromId(gameState, entityId);
     assertValidEntity(entity, entityId);
 
-    const player = getPlayerFromUserId(game, userId);
+    const player = getPlayerFromUserId(game.state, game.users, userId);
     assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 

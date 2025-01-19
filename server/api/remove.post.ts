@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const player = getPlayerFromUserId(game, userId);
+    const player = getPlayerFromUserId(game.state, game.users, userId);
     assertValidPlayer(player, userId);
     assertCanPlay(gameState, player);
 
