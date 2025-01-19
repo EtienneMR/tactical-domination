@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { USelectMenu } from "#components";
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import MapButton from "~/components/MapButton.vue";
 import displayError from "~/game/utils/displayError";
@@ -16,18 +15,15 @@ onNuxtReady(() => (loaded.value = true));
 
 const tabs = [
   {
-    slot: "load",
     label: "Parties en cours",
     icon: "i-mdi-content-save-outline",
     disabled: true,
   },
   {
-    slot: "create",
     label: "Nouvelle partie",
     icon: "i-mdi-earth",
   },
   {
-    slot: "rules",
     label: "Règles du jeu",
     icon: "i-mdi-book-outline",
   },
@@ -63,6 +59,8 @@ const maps = computed(() =>
         selectedPlayers.value.includes(m.players)) &&
       (selectedMods.value.length == 0 || selectedMods.value.includes(m.mode))
   )
+    .toSorted((m1, m2) => m1.players.localeCompare(m2.players))
+    .toSorted((m1, m2) => m1.mode.localeCompare(m2.mode))
 );
 
 async function createAndJoinGame(mapName: string) {
@@ -123,9 +121,10 @@ function createAndJoinRandomGame() {
           :class="[selected && 'text-primary-500 dark:text-primary-400']"
         />
       </template>
-
-      <template #load> </template>
-      <template #create>
+    </UTabs>
+    <Transition mode="out-in" name="tab">
+      <div v-if="selectedTab == 0"></div>
+      <div v-else-if="selectedTab == 1">
         <div class="mb-2 flex justify-center gap-1">
           <USelectMenu
             multiple
@@ -158,35 +157,44 @@ function createAndJoinRandomGame() {
           </USelectMenu>
         </div>
 
-        <TransitionGroup name="maplist" tag="div" class="maplist">
+        <TransitionGroup
+          name="maplist"
+          tag="div"
+          class="maplist overflow-visible"
+        >
           <MapButton
-            v-for="(map, i) of maps"
+            v-for="map of maps"
             :key="map.id"
             :disabled="disabled"
             :image="{
               src: map.image
                 ? `/maps/${map.id}.png`
-                : `/assets/base/buildings/${i % 4}_castle.png`,
-              default: !!map.image,
+                : `/assets/base/buildings/${
+                    MAPS.findIndex((m) => m.id == map.id) % 4
+                  }_castle.png`,
+              default: !map.image,
             }"
             :name="map.name"
-            :label="map.players"
+            :labels="[
+              map.players,
+              MAP_MODES.find((m) => m.name == map.mode)!.label,
+            ]"
             @click="createAndJoinGame(map.id)"
           />
           <MapButton
             key="random"
             :disabled="disabled"
             :image="{ src: `/maps/random.png`, default: false }"
+            :labels="[]"
             name="Aléatoire"
             @click="createAndJoinRandomGame()"
           />
         </TransitionGroup>
-      </template>
-      <template #rules>
+      </div>
+      <div v-else-if="selectedTab == 2">
         <h2 class="text-lg font-semibold">Règles</h2>
-      </template>
-    </UTabs>
-    <div class="flex-1"></div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -202,7 +210,7 @@ function createAndJoinRandomGame() {
 .maplist-move,
 .maplist-enter-active,
 .maplist-leave-active {
-  transition: all 0.5s ease;
+  transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
 .maplist-enter-from,
@@ -212,5 +220,15 @@ function createAndJoinRandomGame() {
 
 .maplist-leave-active {
   position: fixed;
+}
+
+.tab-enter-active,
+.tab-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.tab-enter-from,
+.tab-leave-to {
+  opacity: 0;
 }
 </style>
