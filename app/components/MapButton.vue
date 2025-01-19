@@ -6,7 +6,7 @@ const { disabled, image, name, label } = defineProps<{
     default: boolean;
   };
   name: string;
-  label: string;
+  label?: string;
 }>();
 
 const emit = defineEmits<{
@@ -33,6 +33,6 @@ const emit = defineEmits<{
       />
       <span>{{ name }}</span>
     </UButton>
-    <UBadge class="ml-3">{{ label }}</UBadge>
+    <UBadge v-if="label" class="ml-3">{{ label }}</UBadge>
   </div>
 </template>

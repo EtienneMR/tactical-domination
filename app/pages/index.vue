@@ -1,9 +1,69 @@
 <script setup lang="ts">
+import { USelectMenu } from "#components";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import MapButton from "~/components/MapButton.vue";
 import displayError from "~/game/utils/displayError";
 import useSettings from "~/game/utils/useSettings";
 
+const route = useRoute();
+const router = useRouter();
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const smallerMd = breakpoints.smaller("sm");
+const loaded = useState("loaded", () => false);
+const isVerticalTabs = computed(() => smallerMd.value && loaded.value);
+
+onNuxtReady(() => (loaded.value = true));
+
+const tabs = [
+  {
+    slot: "load",
+    label: "Parties en cours",
+    icon: "i-mdi-content-save-outline",
+    disabled: true,
+  },
+  {
+    slot: "create",
+    label: "Nouvelle partie",
+    icon: "i-mdi-earth",
+  },
+  {
+    slot: "rules",
+    label: "Règles du jeu",
+    icon: "i-mdi-book-outline",
+  },
+];
+
+const players = Object.keys(
+  MAPS.reduce((l, m) => ({ ...l, [m.players]: true }), {})
+).toSorted();
+
 const disabled = ref(false);
+const selectedTab = computed({
+  get() {
+    const index = tabs.findIndex((item) => item.label === route.query?.t);
+    if (index === -1) {
+      return tabs.findIndex((item) => !item.disabled);
+    }
+
+    return index;
+  },
+  set(value) {
+    router.replace({
+      query: { t: tabs[value]?.label },
+    });
+  },
+});
+const selectedMods = ref([] as string[]);
+const selectedPlayers = ref([] as string[]);
+
+const maps = computed(() =>
+  MAPS.filter(
+    (m) =>
+      (selectedPlayers.value.length == 0 ||
+        selectedPlayers.value.includes(m.players)) &&
+      (selectedMods.value.length == 0 || selectedMods.value.includes(m.mode))
+  )
+);
 
 async function createAndJoinGame(mapName: string) {
   disabled.value = true;
@@ -30,9 +90,9 @@ async function createAndJoinGame(mapName: string) {
 }
 
 function createAndJoinRandomGame() {
-  const maps = MAPS.filter((m) => m.label == "1v1");
-  const selected = maps[Math.floor(Math.random() * maps.length)]!.id;
-  return createAndJoinGame(selected);
+  const selected =
+    maps.value[Math.floor(Math.random() * maps.value.length)]?.id;
+  if (selected) return createAndJoinGame(selected);
 }
 </script>
 
@@ -43,38 +103,114 @@ function createAndJoinRandomGame() {
         <SettingsSlideover />
       </Teleport>
     </ClientOnly>
-    <h1>Créer une partie</h1>
-    <div class="maplist">
-      <MapButton
-        v-for="(map, i) of MAPS"
-        :disabled="disabled"
-        :image="{
-          src: map.image
-            ? `/maps/${map.id}.png`
-            : `/assets/base/buildings/${i % 4}_castle.png`,
-          default: !!map.image,
-        }"
-        :name="map.name"
-        :label="map.label"
-        @click="createAndJoinGame(map.id)"
-      />
-      <MapButton
-        :disabled="disabled"
-        :image="{ src: `/maps/random.png`, default: false }"
-        name="Aléatoire"
-        label="1v1"
-        @click="createAndJoinRandomGame()"
-      />
+    <div class="flex flex-col items-center mb-4">
+      <NuxtImg src="/title.png" class="max-w-full sm:max-w-lg"></NuxtImg>
+      <h1 class="text-xl font-bold hidden md:block">
+        Le jeu de stratégie 2d en ligne
+      </h1>
     </div>
+
+    <UTabs
+      :items="tabs"
+      class="w-full"
+      :orientation="isVerticalTabs ? 'vertical' : 'horizontal'"
+      v-model="selectedTab"
+    >
+      <template #icon="{ item, selected }">
+        <UIcon
+          :name="item.icon"
+          class="w-4 h-4 flex-shrink-0 me-2"
+          :class="[selected && 'text-primary-500 dark:text-primary-400']"
+        />
+      </template>
+
+      <template #load> </template>
+      <template #create>
+        <div class="mb-2 flex justify-center gap-1">
+          <USelectMenu
+            multiple
+            class="w-64"
+            :options="players"
+            v-model="selectedPlayers"
+          >
+            <template #label>
+              <span v-if="selectedPlayers.length" class="truncate">{{
+                selectedPlayers.join(", ")
+              }}</span>
+              <span v-else class="text-gray-500">Disposition des joueurs</span>
+            </template>
+          </USelectMenu>
+          <USelectMenu
+            multiple
+            class="w-64"
+            value-attribute="name"
+            :options="MAP_MODES"
+            v-model="selectedMods"
+          >
+            <template #label>
+              <span v-if="selectedMods.length" class="truncate">{{
+                selectedMods
+                  .map((mn) => MAP_MODES.find((m) => m.name == mn)!.label)
+                  .join(", ")
+              }}</span>
+              <span v-else class="text-gray-500">Mode de jeu</span>
+            </template>
+          </USelectMenu>
+        </div>
+
+        <TransitionGroup name="maplist" tag="div" class="maplist">
+          <MapButton
+            v-for="(map, i) of maps"
+            :key="map.id"
+            :disabled="disabled"
+            :image="{
+              src: map.image
+                ? `/maps/${map.id}.png`
+                : `/assets/base/buildings/${i % 4}_castle.png`,
+              default: !!map.image,
+            }"
+            :name="map.name"
+            :label="map.players"
+            @click="createAndJoinGame(map.id)"
+          />
+          <MapButton
+            key="random"
+            :disabled="disabled"
+            :image="{ src: `/maps/random.png`, default: false }"
+            name="Aléatoire"
+            @click="createAndJoinRandomGame()"
+          />
+        </TransitionGroup>
+      </template>
+      <template #rules>
+        <h2 class="text-lg font-semibold">Règles</h2>
+      </template>
+    </UTabs>
+    <div class="flex-1"></div>
   </div>
 </template>
 
 <style scoped>
 .maplist {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 300px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 350px), 1fr));
   grid-gap: 1em;
   justify-items: stretch;
   width: 100%;
+}
+
+.maplist-move,
+.maplist-enter-active,
+.maplist-leave-active {
+  transition: all 0.5s ease;
+}
+
+.maplist-enter-from,
+.maplist-leave-to {
+  opacity: 0;
+}
+
+.maplist-leave-active {
+  position: fixed;
 }
 </style>
