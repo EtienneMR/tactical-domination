@@ -17,7 +17,7 @@ import RenderedEntity from "./RenderedEntity";
 import SpawnPopup from "./SpawnPopup";
 
 const SECONDARY_CLICK_DELAY = 5000;
-const REMOVE_CLICK_DELAY = 500;
+const RETURN_CLICK_DELAY = 500;
 
 class EntitiesContainer extends Container<ContainerChild> {
   public declare children: RenderedEntity[];
@@ -210,17 +210,17 @@ export default class MapContainer extends Container<ContainerChild> {
 
       if (
         cell.building == "castle" &&
-        performance.now() - this.doubleClickStart <= REMOVE_CLICK_DELAY
+        performance.now() - this.doubleClickStart <= RETURN_CLICK_DELAY
       ) {
         try {
-          await $fetch("/api/remove", {
-            query: {
-              gameId: this.gameClient.gameId,
-              userId: this.gameClient.settings.userId,
-              entityId: target.entity.entityId,
-            },
-            method: "POST",
-          });
+          await applyTransformation(
+            new ReturnEntityTransformation(
+              this.gameClient.me.index,
+              target.entity.entityId
+            ),
+            gameState,
+            this.gameClient.gameId
+          );
         } catch (error) {
           displayError(
             "Impossible de renvoyer l'unitée",
