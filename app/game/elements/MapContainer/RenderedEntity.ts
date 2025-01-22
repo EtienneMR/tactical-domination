@@ -1,13 +1,13 @@
-import gsap from "gsap";
-import { Assets, Sprite } from "pixi.js";
-import { DEFINITION } from "./MapContainerConsts";
+import gsap from "gsap"
+import { Assets, Sprite } from "pixi.js"
+import { DEFINITION } from "./MapContainerConsts"
 
 export default class RenderedEntity extends Sprite {
-  public draggable!: boolean;
-  public actionX: number;
-  public actionY: number;
-  public action: Action | null;
-  public dragged!: boolean;
+  public draggable!: boolean
+  public actionX: number
+  public actionY: number
+  public action: Action | null
+  public dragged!: boolean
 
   static getProps(entity: Entity, myIndex: number | null) {
     return {
@@ -18,8 +18,8 @@ export default class RenderedEntity extends Sprite {
       alpha: hasEntityBudget(entity) ? 1 : 0.75,
       draggable: hasEntityBudget(entity) && entity.owner == myIndex,
       tint: 0xffffff,
-      dragged: false,
-    };
+      dragged: false
+    }
   }
 
   constructor(
@@ -33,31 +33,31 @@ export default class RenderedEntity extends Sprite {
       zIndex: 10,
       eventMode: "static",
       cursor: "pointer",
-      anchor: 0.5,
-    });
+      anchor: 0.5
+    })
 
-    this.actionX = entity.x;
-    this.actionY = entity.y;
-    this.action = null;
-    this.reset();
+    this.actionX = entity.x
+    this.actionY = entity.y
+    this.action = null
+    this.reset()
   }
 
   public update(entity: Entity, myIndex: number | null) {
-    this.entity = entity;
-    this.myIndex = myIndex;
-    gsap.killTweensOf(this);
-    gsap.to(this, RenderedEntity.getProps(this.entity, myIndex));
+    this.entity = entity
+    this.myIndex = myIndex
+    gsap.killTweensOf(this)
+    gsap.to(this, RenderedEntity.getProps(this.entity, myIndex))
 
     this.texture = Assets.get(
       `${this.activeBundle}:entities:${entity.owner}_${entity.className}`
-    );
+    )
   }
 
   public reset() {
-    gsap.killTweensOf(this);
-    Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex));
+    gsap.killTweensOf(this)
+    Object.assign(this, RenderedEntity.getProps(this.entity, this.myIndex))
     this.texture = Assets.get(
       `${this.activeBundle}:entities:${this.entity.owner}_${this.entity.className}`
-    );
+    )
   }
 }

@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import type { GameClient } from "~/game/Game.js";
+import type { GameClient } from "~/game/Game.js"
 
-const TEAMS_NAMES = ["Rouge", "Bleu", "Jaune", "Violet"];
+const TEAMS_NAMES = ["Rouge", "Bleu", "Jaune", "Violet"]
 
-const isOpen = ref(false);
+const isOpen = ref(false)
 
 const { gameClient } = defineProps<{
-  gameClient: GameClient;
-}>();
+  gameClient: GameClient
+}>()
 
-const { gameRef } = gameClient;
+const { gameRef } = gameClient
 
 const groupedUsers = computed(() => {
-  const teams = new Map<number | null, User[]>();
+  const teams = new Map<number | null, User[]>()
 
-  const spectators: User[] = [];
-  teams.set(null, spectators);
+  const spectators: User[] = []
+  teams.set(null, spectators)
 
   for (const cell of gameRef.value?.state.map.flat() ?? []) {
     if (cell.building == "castle" && cell.owner != null) {
-      teams.set(cell.owner, []);
+      teams.set(cell.owner, [])
     }
   }
 
   for (const user of gameRef.value?.users ?? []) {
-    (teams.get(user.index) ?? spectators).push(user);
+    ;(teams.get(user.index) ?? spectators).push(user)
   }
 
-  return teams;
-});
+  return teams
+})
 
 const groupedUsersKeys = computed(() =>
   Array.from(groupedUsers.value.keys()).toSorted(
     (a, b) => (a ?? 100) - (b ?? 100)
   )
-);
+)
 
 async function joinTeam(team: number | null) {
   await $fetch("/api/jointeam", {
@@ -42,9 +42,9 @@ async function joinTeam(team: number | null) {
     query: {
       team,
       gameId: gameClient.gameId,
-      userId: gameClient.settings.userId,
-    },
-  });
+      userId: gameClient.settings.userId
+    }
+  })
 }
 </script>
 
@@ -80,7 +80,7 @@ async function joinTeam(team: number | null) {
           <SlideoverH2>
             <UIcon name="i-mdi-flag" />
             <span class="flex-1">{{
-              index != null ? TEAMS_NAMES[index] ?? index : "Spectateurs"
+              index != null ? (TEAMS_NAMES[index] ?? index) : "Spectateurs"
             }}</span>
             <UButton
               color="gray"

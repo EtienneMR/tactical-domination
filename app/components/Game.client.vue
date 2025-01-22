@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { GameClient } from "~/game/Game.js";
+import { GameClient } from "~/game/Game.js"
 
-const STATUS_TOAST_ID = "EventSource_Status";
+const STATUS_TOAST_ID = "EventSource_Status"
 
-const toast = useToast();
+const toast = useToast()
 
 const props = defineProps<{
-  gameId: string;
-}>();
+  gameId: string
+}>()
 
-const loading = defineModel<boolean>();
+const loading = defineModel<boolean>()
 
-const gamediv = ref();
+const gamediv = ref()
 
-const gameClient = new GameClient(props.gameId, () => (loading.value = false));
+const gameClient = new GameClient(props.gameId, () => (loading.value = false))
 
-const eventState = gameClient.eventSourceState;
+const eventState = gameClient.eventSourceState
 
 // @ts-expect-error Permet le debug
-window.gameClient = gameClient;
+window.gameClient = gameClient
 
-onMounted(() => nextTick(async () => gameClient.init(gamediv.value)));
+onMounted(() => nextTick(async () => gameClient.init(gamediv.value)))
 
-onUnmounted(gameClient.destroy.bind(gameClient));
+onUnmounted(gameClient.destroy.bind(gameClient))
 
 onNuxtReady(() =>
   watch(
     eventState,
-    (state) => {
-      toast.remove(STATUS_TOAST_ID);
+    state => {
+      toast.remove(STATUS_TOAST_ID)
       if (state == "CLOSED") {
         toast.add({
           id: STATUS_TOAST_ID,
@@ -37,21 +37,21 @@ onNuxtReady(() =>
           color: "red",
           icon: "i-heroicons-exclamation-triangle-16-solid",
           timeout: Infinity,
-          actions: [{ label: "Actualiser", click: () => location.reload() }],
-        });
+          actions: [{ label: "Actualiser", click: () => location.reload() }]
+        })
       } else if (state == "CONNECTING") {
         toast.add({
           id: STATUS_TOAST_ID,
           title: "Connexion",
           description: "Connexion en cours",
           color: "orange",
-          timeout: Infinity,
-        });
+          timeout: Infinity
+        })
       }
     },
     { immediate: true }
   )
-);
+)
 </script>
 
 <template>

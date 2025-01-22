@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const route = useRoute();
-const loading = ref(true);
+const route = useRoute()
+const loading = ref(true)
 
 useSeoMeta({
-  robots: "noindex, follow",
-});
+  robots: "noindex, follow"
+})
 </script>
 
 <template>
@@ -22,7 +22,7 @@ useSeoMeta({
     </div>
     <div class="content flex-1 flex">
       <Game
-        :gameId="'g'+(route.params.gameId as string)"
+        :gameId="'g' + (route.params.gameId as string)"
         v-model="loading"
       ></Game>
     </div>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import MapButton from "~/components/MapButton.vue";
-import displayError from "~/game/utils/displayError";
-import useSettings from "~/game/utils/useSettings";
+import MapButton from "~/components/MapButton.vue"
+import displayError from "~/game/utils/displayError"
+import useSettings from "~/game/utils/useSettings"
 
-const disabled = ref(false);
+const disabled = ref(false)
 
 async function createAndJoinGame(mapName: string) {
-  disabled.value = true;
-  const gameId = generateId("g");
+  disabled.value = true
+  const gameId = generateId("g")
   try {
     await $fetch("/api/setupgame", {
       method: "POST",
@@ -15,24 +15,24 @@ async function createAndJoinGame(mapName: string) {
         userId: useSettings().userId,
         gameId: `${gameId}`,
         v: useRuntimeConfig().public.gitVersion,
-        mapName,
-      },
-    });
-    await useRouter().push(`/${gameId.substring(1)}`);
+        mapName
+      }
+    })
+    await useRouter().push(`/${gameId.substring(1)}`)
   } catch (error) {
     displayError(
       "Impossible de créer une partie",
       "Nous n'avons pas pu créer votre partie",
       error
-    );
+    )
   }
-  disabled.value = false;
+  disabled.value = false
 }
 
 function createAndJoinRandomGame() {
-  const maps = MAPS.filter((m) => m.label == "1v1");
-  const selected = maps[Math.floor(Math.random() * maps.length)]!.id;
-  return createAndJoinGame(selected);
+  const maps = MAPS.filter(m => m.label == "1v1")
+  const selected = maps[Math.floor(Math.random() * maps.length)]!.id
+  return createAndJoinGame(selected)
 }
 </script>
 
@@ -49,10 +49,11 @@ function createAndJoinRandomGame() {
         v-for="(map, i) of MAPS"
         :disabled="disabled"
         :image="{
-          src: map.image
-            ? `/maps/${map.id}.png`
+          src:
+            map.image ?
+              `/maps/${map.id}.png`
             : `/assets/base/buildings/${i % 4}_castle.png`,
-          default: !!map.image,
+          default: !!map.image
         }"
         :name="map.name"
         :label="map.label"

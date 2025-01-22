@@ -1,6 +1,6 @@
 export function ensureNotUndefined<T>(value: T | undefined): T {
-  if (value === undefined) throw TypeError("Value is undefined");
-  return value;
+  if (value === undefined) throw TypeError("Value is undefined")
+  return value
 }
 
 export function findWithIdentifer<E, K extends keyof E>(
@@ -8,9 +8,7 @@ export function findWithIdentifer<E, K extends keyof E>(
   key: K,
   identifier: E[K] | string
 ): E {
-  return ensureNotUndefined(
-    list.find((element) => element[key] === identifier)
-  );
+  return ensureNotUndefined(list.find(element => element[key] === identifier))
 }
 
 export function createIdentifierGetter<E, K extends keyof E>(
@@ -18,6 +16,6 @@ export function createIdentifierGetter<E, K extends keyof E>(
   key: K
 ) {
   return function identifierGetter(identifier: E[K] | string): E {
-    return findWithIdentifer(list, key, identifier);
-  };
+    return findWithIdentifer(list, key, identifier)
+  }
 }

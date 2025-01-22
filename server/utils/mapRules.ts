@@ -1,308 +1,308 @@
-import { ValueNoise } from "value-noise-js";
+import { ValueNoise } from "value-noise-js"
 
-const REGION_SIZE = 4;
+const REGION_SIZE = 4
 
 function distance(a: { x: number; y: number }, b: { x: number; y?: number }) {
-  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - (b.y ?? b.x), 2));
+  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - (b.y ?? b.x), 2))
 }
 
 function is(a: { x: number; y: number }, b: { x: number; y?: number }) {
-  return a.x == b.x && a.y == (b.y ?? b.x);
+  return a.x == b.x && a.y == (b.y ?? b.x)
 }
 
 function random(x: number) {
-  return Math.random() < x;
+  return Math.random() < x
 }
 
 export const rules = {
   castlesBasic: [
     {
-      if: (cell) => is(cell, { x: 0 }),
+      if: cell => is(cell, { x: 0 }),
       then: {
         building: "castle",
-        owner: 0,
+        owner: 0
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 1 }),
+      if: cell => is(cell, { x: MAP_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: 1,
+        owner: 1
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0, 0],
+        heightLimits: [0, 0]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   castlesPlus: [
     {
-      if: (cell) => is(cell, { x: 0, y: MAP_SIZE - 1 }),
+      if: cell => is(cell, { x: 0, y: MAP_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: 2,
+        owner: 2
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 1, y: 0 }),
+      if: cell => is(cell, { x: MAP_SIZE - 1, y: 0 }),
       then: {
         building: "castle",
-        owner: 3,
+        owner: 3
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0, y: MAP_SIZE - 1 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0, 0],
+        heightLimits: [0, 0]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   castlesNeutral: [
     {
-      if: (cell) => is(cell, { x: 0, y: MAP_SIZE - 1 }),
+      if: cell => is(cell, { x: 0, y: MAP_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: null,
+        owner: null
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 1, y: 0 }),
+      if: cell => is(cell, { x: MAP_SIZE - 1, y: 0 }),
       then: {
         building: "castle",
-        owner: null,
+        owner: null
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0, y: MAP_SIZE - 1 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0, 0],
+        heightLimits: [0, 0]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   castlesDuo: [
     {
-      if: (cell) => is(cell, { x: 1, y: 0 }),
+      if: cell => is(cell, { x: 1, y: 0 }),
       then: {
         building: "castle",
-        owner: 0,
+        owner: 0
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: 0, y: 1 }),
+      if: cell => is(cell, { x: 0, y: 1 }),
       then: {
         building: "castle",
-        owner: 3,
+        owner: 3
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 1, y: MAP_SIZE - 2 }),
+      if: cell => is(cell, { x: MAP_SIZE - 1, y: MAP_SIZE - 2 }),
       then: {
         building: "castle",
-        owner: 1,
+        owner: 1
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 2, y: MAP_SIZE - 1 }),
+      if: cell => is(cell, { x: MAP_SIZE - 2, y: MAP_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: 2,
+        owner: 2
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0, 0],
+        heightLimits: [0, 0]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   castlesTriple: [
     {
-      if: (cell) => is(cell, { x: 0, y: 0 }),
+      if: cell => is(cell, { x: 0, y: 0 }),
       then: {
         building: "castle",
-        owner: 0,
+        owner: 0
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: MAP_SIZE - 1, y: 0 }),
+      if: cell => is(cell, { x: MAP_SIZE - 1, y: 0 }),
       then: {
         building: "castle",
-        owner: 1,
+        owner: 1
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => is(cell, { x: Math.floor(MAP_SIZE / 2), y: MAP_SIZE - 1 }),
+      if: cell => is(cell, { x: Math.floor(MAP_SIZE / 2), y: MAP_SIZE - 1 }),
       then: {
         building: "castle",
-        owner: 2,
+        owner: 2
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0, y: 0 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1, y: 0 }) <= 4 ||
         distance(cell, { x: Math.floor(MAP_SIZE / 2), y: MAP_SIZE - 1 }) <= 4,
       then: {
         biome: "plains",
-        heightLimits: [0, 0],
+        heightLimits: [0, 0]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
 
   minesEdge: [
     {
-      if: (cell) =>
+      if: cell =>
         is(cell, { x: 1, y: MAP_SIZE - 2 }) ||
         is(cell, { x: MAP_SIZE - 2, y: 1 }),
       then: {
-        building: "mine",
+        building: "mine"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 0, y: MAP_SIZE - 1 }) <= 4 ||
         distance(cell, { x: MAP_SIZE - 1, y: 0 }) <= 4,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   minesCenter: [
     {
-      if: (cell) =>
+      if: cell =>
         is(cell, { x: MAP_SIZE / 2 - 1 }) || is(cell, { x: MAP_SIZE / 2 }),
       then: {
-        building: "mine",
+        building: "mine"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 2,
+      if: cell => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 2,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   minesSquare: [
     {
-      if: (cell) =>
+      if: cell =>
         is(cell, { x: 4 }) ||
         is(cell, { x: MAP_SIZE - 1 - 4 }) ||
         is(cell, { x: 4, y: MAP_SIZE - 1 - 4 }) ||
         is(cell, { x: MAP_SIZE - 1 - 4, y: 4 }),
       then: {
-        building: "mine",
+        building: "mine"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 4,
+      if: cell => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 4,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   minesClose: [
     {
-      if: (cell) => is(cell, { x: 3 }) || is(cell, { x: MAP_SIZE - 1 - 3 }),
+      if: cell => is(cell, { x: 3 }) || is(cell, { x: MAP_SIZE - 1 - 3 }),
       then: {
-        building: "mine",
+        building: "mine"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) =>
+      if: cell =>
         distance(cell, { x: 3 }) <= 2 ||
         distance(cell, { x: MAP_SIZE - 1 - 3 }) <= 2,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
   minesTriangle: [
     {
-      if: (cell) =>
+      if: cell =>
         is(cell, { x: 4 }) ||
         is(cell, { x: MAP_SIZE - 1 - 4, y: 4 }) ||
         is(cell, { x: Math.floor((MAP_SIZE - 1) / 2), y: MAP_SIZE - 1 - 4 }),
       then: {
-        building: "mine",
+        building: "mine"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 3,
+      if: cell => distance(cell, { x: (MAP_SIZE - 1) / 2 }) <= 3,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
 
   biomes: [
     {
-      if: (cell) => cell.height < 0.4,
+      if: cell => cell.height < 0.4,
       then: {
-        biome: "plains",
+        biome: "plains"
       },
-      when: "post",
+      when: "post"
     },
     {
-      if: (cell) => 0.4 <= cell.height && cell.height < 0.7,
+      if: cell => 0.4 <= cell.height && cell.height < 0.7,
       then: {
-        biome: "forest",
+        biome: "forest"
       },
-      when: "post",
+      when: "post"
     },
     {
-      if: (cell) => 0.7 <= cell.height,
+      if: cell => 0.7 <= cell.height,
       then: {
-        biome: "rocks",
+        biome: "rocks"
       },
-      when: "post",
-    },
+      when: "post"
+    }
   ],
 
   food: [
@@ -314,16 +314,16 @@ export const rules = {
         opp.biome == "plains" &&
         random(0.1),
       then: {
-        building: "wheat",
+        building: "wheat"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) => opp.building == "wheat",
       then: {
-        building: "wheat",
+        building: "wheat"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) =>
@@ -333,17 +333,17 @@ export const rules = {
         opp.biome == "rocks" &&
         random(0.1),
       then: {
-        building: "pasture",
+        building: "pasture"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) => opp.building == "pasture",
       then: {
-        building: "pasture",
+        building: "pasture"
       },
-      when: "post",
-    },
+      when: "post"
+    }
   ],
 
   obstacles: [
@@ -357,16 +357,16 @@ export const rules = {
         opp.height > 0 &&
         random(0.05),
       then: {
-        building: "lake",
+        building: "lake"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) => opp.building == "lake",
       then: {
-        building: "lake",
+        building: "lake"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) =>
@@ -376,63 +376,63 @@ export const rules = {
         opp.biome == "rocks" &&
         random(0.1),
       then: {
-        building: "mountain",
+        building: "mountain"
       },
-      when: "post",
+      when: "post"
     },
     {
       if: (cell, opp) => opp.building == "mountain",
       then: {
-        building: "mountain",
+        building: "mountain"
       },
-      when: "post",
-    },
+      when: "post"
+    }
   ],
   middleMountains: [
     {
-      if: (cell) => Math.abs(cell.x - (MAP_SIZE - 1 - cell.y)) < 2,
+      if: cell => Math.abs(cell.x - (MAP_SIZE - 1 - cell.y)) < 2,
       then: {
-        building: "mountain",
+        building: "mountain"
       },
-      when: "pre",
+      when: "pre"
     },
     {
-      if: (cell) => Math.abs(cell.x - (MAP_SIZE - 1 - cell.y)) < 3,
+      if: cell => Math.abs(cell.x - (MAP_SIZE - 1 - cell.y)) < 3,
       then: {
         biome: "rocks",
-        heightLimits: [0.8, 1],
+        heightLimits: [0.8, 1]
       },
-      when: "step",
-    },
+      when: "step"
+    }
   ],
 
   ruins: [
     {
-      if: (cell) =>
+      if: cell =>
         cell.building == null &&
         cell.biome == "plains" &&
         cell.height > 0 &&
         random(0.05),
       then: {
-        building: "ruins",
+        building: "ruins"
       },
-      when: "post",
-    },
-  ],
-} satisfies { [ruleName: string]: GenerationRule[] };
+      when: "post"
+    }
+  ]
+} satisfies { [ruleName: string]: GenerationRule[] }
 
 export function getNoiseRule(): GenerationRule {
-  const noise = new ValueNoise(undefined, undefined, "perlin");
+  const noise = new ValueNoise(undefined, undefined, "perlin")
 
   return {
-    if: (cell) => true,
-    action: (cell) =>
+    if: cell => true,
+    action: cell =>
       (cell.height = noise.evalXY(
         (cell.x / MAP_SIZE) * REGION_SIZE,
         (cell.y / MAP_SIZE) * REGION_SIZE
       )),
-    when: "pre",
-  };
+    when: "pre"
+  }
 }
 
 export const mapsRules = {
@@ -442,7 +442,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   edgeMines: [
     ...rules.castlesBasic,
@@ -450,7 +450,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   fourCastles: [
     ...rules.castlesBasic,
@@ -459,7 +459,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   emptyCastles: [
     ...rules.castlesBasic,
@@ -468,7 +468,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   duoCastles: [
     ...rules.castlesDuo,
@@ -476,7 +476,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   tripleCastles: [
     ...rules.castlesTriple,
@@ -484,7 +484,7 @@ export const mapsRules = {
     ...rules.biomes,
     ...rules.food,
     ...rules.obstacles,
-    ...rules.ruins,
+    ...rules.ruins
   ],
   mountainBarrier: [
     ...rules.castlesBasic,
@@ -493,6 +493,6 @@ export const mapsRules = {
     ...rules.food,
     ...rules.obstacles,
     ...rules.middleMountains,
-    ...rules.ruins,
-  ],
-} satisfies { [ruleName in (typeof MAP_IDS)[number]]: GenerationRule[] };
+    ...rules.ruins
+  ]
+} satisfies { [ruleName in (typeof MAP_IDS)[number]]: GenerationRule[] }

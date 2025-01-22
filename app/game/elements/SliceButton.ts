@@ -1,28 +1,28 @@
-import { ButtonContainer } from "@pixi/ui";
-import { NineSliceSprite, Text, Texture } from "pixi.js";
-import type { GameClient } from "../Game";
+import { ButtonContainer } from "@pixi/ui"
+import { NineSliceSprite, Text, Texture } from "pixi.js"
+import type { GameClient } from "../Game"
 
 export interface ButtonSettings {
-  width: number;
-  height: number;
-  fontSize: number;
-  fontSizePadding: number;
-  label: string;
-  stroke: string;
+  width: number
+  height: number
+  fontSize: number
+  fontSizePadding: number
+  label: string
+  stroke: string
 }
 
-const NOT_SCALABLE_AREA = 6;
+const NOT_SCALABLE_AREA = 6
 
 export default class SliceButton extends ButtonContainer {
-  private settings: ButtonSettings;
-  private textLabel: Text;
-  private nineSlice: NineSliceSprite | undefined;
+  private settings: ButtonSettings
+  private textLabel: Text
+  private nineSlice: NineSliceSprite | undefined
 
   constructor(
     protected gameClient: GameClient,
     settings?: Partial<ButtonSettings>
   ) {
-    super();
+    super()
 
     this.settings = {
       width: 100,
@@ -31,23 +31,23 @@ export default class SliceButton extends ButtonContainer {
       fontSize: 20,
       fontSizePadding: 6,
       label: "Button",
-      stroke: "#336699",
-    };
+      stroke: "#336699"
+    }
 
-    this.textLabel = this.addChild(new Text());
-    this.textLabel.anchor.set(0.5, 0.5);
-    this.textLabel.zIndex += 1;
+    this.textLabel = this.addChild(new Text())
+    this.textLabel.anchor.set(0.5, 0.5)
+    this.textLabel.zIndex += 1
 
-    this.update(settings ?? {});
+    this.update(settings ?? {})
   }
 
   get active() {
-    return this.enabled;
+    return this.enabled
   }
 
   set active(value: boolean) {
-    this.enabled = value;
-    this.alpha = value ? 1 : 0.5;
+    this.enabled = value
+    this.alpha = value ? 1 : 0.5
   }
 
   init() {
@@ -59,39 +59,39 @@ export default class SliceButton extends ButtonContainer {
         leftWidth: NOT_SCALABLE_AREA,
         topHeight: NOT_SCALABLE_AREA,
         rightWidth: NOT_SCALABLE_AREA,
-        bottomHeight: NOT_SCALABLE_AREA,
+        bottomHeight: NOT_SCALABLE_AREA
       })
-    );
-    this.resize();
+    )
+    this.resize()
   }
 
   update(settings: Partial<ButtonSettings>) {
     this.settings = {
       ...this.settings,
-      ...settings,
-    };
+      ...settings
+    }
 
-    this.textLabel.text = this.settings.label;
+    this.textLabel.text = this.settings.label
     this.textLabel.style = {
       fontSize: this.settings.fontSize - this.settings.fontSizePadding + "px",
       fill: "#ffffff",
-      stroke: this.settings.stroke,
-    };
+      stroke: this.settings.stroke
+    }
 
-    this.resize();
+    this.resize()
   }
 
   resize() {
-    const { nineSlice } = this;
+    const { nineSlice } = this
 
     if (nineSlice) {
-      nineSlice.width = this.settings.width;
-      nineSlice.height = this.settings.height;
+      nineSlice.width = this.settings.width
+      nineSlice.height = this.settings.height
     }
 
-    this.textLabel.x = this.settings.width * 0.5;
-    this.textLabel.y = this.settings.height * 0.5;
-    this.width = this.settings.width;
-    this.height = this.settings.height;
+    this.textLabel.x = this.settings.width * 0.5
+    this.textLabel.y = this.settings.height * 0.5
+    this.width = this.settings.width
+    this.height = this.settings.height
   }
 }

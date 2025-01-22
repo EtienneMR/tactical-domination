@@ -1,18 +1,18 @@
 <script setup lang="ts">
-const route = useRoute();
+const route = useRoute()
 
 useHead({
   htmlAttrs: {
-    lang: "fr",
+    lang: "fr"
   },
   link: [
     {
       rel: "icon",
       type: "image/ico",
-      href: "/favicon.ico",
-    },
-  ],
-});
+      href: "/favicon.ico"
+    }
+  ]
+})
 
 useSeoMeta({
   title: "Tactical domination",
@@ -24,10 +24,10 @@ useSeoMeta({
   twitterTitle: "Tactical domination",
   twitterDescription: "Jouez a Tactical domination.",
   twitterImage: "https://tactical-domination.etiennemr.fr/title.png",
-  twitterCard: "summary_large_image",
-});
+  twitterCard: "summary_large_image"
+})
 
-const runtimeConfig = useRuntimeConfig();
+const runtimeConfig = useRuntimeConfig()
 </script>
 
 <template>
