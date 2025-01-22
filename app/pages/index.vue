@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
-import MapButton from "~/components/MapButton.vue";
-import displayError from "~/game/utils/displayError";
-import useSettings from "~/game/utils/useSettings";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import MapButton from "~/components/MapButton.vue"
+import displayError from "~/game/utils/displayError"
+import useSettings from "~/game/utils/useSettings"
 
-const route = useRoute();
-const router = useRouter();
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const smallerMd = breakpoints.smaller("sm");
-const loaded = useState("loaded", () => false);
-const isVerticalTabs = computed(() => smallerMd.value && loaded.value);
+const route = useRoute()
+const router = useRouter()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const smallerMd = breakpoints.smaller("sm")
+const loaded = useState("loaded", () => false)
+const isVerticalTabs = computed(() => smallerMd.value && loaded.value)
 
-onNuxtReady(() => (loaded.value = true));
+onNuxtReady(() => (loaded.value = true))
 
 const tabs = [
   {
@@ -27,30 +27,30 @@ const tabs = [
     label: "Règles du jeu",
     icon: "i-mdi-book-outline",
   },
-];
+]
 
 const players = Object.keys(
   MAPS.reduce((l, m) => ({ ...l, [m.players]: true }), {})
-).toSorted();
+).toSorted()
 
-const disabled = ref(false);
+const disabled = ref(false)
 const selectedTab = computed({
   get() {
-    const index = tabs.findIndex((item) => item.label === route.query?.t);
+    const index = tabs.findIndex((item) => item.label === route.query?.t)
     if (index === -1) {
-      return tabs.findIndex((item) => !item.disabled);
+      return tabs.findIndex((item) => !item.disabled)
     }
 
-    return index;
+    return index
   },
   set(value) {
     router.replace({
       query: { t: tabs[value]?.label },
-    });
+    })
   },
-});
-const selectedMods = ref([] as string[]);
-const selectedPlayers = ref([] as string[]);
+})
+const selectedMods = ref([] as string[])
+const selectedPlayers = ref([] as string[])
 
 const maps = computed(() =>
   MAPS.filter(
@@ -61,11 +61,11 @@ const maps = computed(() =>
   )
     .toSorted((m1, m2) => m1.players.localeCompare(m2.players))
     .toSorted((m1, m2) => m1.mode.localeCompare(m2.mode))
-);
+)
 
 async function createAndJoinGame(mapName: string) {
-  disabled.value = true;
-  const gameId = generateId("g");
+  disabled.value = true
+  const gameId = generateId("g")
   try {
     await $fetch("/api/setupgame", {
       method: "POST",
@@ -75,22 +75,22 @@ async function createAndJoinGame(mapName: string) {
         v: useRuntimeConfig().public.gitVersion,
         mapName,
       },
-    });
-    await useRouter().push(`/${gameId.substring(1)}`);
+    })
+    await useRouter().push(`/${gameId.substring(1)}`)
   } catch (error) {
     displayError(
       "Impossible de créer une partie",
       "Nous n'avons pas pu créer votre partie",
       error
-    );
+    )
   }
-  disabled.value = false;
+  disabled.value = false
 }
 
 function createAndJoinRandomGame() {
   const selected =
-    maps.value[Math.floor(Math.random() * maps.value.length)]?.id;
-  if (selected) return createAndJoinGame(selected);
+    maps.value[Math.floor(Math.random() * maps.value.length)]?.id
+  if (selected) return createAndJoinGame(selected)
 }
 </script>
 
@@ -108,44 +108,25 @@ function createAndJoinRandomGame() {
       </h1>
     </div>
 
-    <UTabs
-      :items="tabs"
-      class="w-full"
-      :orientation="isVerticalTabs ? 'vertical' : 'horizontal'"
-      v-model="selectedTab"
-    >
+    <UTabs :items="tabs" class="w-full" :orientation="isVerticalTabs ? 'vertical' : 'horizontal'" v-model="selectedTab">
       <template #icon="{ item, selected }">
-        <UIcon
-          :name="item.icon"
-          class="w-4 h-4 flex-shrink-0 me-2"
-          :class="[selected && 'text-primary-500 dark:text-primary-400']"
-        />
+        <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0 me-2"
+          :class="[selected && 'text-primary-500 dark:text-primary-400']" />
       </template>
     </UTabs>
     <Transition mode="out-in" name="tab">
       <div v-if="selectedTab == 0"></div>
       <div v-else-if="selectedTab == 1">
-        <div class="mb-2 flex justify-center gap-1">
-          <USelectMenu
-            multiple
-            class="w-64"
-            :options="players"
-            v-model="selectedPlayers"
-          >
+        <div class="mb-2 flex flex-wrap justify-center gap-1">
+          <USelectMenu multiple class="w-64" :options="players" v-model="selectedPlayers">
             <template #label>
               <span v-if="selectedPlayers.length" class="truncate">{{
                 selectedPlayers.join(", ")
-              }}</span>
+                }}</span>
               <span v-else class="text-gray-500">Disposition des joueurs</span>
             </template>
           </USelectMenu>
-          <USelectMenu
-            multiple
-            class="w-64"
-            value-attribute="name"
-            :options="MAP_MODES"
-            v-model="selectedMods"
-          >
+          <USelectMenu multiple class="w-64" value-attribute="name" :options="MAP_MODES" v-model="selectedMods">
             <template #label>
               <span v-if="selectedMods.length" class="truncate">{{
                 selectedMods
@@ -157,38 +138,19 @@ function createAndJoinRandomGame() {
           </USelectMenu>
         </div>
 
-        <TransitionGroup
-          name="maplist"
-          tag="div"
-          class="maplist overflow-visible"
-        >
-          <MapButton
-            v-for="map of maps"
-            :key="map.id"
-            :disabled="disabled"
-            :image="{
-              src: map.image
-                ? `/maps/${map.id}.png`
-                : `/assets/base/buildings/${
-                    MAPS.findIndex((m) => m.id == map.id) % 4
-                  }_castle.png`,
-              default: !map.image,
-            }"
-            :name="map.name"
-            :labels="[
+        <TransitionGroup name="maplist" tag="div" class="maplist overflow-visible">
+          <MapButton v-for="map of maps" :key="map.id" :disabled="disabled" :image="{
+            src: map.image
+              ? `/maps/${map.id}.png`
+              : `/assets/base/buildings/${MAPS.findIndex((m) => m.id == map.id) % 4
+              }_castle.png`,
+            default: !map.image,
+          }" :name="map.name" :labels="[
               map.players,
               MAP_MODES.find((m) => m.name == map.mode)!.label,
-            ]"
-            @click="createAndJoinGame(map.id)"
-          />
-          <MapButton
-            key="random"
-            :disabled="disabled"
-            :image="{ src: `/maps/random.png`, default: false }"
-            :labels="[]"
-            name="Aléatoire"
-            @click="createAndJoinRandomGame()"
-          />
+            ]" @click="createAndJoinGame(map.id)" />
+          <MapButton key="random" :disabled="disabled" :image="{ src: `/maps/random.png`, default: false }" :labels="[]"
+            name="Aléatoire" @click="createAndJoinRandomGame()" />
         </TransitionGroup>
       </div>
       <div v-else-if="selectedTab == 2">
@@ -201,7 +163,7 @@ function createAndJoinRandomGame() {
 <style scoped>
 .maplist {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 350px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
   grid-gap: 1em;
   justify-items: stretch;
   width: 100%;
