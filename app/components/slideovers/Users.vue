@@ -63,7 +63,7 @@ async function joinTeam(team: number | null) {
         tag="div"
         class="p-4 pb-0 flex-1 flex flex-col gap-4 overflow-y-auto overflow-x-hidden"
       >
-        <SlideoverH1 key="title">
+        <SlideoversProseH1 key="title">
           <UIcon name="i-mdi-account" />
           <span class="flex-1">Joueurs</span>
           <UButton
@@ -73,11 +73,11 @@ async function joinTeam(team: number | null) {
             icon="i-mdi-close"
             @click="isOpen = false"
           />
-        </SlideoverH1>
+        </SlideoversProseH1>
         <hr key="separator" class="text-gray-500" />
 
         <template v-for="index of groupedUsersKeys" :key="`team-${index}`">
-          <SlideoverH2>
+          <SlideoversProseH2>
             <UIcon name="i-mdi-flag" />
             <span class="flex-1">{{
               index != null ? (TEAMS_NAMES[index] ?? index) : "Spectateurs"
@@ -89,7 +89,7 @@ async function joinTeam(team: number | null) {
               icon="i-mdi-account-multiple-plus"
               @click="joinTeam(index)"
             />
-          </SlideoverH2>
+          </SlideoversProseH2>
           <span
             v-for="user of groupedUsers.get(index)"
             :key="`user-${user.userId}`"

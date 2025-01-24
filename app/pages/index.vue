@@ -1,81 +1,85 @@
 <script setup lang="ts">
-import MapButton from "~/components/MapButton.vue"
-import displayError from "~/game/utils/displayError"
-import useSettings from "~/game/utils/useSettings"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+
+const route = useRoute()
+const router = useRouter()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const smallerMd = breakpoints.smaller("sm")
+const loaded = useState("loaded", () => false)
+const isVerticalTabs = computed(() => smallerMd.value && loaded.value)
+
+onNuxtReady(() => (loaded.value = true))
+
+const tabs = [
+  {
+    label: "Parties en cours",
+    icon: "i-mdi-content-save-outline",
+    disabled: true,
+  },
+  {
+    label: "Nouvelle partie",
+    icon: "i-mdi-earth",
+  },
+  {
+    label: "Règles du jeu",
+    icon: "i-mdi-book-outline",
+  },
+]
 
 const disabled = ref(false)
+const selectedTab = computed({
+  get() {
+    const index = tabs.findIndex((item) => item.label === route.query?.t)
+    if (index === -1) {
+      return tabs.findIndex((item) => !item.disabled)
+    }
 
-async function createAndJoinGame(mapName: string) {
-  disabled.value = true
-  const gameId = generateId("g")
-  try {
-    await $fetch("/api/setupgame", {
-      method: "POST",
-      query: {
-        userId: useSettings().userId,
-        gameId: `${gameId}`,
-        v: useRuntimeConfig().public.gitVersion,
-        mapName
-      }
+    return index
+  },
+  set(value) {
+    router.replace({
+      query: { t: tabs[value]?.label },
     })
-    await useRouter().push(`/${gameId.substring(1)}`)
-  } catch (error) {
-    displayError(
-      "Impossible de créer une partie",
-      "Nous n'avons pas pu créer votre partie",
-      error
-    )
-  }
-  disabled.value = false
-}
-
-function createAndJoinRandomGame() {
-  const maps = MAPS.filter(m => m.label == "1v1")
-  const selected = maps[Math.floor(Math.random() * maps.length)]!.id
-  return createAndJoinGame(selected)
-}
+  },
+})
 </script>
 
 <template>
   <div class="flex-1 p-4">
     <ClientOnly>
       <Teleport to="#header">
-        <SettingsSlideover />
+        <SlideoversSettings />
       </Teleport>
     </ClientOnly>
-    <h1>Créer une partie</h1>
-    <div class="maplist">
-      <MapButton
-        v-for="(map, i) of MAPS"
-        :disabled="disabled"
-        :image="{
-          src:
-            map.image ?
-              `/maps/${map.id}.png`
-            : `/assets/base/buildings/${i % 4}_castle.png`,
-          default: !!map.image
-        }"
-        :name="map.name"
-        :label="map.label"
-        @click="createAndJoinGame(map.id)"
-      />
-      <MapButton
-        :disabled="disabled"
-        :image="{ src: `/maps/random.png`, default: false }"
-        name="Aléatoire"
-        label="1v1"
-        @click="createAndJoinRandomGame()"
-      />
+    <div class="flex flex-col items-center mb-4">
+      <NuxtImg src="/title.png" class="max-w-full sm:max-w-lg"></NuxtImg>
+      <h1 class="text-xl font-bold hidden md:block">
+        Le jeu de stratégie 2d en ligne
+      </h1>
     </div>
+
+    <UTabs :items="tabs" class="w-full" :orientation="isVerticalTabs ? 'vertical' : 'horizontal'" v-model="selectedTab">
+      <template #icon="{ item, selected }">
+        <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0 me-2"
+          :class="[selected && 'text-primary-500 dark:text-primary-400']" />
+      </template>
+    </UTabs>
+    <Transition mode="out-in" name="tab">
+      <div v-if="selectedTab == 0"></div>
+      <TabsCreateGame v-else-if="selectedTab == 1" v-model="disabled" />
+      <TabsGameMechanics v-else-if="selectedTab == 2" />
+    </Transition>
   </div>
 </template>
 
 <style scoped>
-.maplist {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100vw, 300px), 1fr));
-  grid-gap: 1em;
-  justify-items: stretch;
-  width: 100%;
+.tab-enter-active,
+.tab-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.tab-enter-from,
+.tab-leave-to {
+  opacity: 0;
 }
 </style>

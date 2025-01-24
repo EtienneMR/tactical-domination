@@ -31,7 +31,7 @@ const runtimeConfig = useRuntimeConfig()
 </script>
 
 <template>
-  <div class="flex flex-col justify-center h-[100vh]">
+  <div class="flex flex-col justify-center min-h-[100vh]">
     <UNotifications />
     <div class="p-3 flex items-center border-b border-black">
       <NuxtLink href="/">

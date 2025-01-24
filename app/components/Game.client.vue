@@ -91,7 +91,7 @@ onNuxtReady(() =>
         aria-label="Connexion inconnu"
         @click="gameClient.connect()"
       />
-      <UsersSlideover :gameClient="gameClient" class="ml-2" />
+      <SlideoversUsers :gameClient="gameClient" class="ml-2" />
     </Teleport>
     <div class="flex-1 gamediv" ref="gamediv"></div>
   </div>
