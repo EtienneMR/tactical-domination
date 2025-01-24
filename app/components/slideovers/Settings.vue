@@ -41,7 +41,9 @@ bundles.push({ name: "Aléatoire", value: "random" })
         </SlideoversProseH1>
         <hr class="text-gray-500" />
 
-        <SlideoversProseH2><UIcon name="i-mdi-account" />Utilisateur</SlideoversProseH2>
+        <SlideoversProseH2
+          ><UIcon name="i-mdi-account" />Utilisateur</SlideoversProseH2
+        >
 
         <UFormGroup
           label="Pseudo"
@@ -105,7 +107,9 @@ bundles.push({ name: "Aléatoire", value: "random" })
           />
         </UFormGroup>
 
-        <SlideoversProseH2><UIcon name="i-mdi-plus" /> Avancé</SlideoversProseH2>
+        <SlideoversProseH2
+          ><UIcon name="i-mdi-plus" /> Avancé</SlideoversProseH2
+        >
 
         <UFormGroup
           label="Identifiant"

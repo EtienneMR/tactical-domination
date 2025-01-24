@@ -14,33 +14,33 @@ const tabs = [
   {
     label: "Parties en cours",
     icon: "i-mdi-content-save-outline",
-    disabled: true,
+    disabled: true
   },
   {
     label: "Nouvelle partie",
-    icon: "i-mdi-earth",
+    icon: "i-mdi-earth"
   },
   {
     label: "Règles du jeu",
-    icon: "i-mdi-book-outline",
-  },
+    icon: "i-mdi-book-outline"
+  }
 ]
 
 const disabled = ref(false)
 const selectedTab = computed({
   get() {
-    const index = tabs.findIndex((item) => item.label === route.query?.t)
+    const index = tabs.findIndex(item => item.label === route.query?.t)
     if (index === -1) {
-      return tabs.findIndex((item) => !item.disabled)
+      return tabs.findIndex(item => !item.disabled)
     }
 
     return index
   },
   set(value) {
     router.replace({
-      query: { t: tabs[value]?.label },
+      query: { t: tabs[value]?.label }
     })
-  },
+  }
 })
 </script>
 
@@ -58,10 +58,18 @@ const selectedTab = computed({
       </h1>
     </div>
 
-    <UTabs :items="tabs" class="w-full" :orientation="isVerticalTabs ? 'vertical' : 'horizontal'" v-model="selectedTab">
+    <UTabs
+      :items="tabs"
+      class="w-full"
+      :orientation="isVerticalTabs ? 'vertical' : 'horizontal'"
+      v-model="selectedTab"
+    >
       <template #icon="{ item, selected }">
-        <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0 me-2"
-          :class="[selected && 'text-primary-500 dark:text-primary-400']" />
+        <UIcon
+          :name="item.icon"
+          class="w-4 h-4 flex-shrink-0 me-2"
+          :class="[selected && 'text-primary-500 dark:text-primary-400']"
+        />
       </template>
     </UTabs>
     <Transition mode="out-in" name="tab">

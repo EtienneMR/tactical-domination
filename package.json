@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "npx prettier . --write"
+    "prettier": "npx prettier . --write"
   },
   "dependencies": {
     "@deno/kv": "^0.8.4",
