@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "npx prettier . --write"
   },
   "dependencies": {
     "@deno/kv": "^0.8.4",
@@ -24,8 +25,9 @@
     "vue-router": "latest"
   },
   "devDependencies": {
-    "@iconify-json/mdi": "^1.2.2",
+    "@iconify-json/mdi": "^1.2.3",
     "glob": "^11.0.1",
+    "prettier": "^3.4.2",
     "typescript": "^5.6.3",
     "vue-tsc": "^2.2.0"
   }

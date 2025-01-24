@@ -1,1 +1,1 @@
-export const DEFINITION = 64;
+export const DEFINITION = 64

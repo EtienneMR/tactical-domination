@@ -1,51 +1,51 @@
-export default defineEventHandler(async (event) => {
-  const { gameId, userId, v, username } = getQuery(event);
+export default defineEventHandler(async event => {
+  const { gameId, userId, v, username } = getQuery(event)
 
-  assertValidString(gameId, "gameId");
-  assertValidString(userId, "userId");
-  assertValidString(v, "v");
-  assertValidString(username, "username");
+  assertValidString(gameId, "gameId")
+  assertValidString(userId, "userId")
+  assertValidString(v, "v")
+  assertValidString(username, "username")
 
-  const kv = await useKv();
+  const kv = await useKv()
 
   if (getHeader(event, "accept") === "text/event-stream") {
-    let cleanup: () => void;
+    let cleanup: () => void
 
     const body = new ReadableStream({
       async start(controller) {
-        controller.enqueue(`retry: 1000\n\n`);
-        cleanup = subscribeGame(kv, gameId, (game) => {
+        controller.enqueue(`retry: 1000\n\n`)
+        cleanup = subscribeGame(kv, gameId, game => {
           try {
-            assertMatchingVersions(event, game, v);
-            const data = JSON.stringify(game);
-            controller.enqueue(`data: ${data}\n\n`);
+            assertMatchingVersions(event, game, v)
+            const data = JSON.stringify(game)
+            controller.enqueue(`data: ${data}\n\n`)
           } catch (error) {
-            controller.enqueue(`event: error\n`);
+            controller.enqueue(`event: error\n`)
             controller.enqueue(
               `data:${error instanceof Error ? error.message : error}\n\n`
-            );
-            controller.close();
+            )
+            controller.close()
           }
-        });
+        })
       },
       cancel() {
-        cleanup();
-      },
-    });
+        cleanup()
+      }
+    })
 
     event.waitUntil(
-      updateGame(kv, gameId, async (game) => {
+      updateGame(kv, gameId, async game => {
         try {
-          assertValidGame(game, gameId);
-          assertMatchingVersions(event, game, v);
+          assertValidGame(game, gameId)
+          assertMatchingVersions(event, game, v)
         } catch (error) {
-          return null;
+          return null
         }
 
         for (const user of game.users) {
           if (user.userId == userId) {
-            user.name = username;
-            return game;
+            user.name = username
+            return game
           }
         }
 
@@ -57,23 +57,23 @@ export default defineEventHandler(async (event) => {
               0
             ) + 1,
           userId,
-          name: username,
-        });
+          name: username
+        })
 
-        return game;
+        return game
       })
-    );
+    )
 
     return new Response(body.pipeThrough(new TextEncoderStream()), {
       headers: {
         "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-      },
-    });
+        "Cache-Control": "no-cache"
+      }
+    })
   } else {
-    const game = await getGame(kv, gameId);
-    assertValidGame(game, gameId);
-    assertMatchingVersions(event, game, v);
-    return game;
+    const game = await getGame(kv, gameId)
+    assertValidGame(game, gameId)
+    assertMatchingVersions(event, game, v)
+    return game
   }
-});
+})

@@ -1,20 +1,20 @@
-export default defineEventHandler(async (event) => {
-  const { mapName, gameId, userId, v } = getQuery(event);
+export default defineEventHandler(async event => {
+  const { mapName, gameId, userId, v } = getQuery(event)
 
-  assertValidString(gameId, "gameId");
-  assertValidString(userId, "userId");
-  assertValidString(v, "v");
-  assertValidString(mapName, "mapName");
+  assertValidString(gameId, "gameId")
+  assertValidString(userId, "userId")
+  assertValidString(v, "v")
+  assertValidString(mapName, "mapName")
 
-  const kv = await useKv();
+  const kv = await useKv()
 
-  const success = await updateGame(kv, gameId, (game) => {
+  const success = await updateGame(kv, gameId, game => {
     if (game)
       throw createError({
         statusCode: 400,
         statusMessage: "Bad Request",
-        message: `Game "${gameId}" already exist`,
-      });
+        message: `Game "${gameId}" already exist`
+      })
 
     game = {
       gameId,
@@ -23,13 +23,13 @@ export default defineEventHandler(async (event) => {
       mapName,
 
       state: createGame(mapName),
-      previousState: null,
-    };
+      previousState: null
+    }
 
-    assertMatchingVersions(event, game, v);
+    assertMatchingVersions(event, game, v)
 
-    return game;
-  });
+    return game
+  })
 
-  return success;
-});
+  return success
+})

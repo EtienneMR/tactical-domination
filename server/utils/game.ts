@@ -1,5 +1,5 @@
 export function createGame(mapName: string): GameState {
-  const map = generateMap(mapName);
+  const map = generateMap(mapName)
 
   return {
     status: "initing",
@@ -7,18 +7,18 @@ export function createGame(mapName: string): GameState {
 
     players: map
       .flat()
-      .filter((cell) => cell.building == "castle" && cell.owner != null)
-      .map((cell) => cell.owner!)
+      .filter(cell => cell.building == "castle" && cell.owner != null)
+      .map(cell => cell.owner!)
       .toSorted()
-      .map((owner) => ({
+      .map(owner => ({
         alive: true,
         index: owner,
 
-        ressources: { gold: 3, food: 5 },
+        ressources: { gold: 3, food: 5 }
       })),
     entities: [],
     events: [],
 
-    map,
-  };
+    map
+  }
 }

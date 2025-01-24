@@ -1,4 +1,4 @@
-export const MAP_SIZE = 12;
+export const MAP_SIZE = 12
 
 export const MAPS = [
   {

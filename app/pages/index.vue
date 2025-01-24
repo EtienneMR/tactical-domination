@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SlideoversSettings } from "#components"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 
 const route = useRoute()

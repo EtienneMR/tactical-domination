@@ -2,18 +2,18 @@
 import useSettings from "~/game/utils/useSettings"
 import manifest from "~~/public/assets/manifest.json"
 
-const isOpen = ref(false);
+const isOpen = ref(false)
 
-const settings = useSettings();
+const settings = useSettings()
 
 const bundles = manifest.bundles
-  .map((b) => b.name)
+  .map(b => b.name)
   .toSorted()
-  .map((b) => ({
+  .map(b => ({
     name: b.charAt(0).toUpperCase() + b.substring(1),
-    value: b,
-  }));
-bundles.push({ name: "Aléatoire", value: "random" });
+    value: b
+  }))
+bundles.push({ name: "Aléatoire", value: "random" })
 </script>
 
 <template>
@@ -50,7 +50,7 @@ bundles.push({ name: "Aléatoire", value: "random" });
           <UInput
             icon="i-mdi-badge-account-horizontal"
             :model-value="settings.username"
-            @change="(username) => settings.set('username', username)"
+            @change="username => settings.set('username', username)"
           />
         </UFormGroup>
 
@@ -65,7 +65,7 @@ bundles.push({ name: "Aléatoire", value: "random" });
           <USelect
             icon="i-mdi-format-color-highlight"
             option-attribute="name"
-            @change="(bundle) => settings.set('bundle', bundle)"
+            @change="bundle => settings.set('bundle', bundle)"
             :model-value="settings.bundle"
             :options="bundles"
           />
@@ -78,11 +78,11 @@ bundles.push({ name: "Aléatoire", value: "random" });
           <USelect
             icon="i-mdi-grid-large"
             option-attribute="name"
-            @change="(showGrid) => settings.set('showGrid', showGrid == 'true')"
+            @change="showGrid => settings.set('showGrid', showGrid == 'true')"
             :model-value="String(settings.showGrid)"
             :options="[
               { name: 'Oui', value: 'true' },
-              { name: 'Non', value: 'false' },
+              { name: 'Non', value: 'false' }
             ]"
           />
         </UFormGroup>
@@ -95,12 +95,12 @@ bundles.push({ name: "Aléatoire", value: "random" });
             icon="i-mdi-map-marker-right"
             option-attribute="name"
             @change="
-              (showRange) => settings.set('showRange', showRange == 'true')
+              showRange => settings.set('showRange', showRange == 'true')
             "
             :model-value="String(settings.showRange)"
             :options="[
               { name: 'Oui', value: 'true' },
-              { name: 'Non', value: 'false' },
+              { name: 'Non', value: 'false' }
             ]"
           />
         </UFormGroup>
@@ -115,7 +115,7 @@ bundles.push({ name: "Aléatoire", value: "random" });
           <UInput
             icon="i-mdi-identifier"
             :model-value="settings.userId"
-            @change="(userId) => settings.set('userId', userId)"
+            @change="userId => settings.set('userId', userId)"
           />
         </UFormGroup>
       </div>

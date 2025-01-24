@@ -1,4 +1,4 @@
-const DEFAULT_LENGTH = 6;
+const DEFAULT_LENGTH = 6
 
 export default function generateId(
   prefix: string,
@@ -10,5 +10,5 @@ export default function generateId(
       length,
       "0"
     )
-  );
+  )
 }

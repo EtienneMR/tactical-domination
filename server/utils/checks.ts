@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import type { H3Event } from "h3"
 
 export function assertValidGame(
   game: Game | null,
@@ -8,8 +8,8 @@ export function assertValidGame(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `GameState "${gameId}" not found`,
-    });
+      message: `GameState "${gameId}" not found`
+    })
 }
 
 export function assertGameInStatus(
@@ -21,8 +21,8 @@ export function assertGameInStatus(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `GameState "${gameId}" not ${gameStatus}`,
-    });
+      message: `GameState "${gameId}" not ${gameStatus}`
+    })
 }
 
 export function assertValidEntity(
@@ -33,8 +33,8 @@ export function assertValidEntity(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Entity "${entityId}" not found`,
-    });
+      message: `Entity "${entityId}" not found`
+    })
 }
 
 export function assertValidPlayer(
@@ -45,13 +45,13 @@ export function assertValidPlayer(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Player "${userId}" not found`,
-    });
+      message: `Player "${userId}" not found`
+    })
 }
 
 export function assertValidPosition(pos: {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }): asserts pos is Position {
   if (
     isNaN(pos.x) ||
@@ -64,8 +64,8 @@ export function assertValidPosition(pos: {
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Invalid position (${pos.x}, ${pos.y})`,
-    });
+      message: `Invalid position (${pos.x}, ${pos.y})`
+    })
 }
 
 export function assertValidString(
@@ -76,8 +76,8 @@ export function assertValidString(
     throw createError({
       statusCode: 400,
       statusMessage: "Bad Request",
-      message: `Invalid ${query} query: not a valid string`,
-    });
+      message: `Invalid ${query} query: not a valid string`
+    })
 }
 
 export function assertMatchingVersions(
@@ -85,10 +85,10 @@ export function assertMatchingVersions(
   game: Game,
   clientVersion: string
 ) {
-  const runtimeConfig = useRuntimeConfig(event);
+  const runtimeConfig = useRuntimeConfig(event)
 
-  const buildVersion = runtimeConfig.public.gitVersion;
-  const gameVersion = game.version;
+  const buildVersion = runtimeConfig.public.gitVersion
+  const gameVersion = game.version
 
   if (
     runtimeConfig.public.gitVersion != game.version ||
@@ -96,6 +96,6 @@ export function assertMatchingVersions(
   )
     throw createError({
       message: `Version mismatch buildVersion = "${buildVersion}"; gameVersion = "${gameVersion}"; clientVersion = "${clientVersion}"`,
-      statusCode: 409,
-    });
+      statusCode: 409
+    })
 }

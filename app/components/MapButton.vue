@@ -1,17 +1,17 @@
 <script setup lang="ts">
 const { disabled, image, name, labels } = defineProps<{
-  disabled: boolean;
+  disabled: boolean
   image: {
-    src: string;
-    default: boolean;
-  };
-  name: string;
-  labels: string[];
-}>();
+    src: string
+    default: boolean
+  }
+  name: string
+  labels: string[]
+}>()
 
 const emit = defineEmits<{
-  click: [];
-}>();
+  click: []
+}>()
 </script>
 
 <template>
