@@ -355,7 +355,7 @@ export const rules = {
         opp.biome == "plains" &&
         cell.height > 0 &&
         opp.height > 0 &&
-        random(0.05),
+        random(0.1),
       then: {
         building: "lake"
       },
