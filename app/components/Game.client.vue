@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GameClient } from "~/game/Game.js";
+import { GameClient } from "~/game/Game.js"
 
 const STATUS_TOAST_ID = "EventSource_Status";
 
@@ -91,7 +91,7 @@ onNuxtReady(() =>
         aria-label="Connexion inconnu"
         @click="gameClient.connect()"
       />
-      <UsersSlideover :gameClient="gameClient" class="ml-2" />
+      <SlideoversUsers :gameClient="gameClient" class="ml-2" />
     </Teleport>
     <div class="flex-1 gamediv" ref="gamediv"></div>
   </div>

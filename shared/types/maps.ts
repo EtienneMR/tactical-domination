@@ -1,4 +1,5 @@
 export type MapId = (typeof MAP_IDS)[number];
+export type MapData = (typeof MAPS)[number];
 export type BuildingType = (typeof BUILDINGS_TYPES)[number];
 
 export type BiomeType = "plains" | "forest" | "rocks";

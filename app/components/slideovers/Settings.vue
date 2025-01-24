@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import useSettings from "~/game/utils/useSettings";
-import manifest from "~~/public/assets/manifest.json";
+import useSettings from "~/game/utils/useSettings"
+import manifest from "~~/public/assets/manifest.json"
 
 const isOpen = ref(false);
 
@@ -28,7 +28,7 @@ bundles.push({ name: "Aléatoire", value: "random" });
 
     <USlideover v-model="isOpen">
       <div class="p-4 pb-0 flex-1 flex flex-col gap-4 overflow-y-auto">
-        <SlideoverH1>
+        <SlideoversProseH1>
           <UIcon name="i-mdi-cog" />
           <span class="flex-1">Paramètres</span>
           <UButton
@@ -38,10 +38,10 @@ bundles.push({ name: "Aléatoire", value: "random" });
             icon="i-mdi-close"
             @click="isOpen = false"
           />
-        </SlideoverH1>
+        </SlideoversProseH1>
         <hr class="text-gray-500" />
 
-        <SlideoverH2><UIcon name="i-mdi-account" />Utilisateur</SlideoverH2>
+        <SlideoversProseH2><UIcon name="i-mdi-account" />Utilisateur</SlideoversProseH2>
 
         <UFormGroup
           label="Pseudo"
@@ -54,9 +54,9 @@ bundles.push({ name: "Aléatoire", value: "random" });
           />
         </UFormGroup>
 
-        <SlideoverH2>
+        <SlideoversProseH2>
           <UIcon name="i-mdi-format-color-fill" /> Affichage
-        </SlideoverH2>
+        </SlideoversProseH2>
 
         <UFormGroup
           label="Pack de textures"
@@ -105,7 +105,7 @@ bundles.push({ name: "Aléatoire", value: "random" });
           />
         </UFormGroup>
 
-        <SlideoverH2><UIcon name="i-mdi-plus" /> Avancé</SlideoverH2>
+        <SlideoversProseH2><UIcon name="i-mdi-plus" /> Avancé</SlideoversProseH2>
 
         <UFormGroup
           label="Identifiant"
