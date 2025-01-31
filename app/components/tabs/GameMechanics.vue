@@ -32,13 +32,13 @@
         <ul>
           <li>
             La <AssetIcon asset="resources:food" label="nourriture" />,
-            obtenable sur les
+            obtensible sur les
             <AssetIcon asset="buildings:null_wheat" label="champs" /> et les
             <AssetIcon asset="buildings:null_pasture" label="pâturages" /> et
             rapporte 3 par tour par bâtiment contrôlé
           </li>
           <li>
-            L'<AssetIcon asset="resources:gold" label="or" />, obtenable sur les
+            L'<AssetIcon asset="resources:gold" label="or" />, obtensible sur les
             <AssetIcon asset="buildings:null_mine" label="mines" /> et rapporte
             1 par tour par bâtiment contrôlé
           </li>
